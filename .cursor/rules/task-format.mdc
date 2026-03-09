@@ -1,0 +1,51 @@
+---
+description: Task format specifications, task template, feature definition, user story
+globs: 
+alwaysApply: false
+---
+# Tasks
+
+## Task Template Structure
+
+```markdown
+## {TASK-ID}: {Task Name}
+
+Metadata:
+  Type: Feature | Bug | Technical Debt | Infrastructure
+  Component: Backend | Frontend | Infrastructure | Documentation
+  Priority: Low | Medium | High
+  Status: Backlog | In Progress | Review | Done
+
+Dependencies:
+  Blocked By: [Task-IDs]
+  Related: [Task-IDs]
+
+Description:
+  {Clear description of what needs to be done}
+
+Requirements:
+  - Requirement 1
+  - Requirement 2
+  - Requirement 3
+
+Instructions:
+  1. [ ] Step 1
+  2. [ ] Step 2
+  3. [ ] Step 3
+
+Technical Notes:
+  - Implementation guidance
+  - Architecture considerations
+  - Performance considerations
+  - Security considerations
+
+Acceptance Criteria:
+  1. [ ] Criteria 1
+  2. [ ] Criteria 2
+  3. [ ] Criteria 3
+
+References:
+  - Documentation: [link]
+  - Similar implementation: [path]
+  - Design file: [link]
+```
