@@ -51,8 +51,6 @@ export class InitiatePasswordResetUseCase {
       expiresAt: new Date(Date.now() + passwordResetTokenTtlMs),
     });
 
-    console.debug(`token: ${rawToken}, hash: ${tokenHash}`);
-
     await this.eventBus.publish(
       new UserPasswordResetRequestedEvent(credentials, rawToken),
     );

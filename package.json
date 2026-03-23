@@ -86,10 +86,32 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^(\\.{1,2}/.+)\\.js$": "$1"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(.pnpm/uuid|uuid))"
+    ],
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!common/**",
+      "!generated/**",
+      "!**/*.spec.ts",
+      "!__fixtures__/**",
+      "!**/index.ts",
+      "!**/*.module.ts",
+      "!main.ts"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "lines": 90,
+        "functions": 90,
+        "statements": 90,
+        "branches": 75
+      }
+    }
   }
 }
