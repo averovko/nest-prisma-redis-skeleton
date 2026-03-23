@@ -23,7 +23,7 @@ async function bootstrap() {
       exceptionFactory: RestResponse.transformValidatorError,
     }),
   );
-  
+
   // API docs
   const swaggerDocConfig = new DocumentBuilder()
     .addBearerAuth()
@@ -37,7 +37,6 @@ async function bootstrap() {
   const swaggerDoc = SwaggerModule.createDocument(app, swaggerDocConfig);
 
   SwaggerModule.setup('api', app, swaggerDoc);
-
 
   await app.listen(process.env.PORT ?? 3000);
 }

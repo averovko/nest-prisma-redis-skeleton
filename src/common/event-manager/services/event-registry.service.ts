@@ -4,6 +4,7 @@ import { EventSchema } from '../entities/events/event.interface';
 import { EventValidationError } from '../entities/errors/event.errors';
 import { IdentityEventSchemas } from '../entities/events/schemas/identity.events';
 import { InvitationEventSchemas } from '../entities/events/schemas/invitation.events';
+import { AuthenticationEventSchemas } from '../entities/events/schemas';
 
 /**
  * Service for managing event type registration and validation
@@ -18,6 +19,10 @@ export class EventRegistryService implements OnModuleInit {
    * Initialize event registry with built-in event schemas
    */
   onModuleInit() {
+    // Register authentication events
+    this.registerEventSchemas(
+      AuthenticationEventSchemas as Record<string, EventSchema<object>>,
+    );
 
     // Register identity events
     this.registerEventSchemas(

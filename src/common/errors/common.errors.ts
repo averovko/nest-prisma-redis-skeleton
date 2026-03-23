@@ -1,6 +1,16 @@
 import { HttpStatus } from '@nestjs/common';
 import { AppError, ErrorDefinition } from './app.error';
 
+export const COMMON_PUBLIC_ERRORS = {
+  'server.error': {
+    message: 'Internal server error',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+} as const satisfies Record<string, ErrorDefinition>;
+
+// Type for common error codes
+export type CommonPublicErrorCode = keyof typeof COMMON_PUBLIC_ERRORS;
+
 export const COMMON_ERRORS = {
   // Server errors
   'server.error': {

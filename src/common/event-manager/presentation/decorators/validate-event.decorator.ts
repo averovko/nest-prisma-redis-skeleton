@@ -38,9 +38,7 @@ export function ValidateEvent() {
           const payloadInstance = plainToInstance(PayloadClass, event.payload);
 
           // Validate using class-validator
-          const errors: ValidationError[] = validateSync(
-            payloadInstance as object,
-          );
+          const errors: ValidationError[] = validateSync(payloadInstance);
 
           if (errors.length > 0) {
             throw new EventValidationError(

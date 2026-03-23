@@ -12,9 +12,10 @@ import RestResponse from './RestResponse';
  * @deprecated
  * */
 @Injectable()
-export class FormatRestResponseInterceptor<T>
-  implements NestInterceptor<T, RestResponse<T>>
-{
+export class FormatRestResponseInterceptor<T> implements NestInterceptor<
+  T,
+  RestResponse<T>
+> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,

@@ -18,7 +18,6 @@ const defaultOptions: Required<RetryOptions> = {
 export function Retry(options: RetryOptions = {}) {
   const finalOptions = { ...defaultOptions, ...options };
 
-  // eslint-disable-next-line func-names
   return function (
     target: any,
     propertyKey: string,
@@ -27,14 +26,12 @@ export function Retry(options: RetryOptions = {}) {
     const originalMethod = descriptor.value;
     const logger = new Logger(target.constructor.name);
 
-    // eslint-disable-next-line no-param-reassign, func-names
     descriptor.value = async function (...args: any[]) {
       let lastError: Error = new Error('Unknown error');
       let waitMs = finalOptions.backoffMs;
 
       for (let attempt = 1; attempt <= finalOptions.maxAttempts; attempt += 1) {
         try {
-          // eslint-disable-next-line no-await-in-loop
           return await originalMethod.apply(this, args);
         } catch (error) {
           lastError = error;
@@ -58,7 +55,6 @@ export function Retry(options: RetryOptions = {}) {
             `Attempt ${attempt} failed for ${propertyKey}: ${error.message}. Retrying in ${waitMs}ms...`,
           );
 
-          // eslint-disable-next-line no-await-in-loop
           await delay(waitMs);
 
           if (finalOptions.exponential) {
