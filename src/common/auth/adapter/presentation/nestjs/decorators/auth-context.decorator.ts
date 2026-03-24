@@ -1,50 +1,17 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { createCommonError } from 'src/common/errors';
 
-import { AuthCtx } from '../../../../core/domain/entities/auth-ctx.model';
-import { User } from '../../../../core/domain/entities/user.entity';
+import { AuthCtx } from '../../../../domain';
+import { AuthAppError } from '../../../../application';
+import { mapAuthAppError } from '../auth-error.mapper';
+import { type RequestWithAuthCtx } from '../types';
 
 export const AuthContext = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): AuthCtx => {
-    const request = ctx.switchToHttp().getRequest();
-
-    const { authCtx } = request;
+    const { authCtx } = ctx.switchToHttp().getRequest<RequestWithAuthCtx>();
 
     if (!authCtx) {
-      throw createCommonError('auth.invalid-token');
+      throw mapAuthAppError(new AuthAppError('invalid-token'));
     }
-
-    return authCtx;
-  },
-);
-
-export const AuthContextUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): User => {
-    const request = ctx.switchToHttp().getRequest();
-
-    const { authCtx } = request;
-
-    if (!authCtx) {
-      throw createCommonError('auth.invalid-token');
-    }
-
-    if (!authCtx.isUser()) {
-      throw createCommonError('auth.require-user');
-    }
-
-    if (data && typeof data === 'string') {
-      return authCtx.getUser()[data as keyof AuthCtx['user']];
-    }
-
-    return authCtx.getUser();
-  },
-);
-
-export const OptionalAuthContext = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): AuthCtx | undefined => {
-    const request = ctx.switchToHttp().getRequest();
-
-    const { authCtx } = request;
 
     return authCtx;
   },

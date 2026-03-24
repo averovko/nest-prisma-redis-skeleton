@@ -72,7 +72,10 @@ describe('Authentication Domain Events', () => {
     const inputRawToken = 'raw-reset-token-abc123';
 
     it('toJSON returns authId and email', () => {
-      const event = new UserPasswordResetRequestedEvent(inputCredentials, inputRawToken);
+      const event = new UserPasswordResetRequestedEvent(
+        inputCredentials,
+        inputRawToken,
+      );
       expect(event.toJSON()).toEqual({
         authId: inputCredentials.authId,
         email: inputCredentials.email,
@@ -80,13 +83,21 @@ describe('Authentication Domain Events', () => {
     });
 
     it('exposes rawToken as a public property', () => {
-      const event = new UserPasswordResetRequestedEvent(inputCredentials, inputRawToken);
+      const event = new UserPasswordResetRequestedEvent(
+        inputCredentials,
+        inputRawToken,
+      );
       expect(event.rawToken).toBe(inputRawToken);
     });
 
     it('has the correct eventName', () => {
-      const event = new UserPasswordResetRequestedEvent(inputCredentials, inputRawToken);
-      expect(event.eventName).toBe('authentication.user.password.reset.requested');
+      const event = new UserPasswordResetRequestedEvent(
+        inputCredentials,
+        inputRawToken,
+      );
+      expect(event.eventName).toBe(
+        'authentication.user.password.reset.requested',
+      );
     });
   });
 
@@ -98,7 +109,9 @@ describe('Authentication Domain Events', () => {
 
     it('has the correct eventName', () => {
       const event = new UserPasswordResetCompletedEvent(inputCredentials);
-      expect(event.eventName).toBe('authentication.user.password.reset.completed');
+      expect(event.eventName).toBe(
+        'authentication.user.password.reset.completed',
+      );
     });
   });
 

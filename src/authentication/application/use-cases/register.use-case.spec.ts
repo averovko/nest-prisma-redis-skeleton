@@ -8,7 +8,10 @@ import { PASSWORD_HASHER_PORT } from '../../domain/ports/password-hasher.port';
 import { TOKEN_ISSUER_PORT } from '../../domain/ports/token-issuer.port';
 import { AuthenticationErrorCode } from '../../domain/errors/authentication.error-codes';
 import { UserRegisteredEvent } from '../../domain/events/user.events';
-import { mockCredentials, mockTokenPair } from '../../__fixtures__/auth.fixtures';
+import {
+  mockCredentials,
+  mockTokenPair,
+} from '../../__fixtures__/auth.fixtures';
 import { RegisterUseCase } from './register.use-case';
 
 describe('RegisterUseCase', () => {
@@ -78,7 +81,9 @@ describe('RegisterUseCase', () => {
 
       await useCase.execute(inputRegister);
 
-      expect(mockCredentialsRepo.existsByEmail).toHaveBeenCalledWith(inputRegister.email);
+      expect(mockCredentialsRepo.existsByEmail).toHaveBeenCalledWith(
+        inputRegister.email,
+      );
     });
 
     it('hashes the password before storing credentials', async () => {
@@ -90,7 +95,9 @@ describe('RegisterUseCase', () => {
 
       await useCase.execute(inputRegister);
 
-      expect(mockPasswordHasher.hash).toHaveBeenCalledWith(inputRegister.password);
+      expect(mockPasswordHasher.hash).toHaveBeenCalledWith(
+        inputRegister.password,
+      );
       expect(mockCredentialsRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: inputRegister.email,
@@ -127,7 +134,9 @@ describe('RegisterUseCase', () => {
       await useCase.execute(inputRegister);
 
       expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
-      expect(mockEventBus.publish).toHaveBeenCalledWith(expect.any(UserRegisteredEvent));
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.any(UserRegisteredEvent),
+      );
     });
 
     it('throws EMAIL_ALREADY_TAKEN when email is already registered', async () => {
@@ -141,7 +150,9 @@ describe('RegisterUseCase', () => {
     it('does not create credentials or publish events when email is already taken', async () => {
       mockCredentialsRepo.existsByEmail.mockResolvedValue(true);
 
-      await expect(useCase.execute(inputRegister)).rejects.toBeInstanceOf(AppError);
+      await expect(useCase.execute(inputRegister)).rejects.toBeInstanceOf(
+        AppError,
+      );
 
       expect(mockPasswordHasher.hash).not.toHaveBeenCalled();
       expect(mockCredentialsRepo.create).not.toHaveBeenCalled();

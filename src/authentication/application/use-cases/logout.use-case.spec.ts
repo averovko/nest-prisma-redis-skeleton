@@ -35,21 +35,31 @@ describe('LogoutUseCase', () => {
     it('deletes all refresh tokens and publishes UserLoggedOutEvent', async () => {
       const expectedCredentials = mockCredentials();
       mockCredentialsRepo.findByAuthId.mockResolvedValue(expectedCredentials);
-      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
 
       await useCase.execute('auth-id-1');
 
-      expect(mockRefreshTokenRepo.deleteAllByCredentialsId).toHaveBeenCalledWith(expectedCredentials.id);
-      expect(mockEventBus.publish).toHaveBeenCalledWith(expect.any(UserLoggedOutEvent));
+      expect(
+        mockRefreshTokenRepo.deleteAllByCredentialsId,
+      ).toHaveBeenCalledWith(expectedCredentials.id);
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.any(UserLoggedOutEvent),
+      );
     });
 
     it('looks up credentials by the provided authId', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
-      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
 
       await useCase.execute('auth-id-1');
 
-      expect(mockCredentialsRepo.findByAuthId).toHaveBeenCalledWith('auth-id-1');
+      expect(mockCredentialsRepo.findByAuthId).toHaveBeenCalledWith(
+        'auth-id-1',
+      );
     });
 
     it('throws CREDENTIALS_NOT_FOUND when authId has no associated credentials', async () => {
@@ -63,9 +73,13 @@ describe('LogoutUseCase', () => {
     it('does not delete tokens or publish events when credentials are not found', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(null);
 
-      await expect(useCase.execute('unknown-auth-id')).rejects.toBeInstanceOf(AppError);
+      await expect(useCase.execute('unknown-auth-id')).rejects.toBeInstanceOf(
+        AppError,
+      );
 
-      expect(mockRefreshTokenRepo.deleteAllByCredentialsId).not.toHaveBeenCalled();
+      expect(
+        mockRefreshTokenRepo.deleteAllByCredentialsId,
+      ).not.toHaveBeenCalled();
       expect(mockEventBus.publish).not.toHaveBeenCalled();
     });
   });

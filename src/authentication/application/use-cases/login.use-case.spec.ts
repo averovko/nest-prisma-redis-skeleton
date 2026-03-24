@@ -8,7 +8,10 @@ import { PASSWORD_HASHER_PORT } from '../../domain/ports/password-hasher.port';
 import { TOKEN_ISSUER_PORT } from '../../domain/ports/token-issuer.port';
 import { AuthenticationErrorCode } from '../../domain/errors/authentication.error-codes';
 import { UserLoggedInEvent } from '../../domain/events/user.events';
-import { mockCredentials, mockTokenPair } from '../../__fixtures__/auth.fixtures';
+import {
+  mockCredentials,
+  mockTokenPair,
+} from '../../__fixtures__/auth.fixtures';
 import { LoginUseCase } from './login.use-case';
 
 describe('LoginUseCase', () => {
@@ -36,7 +39,12 @@ describe('LoginUseCase', () => {
         { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
         { provide: TOKEN_ISSUER_PORT, useValue: mockTokenIssuer },
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
-        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue(30 * 24 * 60 * 60 * 1000) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue(30 * 24 * 60 * 60 * 1000),
+          },
+        },
       ],
     }).compile();
 
@@ -80,7 +88,9 @@ describe('LoginUseCase', () => {
 
       await useCase.execute(inputLogin);
 
-      expect(mockEventBus.publish).toHaveBeenCalledWith(expect.any(UserLoggedInEvent));
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.any(UserLoggedInEvent),
+      );
     });
 
     it('throws INVALID_CREDENTIALS when user is not found', async () => {
@@ -106,11 +116,15 @@ describe('LoginUseCase', () => {
 
     it('throws AppError for both authentication failure cases', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(null);
-      await expect(useCase.execute(inputLogin)).rejects.toBeInstanceOf(AppError);
+      await expect(useCase.execute(inputLogin)).rejects.toBeInstanceOf(
+        AppError,
+      );
 
       mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
       mockPasswordHasher.compare.mockResolvedValue(false);
-      await expect(useCase.execute(inputLogin)).rejects.toBeInstanceOf(AppError);
+      await expect(useCase.execute(inputLogin)).rejects.toBeInstanceOf(
+        AppError,
+      );
     });
   });
 });

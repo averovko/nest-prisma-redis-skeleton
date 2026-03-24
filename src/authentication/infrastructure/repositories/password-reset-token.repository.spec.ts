@@ -25,7 +25,9 @@ describe('PasswordResetTokenRepository', () => {
         PasswordResetTokenRepository,
         {
           provide: PrismaService,
-          useValue: { client: { passwordResetToken: mockPrismaPasswordResetToken } },
+          useValue: {
+            client: { passwordResetToken: mockPrismaPasswordResetToken },
+          },
         },
       ],
     }).compile();
@@ -45,7 +47,9 @@ describe('PasswordResetTokenRepository', () => {
 
       const actualResult = await repository.create(inputCreate);
 
-      expect(mockPrismaPasswordResetToken.create).toHaveBeenCalledWith({ data: inputCreate });
+      expect(mockPrismaPasswordResetToken.create).toHaveBeenCalledWith({
+        data: inputCreate,
+      });
       expect(actualResult).toEqual(expectedToken);
     });
   });
@@ -78,7 +82,9 @@ describe('PasswordResetTokenRepository', () => {
 
       await repository.deleteById('prt-id-1');
 
-      expect(mockPrismaPasswordResetToken.delete).toHaveBeenCalledWith({ where: { id: 'prt-id-1' } });
+      expect(mockPrismaPasswordResetToken.delete).toHaveBeenCalledWith({
+        where: { id: 'prt-id-1' },
+      });
     });
   });
 

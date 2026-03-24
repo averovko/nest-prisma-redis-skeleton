@@ -15,12 +15,14 @@ import {
   COMMON_PUBLIC_ERRORS,
 } from 'src/common/errors';
 import {
+  AuthCtx,
+  Role,
   AuthGuard,
   AuthContext,
-  AuthCtx,
-  CreatedResponse,
-  OkResponse,
-} from 'src/common';
+  RolesGuard,
+  RequireAnyRoles,
+} from 'src/common/auth';
+import { CreatedResponse, OkResponse } from 'src/common';
 import { RegisterUseCase } from '../application/use-cases/register.use-case';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { RefreshTokenUseCase } from '../application/use-cases/refresh-token.use-case';
@@ -97,7 +99,8 @@ export class AuthenticationController {
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @RequireAnyRoles(Role.ROOT, Role.ADMIN, Role.USER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout and invalidate refresh tokens' })
   async logout(@AuthContext() authCtx: AuthCtx): Promise<void> {
@@ -127,7 +130,8 @@ export class AuthenticationController {
   @Post('reset-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Initiate password reset — sends reset token via Notification service (email, etc.)',
+    summary:
+      'Initiate password reset — sends reset token via Notification service (email, etc.)',
   })
   async initiatePasswordReset(
     @Body() body: InitiatePasswordResetDto,

@@ -15,7 +15,10 @@ describe('ChangePasswordUseCase', () => {
   let mockEventBus: jest.Mocked<any>;
 
   const inputAuthId = 'auth-id-1';
-  const inputChangePassword = { currentPassword: 'OldPass1!', newPassword: 'NewPass2@' };
+  const inputChangePassword = {
+    currentPassword: 'OldPass1!',
+    newPassword: 'NewPass2@',
+  };
 
   beforeEach(async () => {
     mockCredentialsRepo = {
@@ -42,7 +45,10 @@ describe('ChangePasswordUseCase', () => {
 
   describe('execute', () => {
     it('updates the password hash and publishes UserPasswordChangedEvent', async () => {
-      const expectedUpdated = { ...mockCredentials(), passwordHash: '$new$hash' };
+      const expectedUpdated = {
+        ...mockCredentials(),
+        passwordHash: '$new$hash',
+      };
       mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
       mockPasswordHasher.compare.mockResolvedValue(true);
       mockPasswordHasher.hash.mockResolvedValue('$new$hash');
@@ -50,8 +56,13 @@ describe('ChangePasswordUseCase', () => {
 
       await useCase.execute(inputAuthId, inputChangePassword);
 
-      expect(mockCredentialsRepo.updatePasswordHash).toHaveBeenCalledWith(inputAuthId, '$new$hash');
-      expect(mockEventBus.publish).toHaveBeenCalledWith(expect.any(UserPasswordChangedEvent));
+      expect(mockCredentialsRepo.updatePasswordHash).toHaveBeenCalledWith(
+        inputAuthId,
+        '$new$hash',
+      );
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.any(UserPasswordChangedEvent),
+      );
     });
 
     it('verifies current password against stored hash before updating', async () => {
@@ -59,7 +70,9 @@ describe('ChangePasswordUseCase', () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(expectedCredentials);
       mockPasswordHasher.compare.mockResolvedValue(true);
       mockPasswordHasher.hash.mockResolvedValue('$new$hash');
-      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(expectedCredentials);
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(
+        expectedCredentials,
+      );
 
       await useCase.execute(inputAuthId, inputChangePassword);
 
@@ -72,7 +85,9 @@ describe('ChangePasswordUseCase', () => {
     it('throws CREDENTIALS_NOT_FOUND when authId has no credentials', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(null);
 
-      await expect(useCase.execute(inputAuthId, inputChangePassword)).rejects.toMatchObject({
+      await expect(
+        useCase.execute(inputAuthId, inputChangePassword),
+      ).rejects.toMatchObject({
         code: AuthenticationErrorCode.CREDENTIALS_NOT_FOUND,
       });
       expect(mockPasswordHasher.compare).not.toHaveBeenCalled();
@@ -83,7 +98,9 @@ describe('ChangePasswordUseCase', () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
       mockPasswordHasher.compare.mockResolvedValue(false);
 
-      await expect(useCase.execute(inputAuthId, inputChangePassword)).rejects.toMatchObject({
+      await expect(
+        useCase.execute(inputAuthId, inputChangePassword),
+      ).rejects.toMatchObject({
         code: AuthenticationErrorCode.INVALID_CURRENT_PASSWORD,
       });
       expect(mockPasswordHasher.hash).not.toHaveBeenCalled();
@@ -93,7 +110,9 @@ describe('ChangePasswordUseCase', () => {
 
     it('throws AppError for all error cases', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(null);
-      await expect(useCase.execute(inputAuthId, inputChangePassword)).rejects.toBeInstanceOf(AppError);
+      await expect(
+        useCase.execute(inputAuthId, inputChangePassword),
+      ).rejects.toBeInstanceOf(AppError);
     });
   });
 });

@@ -11,7 +11,8 @@ describe('JwtTokenIssuer', () => {
   beforeEach(async () => {
     mockJwtService = { sign: jest.fn() } as unknown as jest.Mocked<JwtService>;
     mockConfigService = {
-      get: jest.fn()
+      get: jest
+        .fn()
         .mockReturnValueOnce('test-jwt-secret')
         .mockReturnValueOnce('1h')
         .mockReturnValueOnce('30d'),
@@ -30,9 +31,14 @@ describe('JwtTokenIssuer', () => {
 
   describe('issueTokenPair', () => {
     it('returns access and refresh tokens', () => {
-      mockJwtService.sign.mockReturnValueOnce('access.jwt.token').mockReturnValueOnce('refresh.jwt.token');
+      mockJwtService.sign
+        .mockReturnValueOnce('access.jwt.token')
+        .mockReturnValueOnce('refresh.jwt.token');
 
-      const actualPair = service.issueTokenPair({ authId: 'auth-id-1', email: 'test@example.com' });
+      const actualPair = service.issueTokenPair({
+        authId: 'auth-id-1',
+        email: 'test@example.com',
+      });
 
       expect(actualPair).toEqual({
         accessToken: 'access.jwt.token',
@@ -43,7 +49,10 @@ describe('JwtTokenIssuer', () => {
     it('signs access token with sub and email claims', () => {
       mockJwtService.sign.mockReturnValue('token');
 
-      service.issueTokenPair({ authId: 'auth-id-1', email: 'test@example.com' });
+      service.issueTokenPair({
+        authId: 'auth-id-1',
+        email: 'test@example.com',
+      });
 
       expect(mockJwtService.sign).toHaveBeenNthCalledWith(
         1,
@@ -55,7 +64,10 @@ describe('JwtTokenIssuer', () => {
     it('signs refresh token with sub claim only', () => {
       mockJwtService.sign.mockReturnValue('token');
 
-      service.issueTokenPair({ authId: 'auth-id-1', email: 'test@example.com' });
+      service.issueTokenPair({
+        authId: 'auth-id-1',
+        email: 'test@example.com',
+      });
 
       expect(mockJwtService.sign).toHaveBeenNthCalledWith(
         2,
@@ -74,8 +86,12 @@ describe('JwtTokenIssuer', () => {
       service.issueTokenPair({ authId: 'auth-id-1', email: 'e@e.com' });
 
       expect(mockConfigService.get).toHaveBeenCalledWith('security.jwtSecret');
-      expect(mockConfigService.get).toHaveBeenCalledWith('security.accessTokenExpiry');
-      expect(mockConfigService.get).toHaveBeenCalledWith('security.refreshTokenExpiry');
+      expect(mockConfigService.get).toHaveBeenCalledWith(
+        'security.accessTokenExpiry',
+      );
+      expect(mockConfigService.get).toHaveBeenCalledWith(
+        'security.refreshTokenExpiry',
+      );
     });
   });
 });

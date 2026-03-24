@@ -4,30 +4,41 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { type Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { ConfigService } from '@nestjs/config';
-
-import { AuthService } from '../../../core/application/services/auth.service';
-import { JwtAuthCtxRepo } from '../../infrastructure/repositories/jwt-auth-ctx.repo';
+import {
+  RESOLVE_AUTH_CTX_USE_CASE,
+  type IResolveAuthCtxUseCase,
+  AuthAppError,
+} from '../../../application';
+import { mapAuthAppError, rethrowAsAppError } from './auth-error.mapper';
+import { type RequestWithAuthCtx } from './types';
 
 @Injectable()
 export class JWTGuard implements CanActivate {
-  private readonly authService: AuthService;
-
   constructor(
-    @Inject(CACHE_MANAGER) cacheManager: Cache,
-    authCtxRepo: JwtAuthCtxRepo,
-    configService: ConfigService,
-  ) {
-    this.authService = new AuthService(cacheManager, authCtxRepo, {
-      cacheDefaultTtlMs: configService.get<number>('auth.cacheDefaultTtlMs', 15 * 60 * 1000),
-      cacheMaxTtlMs: configService.get<number>('auth.cacheMaxTtlMs', 60 * 60 * 1000),
-    });
-  }
+    @Inject(RESOLVE_AUTH_CTX_USE_CASE)
+    private readonly resolveAuthCtx: IResolveAuthCtxUseCase,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    return this.authService.canActivate(request);
+    const request = context.switchToHttp().getRequest<RequestWithAuthCtx>();
+    const token = this.extractBearerToken(request);
+
+    if (!token) {
+      throw mapAuthAppError(new AuthAppError('invalid-token'));
+    }
+
+    try {
+      const authCtx = await this.resolveAuthCtx.execute(token);
+      request.authCtx = authCtx;
+    } catch (err) {
+      rethrowAsAppError(err);
+    }
+
+    return true;
+  }
+
+  private extractBearerToken(request: RequestWithAuthCtx): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

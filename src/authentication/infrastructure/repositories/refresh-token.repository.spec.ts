@@ -45,7 +45,9 @@ describe('RefreshTokenRepository', () => {
 
       const actualResult = await repository.create(inputCreate);
 
-      expect(mockPrismaRefreshToken.create).toHaveBeenCalledWith({ data: inputCreate });
+      expect(mockPrismaRefreshToken.create).toHaveBeenCalledWith({
+        data: inputCreate,
+      });
       expect(actualResult).toEqual(expectedToken);
     });
   });
@@ -57,7 +59,9 @@ describe('RefreshTokenRepository', () => {
 
       const actualResult = await repository.findByHash('sha256hash');
 
-      expect(mockPrismaRefreshToken.findUnique).toHaveBeenCalledWith({ where: { tokenHash: 'sha256hash' } });
+      expect(mockPrismaRefreshToken.findUnique).toHaveBeenCalledWith({
+        where: { tokenHash: 'sha256hash' },
+      });
       expect(actualResult).toEqual(expectedToken);
     });
 
@@ -76,7 +80,9 @@ describe('RefreshTokenRepository', () => {
 
       await repository.deleteById('rt-id-1');
 
-      expect(mockPrismaRefreshToken.delete).toHaveBeenCalledWith({ where: { id: 'rt-id-1' } });
+      expect(mockPrismaRefreshToken.delete).toHaveBeenCalledWith({
+        where: { id: 'rt-id-1' },
+      });
     });
   });
 

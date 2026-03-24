@@ -3,7 +3,10 @@ import { TokenPairDto } from './token-pair.output.dto';
 describe('TokenPairDto', () => {
   describe('fromApplication', () => {
     it('maps accessToken and refreshToken from output', () => {
-      const inputOutput = { accessToken: 'acc.jwt.token', refreshToken: 'ref.jwt.token' };
+      const inputOutput = {
+        accessToken: 'acc.jwt.token',
+        refreshToken: 'ref.jwt.token',
+      };
 
       const actualDto = TokenPairDto.fromApplication(inputOutput);
 

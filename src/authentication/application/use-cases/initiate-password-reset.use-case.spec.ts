@@ -28,9 +28,15 @@ describe('InitiatePasswordResetUseCase', () => {
       providers: [
         InitiatePasswordResetUseCase,
         { provide: CREDENTIALS_REPOSITORY, useValue: mockCredentialsRepo },
-        { provide: PASSWORD_RESET_TOKEN_REPOSITORY, useValue: mockPasswordResetTokenRepo },
+        {
+          provide: PASSWORD_RESET_TOKEN_REPOSITORY,
+          useValue: mockPasswordResetTokenRepo,
+        },
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
-        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue(60 * 60 * 1000) } },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(60 * 60 * 1000) },
+        },
       ],
     }).compile();
 
@@ -41,36 +47,49 @@ describe('InitiatePasswordResetUseCase', () => {
     it('creates a reset token and publishes event when email is registered', async () => {
       const expectedCredentials = mockCredentials();
       mockCredentialsRepo.findByEmail.mockResolvedValue(expectedCredentials);
-      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       mockPasswordResetTokenRepo.create.mockResolvedValue({});
 
       await useCase.execute(inputInitiate);
 
-      expect(mockPasswordResetTokenRepo.deleteAllByCredentialsId).toHaveBeenCalledWith(expectedCredentials.id);
+      expect(
+        mockPasswordResetTokenRepo.deleteAllByCredentialsId,
+      ).toHaveBeenCalledWith(expectedCredentials.id);
       expect(mockPasswordResetTokenRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           credentialsId: expectedCredentials.id,
           expiresAt: expect.any(Date),
         }),
       );
-      expect(mockEventBus.publish).toHaveBeenCalledWith(expect.any(UserPasswordResetRequestedEvent));
+      expect(mockEventBus.publish).toHaveBeenCalledWith(
+        expect.any(UserPasswordResetRequestedEvent),
+      );
     });
 
     it('deletes existing tokens before creating a new one to prevent duplicates', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
-      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       mockPasswordResetTokenRepo.create.mockResolvedValue({});
 
       await useCase.execute(inputInitiate);
 
-      const deleteCallOrder = mockPasswordResetTokenRepo.deleteAllByCredentialsId.mock.invocationCallOrder[0];
-      const createCallOrder = mockPasswordResetTokenRepo.create.mock.invocationCallOrder[0];
+      const deleteCallOrder =
+        mockPasswordResetTokenRepo.deleteAllByCredentialsId.mock
+          .invocationCallOrder[0];
+      const createCallOrder =
+        mockPasswordResetTokenRepo.create.mock.invocationCallOrder[0];
       expect(deleteCallOrder).toBeLessThan(createCallOrder);
     });
 
     it('stores a SHA-256 hash of the raw token, not the raw token itself', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
-      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       mockPasswordResetTokenRepo.create.mockResolvedValue({});
 
       await useCase.execute(inputInitiate);
@@ -81,23 +100,32 @@ describe('InitiatePasswordResetUseCase', () => {
 
     it('ensures stored hash matches SHA-256 of rawToken published in event', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
-      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       mockPasswordResetTokenRepo.create.mockResolvedValue({});
 
       await useCase.execute(inputInitiate);
 
-      const publishedEvent = mockEventBus.publish.mock.calls[0][0] as UserPasswordResetRequestedEvent;
+      const publishedEvent = mockEventBus.publish.mock
+        .calls[0][0] as UserPasswordResetRequestedEvent;
       const createCall = mockPasswordResetTokenRepo.create.mock.calls[0][0];
-      const expectedHash = createHash('sha256').update(publishedEvent.rawToken).digest('hex');
+      const expectedHash = createHash('sha256')
+        .update(publishedEvent.rawToken)
+        .digest('hex');
       expect(createCall.tokenHash).toBe(expectedHash);
     });
 
     it('returns silently without any side effects when email is not registered', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(null);
 
-      await expect(useCase.execute({ email: 'unknown@example.com' })).resolves.toBeUndefined();
+      await expect(
+        useCase.execute({ email: 'unknown@example.com' }),
+      ).resolves.toBeUndefined();
 
-      expect(mockPasswordResetTokenRepo.deleteAllByCredentialsId).not.toHaveBeenCalled();
+      expect(
+        mockPasswordResetTokenRepo.deleteAllByCredentialsId,
+      ).not.toHaveBeenCalled();
       expect(mockPasswordResetTokenRepo.create).not.toHaveBeenCalled();
       expect(mockEventBus.publish).not.toHaveBeenCalled();
     });

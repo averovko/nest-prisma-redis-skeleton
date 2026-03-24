@@ -1,8 +1,11 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { createCommonError } from 'src/common/errors';
-import { Role } from '../../../core/domain/entities/role.enum';
+
+import { Role } from '../../../domain';
+import { AuthAppError, assertRoles } from '../../../application';
 import { ROLES_KEY } from './decorators/require-any-roles.decorator';
+import { mapAuthAppError, rethrowAsAppError } from './auth-error.mapper';
+import { type RequestWithAuthCtx } from './types';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,22 +21,17 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { authCtx } = context.switchToHttp().getRequest();
+    const { authCtx } = context.switchToHttp().getRequest<RequestWithAuthCtx>();
 
     if (!authCtx) {
-      throw createCommonError('auth.invalid-token');
+      throw mapAuthAppError(new AuthAppError('invalid-token'));
     }
 
-    if (!authCtx.isUser()) {
-      throw createCommonError('auth.require-user');
-    }
-
-    if (requiredRoles.find((role) => authCtx.getUser().roles.includes(role))) {
+    try {
+      assertRoles(authCtx, requiredRoles);
       return true;
+    } catch (err) {
+      rethrowAsAppError(err);
     }
-
-    throw createCommonError('auth.no-privilege', {
-      roles: requiredRoles.join(', '),
-    });
   }
 }

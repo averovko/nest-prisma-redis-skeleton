@@ -1,4 +1,8 @@
-import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtModule } from '@nestjs/jwt';
@@ -6,7 +10,7 @@ import request from 'supertest';
 import { createHash } from 'crypto';
 import { AppConfigModule } from '../src/common/configuration/config.module';
 import { GlobalErrorFilter } from '../src/common/errors';
-import { AuthGuard, AuthCtx } from '../src/common/auth';
+import { AuthCtx, Role, AuthGuard } from '../src/common/auth';
 import { EVENT_BUS_TOKEN } from '../src/common/event-manager/entities/tokens';
 import { CREDENTIALS_REPOSITORY } from '../src/authentication/domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../src/authentication/domain/ports/refresh-token.repository.port';
@@ -30,8 +34,22 @@ const TEST_EMAIL = 'e2e@example.com';
 class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
-    const authCtx = new AuthCtx();
-    jest.spyOn(authCtx, 'getPerson').mockReturnValue({ authId: TEST_AUTH_ID });
+    const authCtx = AuthCtx.forPerson(
+      { authId: TEST_AUTH_ID },
+      {
+        id: 'e2e-user-id-1',
+        authId: TEST_AUTH_ID,
+        email: TEST_EMAIL,
+        phone: null,
+        firstName: 'E2E',
+        lastName: null,
+        avatar: null,
+        roles: [Role.ROOT],
+        isActive: true,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    );
     req.authCtx = authCtx;
     return true;
   }
@@ -121,7 +139,10 @@ describe('AuthenticationController (e2e)', () => {
         ConfirmPasswordResetUseCase,
         { provide: CREDENTIALS_REPOSITORY, useValue: mockCredentialsRepo },
         { provide: REFRESH_TOKEN_REPOSITORY, useValue: mockRefreshTokenRepo },
-        { provide: PASSWORD_RESET_TOKEN_REPOSITORY, useValue: mockPasswordResetTokenRepo },
+        {
+          provide: PASSWORD_RESET_TOKEN_REPOSITORY,
+          useValue: mockPasswordResetTokenRepo,
+        },
         { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
         { provide: TOKEN_ISSUER_PORT, useValue: mockTokenIssuer },
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
@@ -132,7 +153,9 @@ describe('AuthenticationController (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+    );
     app.useGlobalFilters(new GlobalErrorFilter());
     app.enableVersioning({ type: VersioningType.URI });
     await app.init();
@@ -151,7 +174,9 @@ describe('AuthenticationController (e2e)', () => {
     });
     mockEventBus.publish.mockResolvedValue(undefined);
     mockRefreshTokenRepo.create.mockResolvedValue(buildMockTokenEntry());
-    mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+    mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+      undefined,
+    );
     mockPasswordResetTokenRepo.create.mockResolvedValue(buildMockResetToken());
     mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
   });
@@ -163,7 +188,11 @@ describe('AuthenticationController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/register')
-        .send({ email: 'new@example.com', password: 'StrongPass1!', firstName: 'John' });
+        .send({
+          email: 'new@example.com',
+          password: 'StrongPass1!',
+          firstName: 'John',
+        });
 
       expect(response.status).toBe(201);
       expect(response.body).toMatchObject({
@@ -177,16 +206,26 @@ describe('AuthenticationController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/register')
-        .send({ email: 'existing@example.com', password: 'StrongPass1!', firstName: 'John' });
+        .send({
+          email: 'existing@example.com',
+          password: 'StrongPass1!',
+          firstName: 'John',
+        });
 
       expect(response.status).toBe(409);
-      expect(response.body.code).toBe(AuthenticationErrorCode.EMAIL_ALREADY_TAKEN);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.EMAIL_ALREADY_TAKEN,
+      );
     });
 
     it('returns 400 on invalid email format', async () => {
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/register')
-        .send({ email: 'not-an-email', password: 'StrongPass1!', firstName: 'John' });
+        .send({
+          email: 'not-an-email',
+          password: 'StrongPass1!',
+          firstName: 'John',
+        });
 
       expect(response.status).toBe(400);
     });
@@ -194,7 +233,11 @@ describe('AuthenticationController (e2e)', () => {
     it('returns 400 when password is shorter than 8 characters', async () => {
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/register')
-        .send({ email: 'new@example.com', password: 'short', firstName: 'John' });
+        .send({
+          email: 'new@example.com',
+          password: 'short',
+          firstName: 'John',
+        });
 
       expect(response.status).toBe(400);
     });
@@ -232,7 +275,9 @@ describe('AuthenticationController (e2e)', () => {
         .send({ email: 'unknown@example.com', password: 'StrongPass1!' });
 
       expect(response.status).toBe(401);
-      expect(response.body.code).toBe(AuthenticationErrorCode.INVALID_CREDENTIALS);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.INVALID_CREDENTIALS,
+      );
     });
 
     it('returns 401 INVALID_CREDENTIALS when password is wrong', async () => {
@@ -244,7 +289,9 @@ describe('AuthenticationController (e2e)', () => {
         .send({ email: TEST_EMAIL, password: 'WrongPass1!' });
 
       expect(response.status).toBe(401);
-      expect(response.body.code).toBe(AuthenticationErrorCode.INVALID_CREDENTIALS);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.INVALID_CREDENTIALS,
+      );
     });
 
     it('returns 400 when email field is missing', async () => {
@@ -259,8 +306,12 @@ describe('AuthenticationController (e2e)', () => {
   describe('POST /v1/authentication/refresh', () => {
     it('returns 200 with new token pair on a valid refresh token', async () => {
       const inputRawToken = 'valid-raw-refresh-token';
-      const expectedHash = createHash('sha256').update(inputRawToken).digest('hex');
-      mockRefreshTokenRepo.findByHash.mockResolvedValue(buildMockTokenEntry({ tokenHash: expectedHash }));
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
+      mockRefreshTokenRepo.findByHash.mockResolvedValue(
+        buildMockTokenEntry({ tokenHash: expectedHash }),
+      );
       mockCredentialsRepo.findById.mockResolvedValue(buildMockCredentials());
       mockRefreshTokenRepo.deleteById.mockResolvedValue(undefined);
 
@@ -283,14 +334,21 @@ describe('AuthenticationController (e2e)', () => {
         .send({ refreshToken: 'unknown-refresh-token' });
 
       expect(response.status).toBe(401);
-      expect(response.body.code).toBe(AuthenticationErrorCode.REFRESH_TOKEN_INVALID);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.REFRESH_TOKEN_INVALID,
+      );
     });
 
     it('returns 401 REFRESH_TOKEN_EXPIRED for an expired token', async () => {
       const inputRawToken = 'expired-raw-token';
-      const expectedHash = createHash('sha256').update(inputRawToken).digest('hex');
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
       mockRefreshTokenRepo.findByHash.mockResolvedValue(
-        buildMockTokenEntry({ tokenHash: expectedHash, expiresAt: new Date('2000-01-01') }),
+        buildMockTokenEntry({
+          tokenHash: expectedHash,
+          expiresAt: new Date('2000-01-01'),
+        }),
       );
       mockRefreshTokenRepo.deleteById.mockResolvedValue(undefined);
 
@@ -299,7 +357,9 @@ describe('AuthenticationController (e2e)', () => {
         .send({ refreshToken: inputRawToken });
 
       expect(response.status).toBe(401);
-      expect(response.body.code).toBe(AuthenticationErrorCode.REFRESH_TOKEN_EXPIRED);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.REFRESH_TOKEN_EXPIRED,
+      );
     });
 
     it('returns 400 when refreshToken field is missing', async () => {
@@ -313,7 +373,9 @@ describe('AuthenticationController (e2e)', () => {
 
   describe('POST /v1/authentication/logout', () => {
     it('returns 204 for an authenticated user', async () => {
-      mockCredentialsRepo.findByAuthId.mockResolvedValue(buildMockCredentials());
+      mockCredentialsRepo.findByAuthId.mockResolvedValue(
+        buildMockCredentials(),
+      );
 
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/logout')
@@ -330,15 +392,21 @@ describe('AuthenticationController (e2e)', () => {
         .set('Authorization', 'Bearer test.token');
 
       expect(response.status).toBe(404);
-      expect(response.body.code).toBe(AuthenticationErrorCode.CREDENTIALS_NOT_FOUND);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.CREDENTIALS_NOT_FOUND,
+      );
     });
   });
 
   describe('PATCH /v1/authentication/password', () => {
     it('returns 204 on successful password change', async () => {
-      mockCredentialsRepo.findByAuthId.mockResolvedValue(buildMockCredentials());
+      mockCredentialsRepo.findByAuthId.mockResolvedValue(
+        buildMockCredentials(),
+      );
       mockPasswordHasher.compare.mockResolvedValue(true);
-      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(buildMockCredentials());
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(
+        buildMockCredentials(),
+      );
 
       const response = await request(app.getHttpServer())
         .patch('/v1/authentication/password')
@@ -349,7 +417,9 @@ describe('AuthenticationController (e2e)', () => {
     });
 
     it('returns 422 INVALID_CURRENT_PASSWORD when current password is wrong', async () => {
-      mockCredentialsRepo.findByAuthId.mockResolvedValue(buildMockCredentials());
+      mockCredentialsRepo.findByAuthId.mockResolvedValue(
+        buildMockCredentials(),
+      );
       mockPasswordHasher.compare.mockResolvedValue(false);
 
       const response = await request(app.getHttpServer())
@@ -358,7 +428,9 @@ describe('AuthenticationController (e2e)', () => {
         .send({ currentPassword: 'WrongPass!', newPassword: 'NewPass2@' });
 
       expect(response.status).toBe(422);
-      expect(response.body.code).toBe(AuthenticationErrorCode.INVALID_CURRENT_PASSWORD);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.INVALID_CURRENT_PASSWORD,
+      );
     });
 
     it('returns 400 when newPassword is too short', async () => {
@@ -404,12 +476,16 @@ describe('AuthenticationController (e2e)', () => {
   describe('POST /v1/authentication/reset-password/confirm', () => {
     it('returns 204 on a valid non-expired reset token', async () => {
       const inputRawToken = 'valid-reset-token';
-      const expectedHash = createHash('sha256').update(inputRawToken).digest('hex');
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
       mockPasswordResetTokenRepo.findByHash.mockResolvedValue(
         buildMockResetToken({ tokenHash: expectedHash }),
       );
       mockCredentialsRepo.findById.mockResolvedValue(buildMockCredentials());
-      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(buildMockCredentials());
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(
+        buildMockCredentials(),
+      );
       mockPasswordResetTokenRepo.deleteById.mockResolvedValue(undefined);
 
       const response = await request(app.getHttpServer())
@@ -427,14 +503,21 @@ describe('AuthenticationController (e2e)', () => {
         .send({ token: 'unknown-token', newPassword: 'NewStrongPass99!' });
 
       expect(response.status).toBe(404);
-      expect(response.body.code).toBe(AuthenticationErrorCode.RESET_TOKEN_INVALID);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.RESET_TOKEN_INVALID,
+      );
     });
 
     it('returns 410 RESET_TOKEN_EXPIRED for an expired reset token', async () => {
       const inputRawToken = 'expired-reset-token';
-      const expectedHash = createHash('sha256').update(inputRawToken).digest('hex');
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
       mockPasswordResetTokenRepo.findByHash.mockResolvedValue(
-        buildMockResetToken({ tokenHash: expectedHash, expiresAt: new Date('2000-01-01') }),
+        buildMockResetToken({
+          tokenHash: expectedHash,
+          expiresAt: new Date('2000-01-01'),
+        }),
       );
       mockPasswordResetTokenRepo.deleteById.mockResolvedValue(undefined);
 
@@ -443,7 +526,9 @@ describe('AuthenticationController (e2e)', () => {
         .send({ token: inputRawToken, newPassword: 'NewStrongPass99!' });
 
       expect(response.status).toBe(410);
-      expect(response.body.code).toBe(AuthenticationErrorCode.RESET_TOKEN_EXPIRED);
+      expect(response.body.code).toBe(
+        AuthenticationErrorCode.RESET_TOKEN_EXPIRED,
+      );
     });
 
     it('returns 400 when newPassword is too short', async () => {

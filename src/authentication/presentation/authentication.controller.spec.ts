@@ -21,11 +21,8 @@ describe('AuthenticationController', () => {
   let mockInitiatePasswordResetUseCase: jest.Mocked<InitiatePasswordResetUseCase>;
   let mockConfirmPasswordResetUseCase: jest.Mocked<ConfirmPasswordResetUseCase>;
 
-  const buildMockAuthCtx = (authId = 'auth-id-1'): AuthCtx => {
-    const authCtx = new AuthCtx();
-    jest.spyOn(authCtx, 'getPerson').mockReturnValue({ authId });
-    return authCtx;
-  };
+  const buildMockAuthCtx = (authId = 'auth-id-1'): AuthCtx =>
+    AuthCtx.forPerson({ authId }, undefined);
 
   beforeEach(async () => {
     mockRegisterUseCase = { execute: jest.fn() } as any;
@@ -44,8 +41,14 @@ describe('AuthenticationController', () => {
         { provide: RefreshTokenUseCase, useValue: mockRefreshTokenUseCase },
         { provide: LogoutUseCase, useValue: mockLogoutUseCase },
         { provide: ChangePasswordUseCase, useValue: mockChangePasswordUseCase },
-        { provide: InitiatePasswordResetUseCase, useValue: mockInitiatePasswordResetUseCase },
-        { provide: ConfirmPasswordResetUseCase, useValue: mockConfirmPasswordResetUseCase },
+        {
+          provide: InitiatePasswordResetUseCase,
+          useValue: mockInitiatePasswordResetUseCase,
+        },
+        {
+          provide: ConfirmPasswordResetUseCase,
+          useValue: mockConfirmPasswordResetUseCase,
+        },
       ],
     })
       .overrideGuard(AuthGuard)
@@ -58,7 +61,11 @@ describe('AuthenticationController', () => {
   describe('register', () => {
     it('executes RegisterUseCase and returns a TokenPairDto', async () => {
       mockRegisterUseCase.execute.mockResolvedValue(mockTokenPair());
-      const inputBody = { email: 'a@a.com', password: 'pass12345', firstName: 'John' };
+      const inputBody = {
+        email: 'a@a.com',
+        password: 'pass12345',
+        firstName: 'John',
+      };
 
       const actualResult = await controller.register(inputBody);
 
@@ -85,9 +92,13 @@ describe('AuthenticationController', () => {
     it('executes RefreshTokenUseCase with the raw refresh token and returns a TokenPairDto', async () => {
       mockRefreshTokenUseCase.execute.mockResolvedValue(mockTokenPair());
 
-      const actualResult = await controller.refresh({ refreshToken: 'raw.refresh.token' });
+      const actualResult = await controller.refresh({
+        refreshToken: 'raw.refresh.token',
+      });
 
-      expect(mockRefreshTokenUseCase.execute).toHaveBeenCalledWith('raw.refresh.token');
+      expect(mockRefreshTokenUseCase.execute).toHaveBeenCalledWith(
+        'raw.refresh.token',
+      );
       expect(actualResult).toBeInstanceOf(TokenPairDto);
     });
   });
@@ -106,12 +117,18 @@ describe('AuthenticationController', () => {
   describe('changePassword', () => {
     it('executes ChangePasswordUseCase with authId from auth context and request body', async () => {
       mockChangePasswordUseCase.execute.mockResolvedValue(undefined);
-      const inputBody = { currentPassword: 'old12345', newPassword: 'new12345' };
+      const inputBody = {
+        currentPassword: 'old12345',
+        newPassword: 'new12345',
+      };
       const inputAuthCtx = buildMockAuthCtx('auth-id-1');
 
       await controller.changePassword(inputBody, inputAuthCtx);
 
-      expect(mockChangePasswordUseCase.execute).toHaveBeenCalledWith('auth-id-1', inputBody);
+      expect(mockChangePasswordUseCase.execute).toHaveBeenCalledWith(
+        'auth-id-1',
+        inputBody,
+      );
     });
   });
 
@@ -122,7 +139,9 @@ describe('AuthenticationController', () => {
 
       await controller.initiatePasswordReset(inputBody);
 
-      expect(mockInitiatePasswordResetUseCase.execute).toHaveBeenCalledWith(inputBody);
+      expect(mockInitiatePasswordResetUseCase.execute).toHaveBeenCalledWith(
+        inputBody,
+      );
     });
   });
 
@@ -133,7 +152,9 @@ describe('AuthenticationController', () => {
 
       await controller.confirmPasswordReset(inputBody);
 
-      expect(mockConfirmPasswordResetUseCase.execute).toHaveBeenCalledWith(inputBody);
+      expect(mockConfirmPasswordResetUseCase.execute).toHaveBeenCalledWith(
+        inputBody,
+      );
     });
   });
 });

@@ -45,7 +45,9 @@ describe('BcryptPasswordHasher', () => {
 
       await service.hash('plainPassword');
 
-      expect(mockConfigService.get).toHaveBeenCalledWith('security.bcryptSaltRounds');
+      expect(mockConfigService.get).toHaveBeenCalledWith(
+        'security.bcryptSaltRounds',
+      );
       expect(mockedBcrypt.hash).toHaveBeenCalledWith('plainPassword', 12);
     });
   });
@@ -54,16 +56,25 @@ describe('BcryptPasswordHasher', () => {
     it('returns true when the plain password matches the hash', async () => {
       mockedBcrypt.compare.mockResolvedValue(true as never);
 
-      const actualResult = await service.compare('plainPassword', '$2b$10$hashedpassword');
+      const actualResult = await service.compare(
+        'plainPassword',
+        '$2b$10$hashedpassword',
+      );
 
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith('plainPassword', '$2b$10$hashedpassword');
+      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
+        'plainPassword',
+        '$2b$10$hashedpassword',
+      );
       expect(actualResult).toBe(true);
     });
 
     it('returns false when the plain password does not match the hash', async () => {
       mockedBcrypt.compare.mockResolvedValue(false as never);
 
-      const actualResult = await service.compare('wrongPassword', '$2b$10$hashedpassword');
+      const actualResult = await service.compare(
+        'wrongPassword',
+        '$2b$10$hashedpassword',
+      );
 
       expect(actualResult).toBe(false);
     });

@@ -3,7 +3,9 @@ import { RefreshToken } from '../domain/entities/refresh-token.entity';
 import { PasswordResetToken } from '../domain/entities/password-reset-token.entity';
 import { TokenPairOutput } from '../application/dto/token-pair.output';
 
-export const mockCredentials = (overrides?: Partial<Credentials>): Credentials => ({
+export const mockCredentials = (
+  overrides?: Partial<Credentials>,
+): Credentials => ({
   id: 'cred-id-1',
   authId: 'auth-id-1',
   email: 'test@example.com',
@@ -14,7 +16,9 @@ export const mockCredentials = (overrides?: Partial<Credentials>): Credentials =
   ...overrides,
 });
 
-export const mockRefreshToken = (overrides?: Partial<RefreshToken>): RefreshToken => ({
+export const mockRefreshToken = (
+  overrides?: Partial<RefreshToken>,
+): RefreshToken => ({
   id: 'rt-id-1',
   credentialsId: 'cred-id-1',
   tokenHash: 'sha256hash',
@@ -23,7 +27,9 @@ export const mockRefreshToken = (overrides?: Partial<RefreshToken>): RefreshToke
   ...overrides,
 });
 
-export const mockPasswordResetToken = (overrides?: Partial<PasswordResetToken>): PasswordResetToken => ({
+export const mockPasswordResetToken = (
+  overrides?: Partial<PasswordResetToken>,
+): PasswordResetToken => ({
   id: 'prt-id-1',
   credentialsId: 'cred-id-1',
   tokenHash: 'resethash',
