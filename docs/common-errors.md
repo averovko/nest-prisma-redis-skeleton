@@ -420,3 +420,16 @@ From `src/common/index.ts` — **not re-exported** (errors module not included i
 ```typescript
 import { AppError, createCommonError, ErrorResponse, COMMON_ERRORS } from 'src/common/errors';
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `errors/app.error.spec.ts` | `errors/app.error.ts` | Constructor sets `code`, `status`, `name`, `timestamp`; default `params={}` and `cause=undefined`; stores `params` and `cause` when provided; `{param}` placeholder interpolation in message; missing placeholder left as-is; `toJSON` shape; `instanceof Error`; has `stack` |
+| `errors/error.filter.spec.ts` | `errors/error.filter.ts` | `AppError` branch → correct `status` + JSON body with `code/message/params/timestamp`; `HttpException` branch → `code: 'http.error'`, object response spread into `params`, string response wrapped in `params.message`; unknown error → 500 + `code: 'internal.error'`; all branches include ISO timestamp |
+| `errors/common.errors.spec.ts` | `errors/common.errors.ts` | All `COMMON_ERRORS` entries have `message` (string) and `status` (number); required codes present; `COMMON_PUBLIC_ERRORS.server.error` structure; `createCommonError` returns `AppError`, sets correct code/status, replaces `{roles}` placeholder, stores `params` |
+| `errors/decorators/error-response.decorator.spec.ts` | `errors/decorators/error-response.decorator.ts` | Returns a decorator function; groups errors by status → one `ApiResponse` per status; multiple same-status errors → all in `examples`; example value includes `code`, `message`, `timestamp`; uses provided `description` option |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches.

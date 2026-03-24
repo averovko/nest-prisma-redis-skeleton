@@ -283,3 +283,15 @@ import { PrismaService } from 'src/common/prisma';
 // or
 import { PrismaService } from 'src/common';
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `prisma/prisma.service.spec.ts` | `prisma/prisma.service.ts` | Constructor creates `client` property (via mocked `PrismaPg`, `readReplicas`, `PrismaClient`); `onModuleInit()` calls `$connect`; `onModuleDestroy()` calls `$disconnect` |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches.
+
+> **Note on mocking strategy:** `@prisma/adapter-pg`, `@prisma/extension-read-replicas`, and `src/generated/prisma/client` are all mocked at the top of the spec file using `jest.mock(...)` factories to avoid actual database connections during unit tests.

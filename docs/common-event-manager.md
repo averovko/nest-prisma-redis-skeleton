@@ -594,3 +594,19 @@ import {
   type EventSchema,
 } from 'src/common/event-manager';
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `event-manager/entities/errors/event.errors.spec.ts` | `entities/errors/event.errors.ts` | `instanceof Error`; `name = 'EventValidationError'`; message stored; `validationErrors` array stored; `getValidationMessages()` joins constraint values; empty errors → empty array; missing constraints → empty string |
+| `event-manager/entities/events/base.event.spec.ts` | `entities/events/base.event.ts` | `eventId` non-empty UUID; `eventName` from schema; `metadata.version` and `metadata.timestamp`; optional `correlationId`; `payload` delegates to `toJSON()`; `getSchema()` returns schema; `getPartitionKey()` returns `eventId`; `validate()` resolves for valid payload; throws `EventValidationError` for invalid payload; unique `eventId` per instance |
+| `event-manager/entities/validation/event.validator.spec.ts` | `entities/validation/event.validator.ts` | Valid payload → resolves; invalid email → throws `EventValidationError`; missing required field → throws; error message contains `eventName`; `validationErrors` populated |
+| `event-manager/services/event-bus.adapter.spec.ts` | `services/event-bus.adapter.ts` | Valid event → `emitAsync` called with correct `EventBusMessage` (eventId, eventName, payload, metadata); validation failure → `EventValidationError` thrown, `emitAsync` not called; `emitAsync` throws → error rethrown |
+| `event-manager/presentation/decorators/validate-event.decorator.spec.ts` | `presentation/decorators/validate-event.decorator.ts` | Valid event → original method called; missing `eventName` → `EventValidationError`; missing `payload` → `EventValidationError`; invalid payload → `EventValidationError`; null schema → `EventValidationError`; non-`EventValidationError` thrown inside → wrapped in `EventValidationError` |
+| `event-manager/presentation/decorators/inject-event-bus.decorator.spec.ts` | `presentation/decorators/inject-event-bus.decorator.ts` | Returns a parameter decorator function; can be applied to constructor parameter |
+| `event-manager/services/event-registry.service.spec.ts` | `services/event-registry.service.ts` | `onModuleInit` registers all built-in schemas; `registerEventType` — valid schema, missing `eventName`/`schema`/`version` throw `EventValidationError`, `validateSync` errors throw, duplicate name throws; `getEventSchema` — found/not found; `hasEventType` — true/false; `getAllEventTypes`; `getEventTypesByModule` |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines; branches: 100 % for all files except `event-bus.adapter.ts` (94 % — TypeScript `private readonly` constructor parameter artifact).

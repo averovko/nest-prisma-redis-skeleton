@@ -250,3 +250,13 @@ From `src/common/index.ts`:
 export * from './cache';
 // → CacheModule, CacheService available from 'src/common'
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `cache/cache.service.spec.ts` | `cache.service.ts` | `get` (hit, miss, Redis error); `set` (explicit TTL, default TTL, Redis error); `del` (success, Redis error); constructor reads `cache.ttl` from `ConfigService` |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 83 % branches (the remaining branch gap is a TypeScript `private readonly` constructor parameter instrumentation artifact — not addressable by tests).

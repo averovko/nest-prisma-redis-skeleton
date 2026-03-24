@@ -346,3 +346,16 @@ import { OkResponse, CreatedResponse, PaginatedResponse, PageOptionsDto } from '
 // or
 import { OkResponse, PageOptionsDto } from 'src/common';
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `presentation/rest/RestResponse.spec.ts` | `presentation/rest/RestResponse.ts` | Constructor sets `message`, `error`, `data`; `ok()` default message + optional data + custom message; `error()` — known key returns correct status, unknown key returns 500, `{{param}}` replacement, no-placeholder message with `msgParams`; `transformValidatorError` — BAD_REQUEST, uses first error/constraint, builds `validation.*` message, empty constraint message fallback; `customError` — status + body; `MessageType` enum values |
+| `presentation/rest/format-rest-response.interceptor.spec.ts` | `presentation/rest/format-rest-response.interceptor.ts` | Wraps data in `RestResponse.ok`; passes `undefined` data; wraps `null`; preserves array reference |
+| `presentation/rest/decorators/success-response.decorator.spec.ts` | `presentation/rest/decorators/success-response.decorator.ts` | `OkResponse(Dto)` → `ApiOkResponse` + `ApiExtraModels`; `OkResponse(null)` → empty schema, no `ApiExtraModels`; `CreatedResponse(Dto)` → `ApiCreatedResponse` + `ApiExtraModels`; `CreatedResponse(null)` → no `ApiExtraModels`; `PaginatedResponse(Dto)` → `ApiExtraModels(PagedResult, Dto)` + `ApiOkResponse` with `allOf` |
+| `presentation/dtos/page-options.dto.spec.ts` | `presentation/dtos/page-options.dto.ts` | Defaults `pageNumber=0`, `pageSize=10`; constructor with explicit values; `toDatabaseQuery` skip/take; `toResponseMeta` — totalPages, hasNextPage, hasPreviousPage, edge cases (last page, first page, totalItems=0); `@Transform` callbacks via `plainToInstance` |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches.

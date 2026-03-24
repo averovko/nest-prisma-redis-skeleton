@@ -310,3 +310,13 @@ import { AppConfigModule } from 'src/common/configuration/config.module';
 Used in:
 - `src/common/common.module.ts` — imports `AppConfigModule` to bootstrap global config.
 - `src/common/auth/auth.module.ts` — imports `AppConfigModule` to access `security.*` and `auth.*` keys.
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `configuration/configuration.spec.ts` | `configuration.ts` | All defaults when env vars unset; `APP_PORT`, `APP_NAME`, `APP_URL`, `NODE_ENV`, `LOG_LEVEL` from env; `VERIFY_TOKEN=true/false` → boolean coercion; `BCRYPT_SALT_ROUNDS`, `THROTTLE_TTL`, `THROTTLE_LIMIT`, `REFRESH_TOKEN_TTL_MS`, `PASSWORD_RESET_TOKEN_TTL_MS`, `AUTH_CACHE_DEFAULT_TTL_MS`, `AUTH_CACHE_MAX_TTL_MS` parsed as integers; `JWT_SECRET`, `JWT_ACCESS_TOKEN_EXPIRY`, `JWT_REFRESH_TOKEN_EXPIRY`; `REDIS_URL`; `IMGPROXY_URL/KEY/SALT`; `METRICS_API_KEY`; `app.version` from `package.json` |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches.

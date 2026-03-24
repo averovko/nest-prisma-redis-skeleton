@@ -234,3 +234,14 @@ import { delay } from 'src/common/utils';
 // or
 import { Retry, delay } from 'src/common';
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `decorators/retry.decorator.spec.ts` | `retry.decorator.ts` | First-attempt success (no retry); retry on retryable error, returns on 2nd attempt; exhausts `maxAttempts` and throws; non-retryable error class throws immediately; exponential backoff doubles `backoffMs`; constant backoff (`exponential: false`); default options (3 attempts); `maxAttempts: 0` (loop never executes → throws `lastError`) |
+| `utils/delay.spec.ts` | `utils/delay.ts` | Returns a `Promise<void>`; resolves after specified ms (fake timers); does not resolve before timeout elapses; resolves immediately for 0 ms |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches for both files.

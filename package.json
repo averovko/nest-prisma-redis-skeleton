@@ -95,7 +95,6 @@
     ],
     "collectCoverageFrom": [
       "**/*.(t|j)s",
-      "!common/**",
       "!generated/**",
       "!**/*.spec.ts",
       "!__fixtures__/**",

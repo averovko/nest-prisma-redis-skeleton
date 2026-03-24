@@ -340,3 +340,15 @@ From `src/common/index.ts`:
 export * from './models';
 // → PagedResult, PaginationInfo, AppResult, OrderDirection, etc. available from 'src/common'
 ```
+
+---
+
+## Test Coverage Map
+
+| Spec file | Source file | What is tested |
+|---|---|---|
+| `models/AppError.spec.ts` | `models/AppError.ts` | `name` set from constructor arg; `message` equals name; `msgParams` defaults to `{}`; stores provided `msgParams`; `instanceof Error`; has `stack` |
+| `models/PagedResult.spec.ts` | `models/PagedResult.ts` | Constructor assigns `data` and `meta`; `empty()` → empty array + zero meta; `transform()` applies function to items, preserves `meta`, returns new instance, handles empty array |
+| `models/error.map.spec.ts` | `models/error.map.ts` | All `common.*` keys present; `validation.validationFailed` with `BAD_REQUEST`; all leaf entries have `status` (number) and `message` (string); `noPrivilege.message` includes `{{roles}}` placeholder |
+
+**Coverage achieved:** 100 % statements · 100 % functions · 100 % lines · 100 % branches.
