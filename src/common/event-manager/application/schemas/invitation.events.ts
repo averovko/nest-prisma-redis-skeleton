@@ -1,9 +1,6 @@
 import { IsString, IsUUID } from 'class-validator';
-import { EventSchema } from '../event.interface';
+import { EventSchema } from '../../domain/events/event.interface';
 
-/**
- * Payload for invitation accepted events
- */
 export class InvitationAcceptedPayload {
   @IsUUID()
   invitationId: string;
@@ -18,9 +15,6 @@ export class InvitationAcceptedPayload {
   code: string;
 }
 
-/**
- * All invitation related event schemas
- */
 export const InvitationEventSchemas = {
   INVITATION_ACCEPTED: {
     eventName: 'invitation.accepted',

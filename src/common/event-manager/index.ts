@@ -1,6 +1,5 @@
-export { InjectEventBus } from './presentation/decorators/inject-event-bus.decorator';
-export { type EventBus as IEventBus } from './services/interfaces/event-bus.interface';
-export { EventBusAdapter } from './services/event-bus.adapter';
-export { BaseEvent } from './entities/events/base.event';
-export * from './entities/events/schemas';
-export * from './entities/events/event.interface';
+export { InjectEventBus } from './adapter/presentation/decorators/inject-event-bus.decorator';
+export { EVENT_BUS_TOKEN, type EventBusPort } from './application/ports/event-bus.port';
+export { BaseEvent } from './domain/events/base.event';
+export * from './application/schemas';
+export * from './domain/events/event.interface';

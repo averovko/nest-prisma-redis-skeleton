@@ -11,7 +11,7 @@ import { createHash } from 'crypto';
 import { AppConfigModule } from '../src/common/configuration/config.module';
 import { GlobalErrorFilter } from '../src/common/errors';
 import { AuthCtx, Role, AuthGuard } from '../src/common/auth';
-import { EVENT_BUS_TOKEN } from '../src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN } from '../src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../src/authentication/domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../src/authentication/domain/ports/refresh-token.repository.port';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '../src/authentication/domain/ports/password-reset-token.repository.port';

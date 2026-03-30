@@ -1,61 +1,31 @@
 import { Global, Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { EventBusAdapter } from './services/event-bus.adapter';
-import { EVENT_BUS_TOKEN } from './entities/tokens';
-import { EventValidator } from './entities/validation/event.validator';
+import { EventBusAdapter } from './adapter/infrastructure/event-bus.adapter';
+import { EventValidator } from './adapter/infrastructure/event-validator';
+import { EventRegistryService } from './adapter/infrastructure/event-registry.service';
+import { EVENT_BUS_TOKEN } from './application/ports/event-bus.port';
+import { EVENT_VALIDATOR_TOKEN } from './application/ports/event-validator.port';
+import { EVENT_REGISTRY_TOKEN } from './application/ports/event-registry.port';
 
-/**
- * Module for event bus functionality
- * Provides event publishing and subscription capabilities
- *
- * Usage:
- * 1. Import EventBusModule in your module:
- *    ```typescript
- *    @Module({
- *      imports: [EventBusModule],
- *    })
- *    export class YourModule {}
- *    ```
- *
- * 2. Publish events:
- *    ```typescript
- *    @Injectable()
- *    export class YourService {
- *      constructor(private readonly eventBus: EventBusAdapter) {}
- *
- *      async someMethod() {
- *        await this.eventBus.publish(new YourEvent(payload));
- *      }
- *    }
- *    ```
- *
- * 3. Subscribe to events using @OnEvent decorator:
- *    ```typescript
- *    @Injectable()
- *    export class YourHandler {
- *      @OnEvent('your.event.name')
- *      async handleYourEvent(event: EventBusMessage<YourEventPayload>) {
- *        // Handle the event
- *      }
- *    }
- *    ```
- */
 @Global()
 @Module({
   imports: [
     EventEmitterModule.forRoot({
-      // Enable wildcard event listeners
       wildcard: true,
-      // Remove listeners after they are called
       delimiter: '.',
-      // Maximum number of listeners per event
       maxListeners: 20,
-      // Enable verbose logging
       verboseMemoryLeak: true,
     }),
   ],
   providers: [
-    EventValidator,
+    {
+      provide: EVENT_REGISTRY_TOKEN,
+      useClass: EventRegistryService,
+    },
+    {
+      provide: EVENT_VALIDATOR_TOKEN,
+      useClass: EventValidator,
+    },
     {
       provide: EVENT_BUS_TOKEN,
       useClass: EventBusAdapter,

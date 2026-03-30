@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppError } from 'src/common/errors';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN } from 'src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../../domain/ports/credentials.repository.port';
 import { PASSWORD_HASHER_PORT } from '../../domain/ports/password-hasher.port';
 import { AuthenticationErrorCode } from '../../domain/errors/authentication.error-codes';
@@ -15,6 +15,7 @@ describe('ChangePasswordUseCase', () => {
   let mockEventBus: jest.Mocked<any>;
 
   const inputAuthId = 'auth-id-1';
+  const inputUserId = 'user-id-1';
   const inputChangePassword = {
     currentPassword: 'OldPass1!',
     newPassword: 'NewPass2@',
@@ -54,7 +55,7 @@ describe('ChangePasswordUseCase', () => {
       mockPasswordHasher.hash.mockResolvedValue('$new$hash');
       mockCredentialsRepo.updatePasswordHash.mockResolvedValue(expectedUpdated);
 
-      await useCase.execute(inputAuthId, inputChangePassword);
+      await useCase.execute(inputAuthId, inputUserId, inputChangePassword);
 
       expect(mockCredentialsRepo.updatePasswordHash).toHaveBeenCalledWith(
         inputAuthId,
@@ -74,7 +75,7 @@ describe('ChangePasswordUseCase', () => {
         expectedCredentials,
       );
 
-      await useCase.execute(inputAuthId, inputChangePassword);
+      await useCase.execute(inputAuthId, inputUserId, inputChangePassword);
 
       expect(mockPasswordHasher.compare).toHaveBeenCalledWith(
         inputChangePassword.currentPassword,
@@ -86,7 +87,7 @@ describe('ChangePasswordUseCase', () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(null);
 
       await expect(
-        useCase.execute(inputAuthId, inputChangePassword),
+        useCase.execute(inputAuthId, inputUserId, inputChangePassword),
       ).rejects.toMatchObject({
         code: AuthenticationErrorCode.CREDENTIALS_NOT_FOUND,
       });
@@ -99,7 +100,7 @@ describe('ChangePasswordUseCase', () => {
       mockPasswordHasher.compare.mockResolvedValue(false);
 
       await expect(
-        useCase.execute(inputAuthId, inputChangePassword),
+        useCase.execute(inputAuthId, inputUserId, inputChangePassword),
       ).rejects.toMatchObject({
         code: AuthenticationErrorCode.INVALID_CURRENT_PASSWORD,
       });
@@ -111,7 +112,7 @@ describe('ChangePasswordUseCase', () => {
     it('throws AppError for all error cases', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(null);
       await expect(
-        useCase.execute(inputAuthId, inputChangePassword),
+        useCase.execute(inputAuthId, inputUserId, inputChangePassword),
       ).rejects.toBeInstanceOf(AppError);
     });
   });

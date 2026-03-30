@@ -1,7 +1,6 @@
 import { createHash } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { type IEventBus } from 'src/common/event-manager';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -34,7 +33,7 @@ export class ConfirmPasswordResetUseCase {
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: RefreshTokenRepositoryPort,
     @Inject(EVENT_BUS_TOKEN)
-    private readonly eventBus: IEventBus,
+    private readonly eventBus: EventBusPort,
   ) {}
 
   async execute(input: ConfirmPasswordResetInput): Promise<void> {

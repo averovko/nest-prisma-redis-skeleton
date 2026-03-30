@@ -10,12 +10,13 @@ import {
 
 describe('Authentication Domain Events', () => {
   const inputCredentials = mockCredentials();
+  const inputUserId = 'user-id-1';
 
   describe('UserRegisteredEvent', () => {
-    it('toJSON returns authId and email', () => {
+    it('toJSON returns userId and email', () => {
       const event = new UserRegisteredEvent(inputCredentials);
       expect(event.toJSON()).toEqual({
-        authId: inputCredentials.authId,
+        userId: inputCredentials.authId,
         email: inputCredentials.email,
       });
     });
@@ -33,9 +34,9 @@ describe('Authentication Domain Events', () => {
   });
 
   describe('UserLoggedInEvent', () => {
-    it('toJSON returns authId only', () => {
+    it('toJSON returns userId only', () => {
       const event = new UserLoggedInEvent(inputCredentials);
-      expect(event.toJSON()).toEqual({ authId: inputCredentials.authId });
+      expect(event.toJSON()).toEqual({ userId: inputCredentials.authId });
     });
 
     it('has the correct eventName', () => {
@@ -45,9 +46,9 @@ describe('Authentication Domain Events', () => {
   });
 
   describe('UserLoggedOutEvent', () => {
-    it('toJSON returns authId only', () => {
+    it('toJSON returns userId only', () => {
       const event = new UserLoggedOutEvent(inputCredentials);
-      expect(event.toJSON()).toEqual({ authId: inputCredentials.authId });
+      expect(event.toJSON()).toEqual({ userId: inputCredentials.authId });
     });
 
     it('has the correct eventName', () => {
@@ -57,13 +58,13 @@ describe('Authentication Domain Events', () => {
   });
 
   describe('UserPasswordChangedEvent', () => {
-    it('toJSON returns authId only', () => {
-      const event = new UserPasswordChangedEvent(inputCredentials);
-      expect(event.toJSON()).toEqual({ authId: inputCredentials.authId });
+    it('toJSON returns userId only', () => {
+      const event = new UserPasswordChangedEvent(inputUserId);
+      expect(event.toJSON()).toEqual({ userId: inputUserId });
     });
 
     it('has the correct eventName', () => {
-      const event = new UserPasswordChangedEvent(inputCredentials);
+      const event = new UserPasswordChangedEvent(inputUserId);
       expect(event.eventName).toBe('authentication.user.password.changed');
     });
   });
@@ -71,13 +72,13 @@ describe('Authentication Domain Events', () => {
   describe('UserPasswordResetRequestedEvent', () => {
     const inputRawToken = 'raw-reset-token-abc123';
 
-    it('toJSON returns authId and email', () => {
+    it('toJSON returns userId and email', () => {
       const event = new UserPasswordResetRequestedEvent(
         inputCredentials,
         inputRawToken,
       );
       expect(event.toJSON()).toEqual({
-        authId: inputCredentials.authId,
+        userId: inputCredentials.authId,
         email: inputCredentials.email,
       });
     });
@@ -102,9 +103,9 @@ describe('Authentication Domain Events', () => {
   });
 
   describe('UserPasswordResetCompletedEvent', () => {
-    it('toJSON returns authId only', () => {
+    it('toJSON returns userId only', () => {
       const event = new UserPasswordResetCompletedEvent(inputCredentials);
-      expect(event.toJSON()).toEqual({ authId: inputCredentials.authId });
+      expect(event.toJSON()).toEqual({ userId: inputCredentials.authId });
     });
 
     it('has the correct eventName', () => {

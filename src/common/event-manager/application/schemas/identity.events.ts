@@ -6,12 +6,9 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { EventSchema } from '../event.interface';
-import { Role } from '../../../../../identity/domain/entities/role.enum';
+import { EventSchema } from '../../domain/events/event.interface';
+import { Role } from 'src/common/auth';
 
-/**
- * Base payload for user events
- */
 class BaseUserEventPayload {
   @IsUUID()
   userId: string;
@@ -46,19 +43,10 @@ class BaseUserEventPayload {
   phone?: string;
 }
 
-/**
- * Payload for user created event
- */
 class UserCreatedPayload extends BaseUserEventPayload {}
 
-/**
- * Payload for user updated event
- */
 class UserUpdatedPayload extends BaseUserEventPayload {}
 
-/**
- * Payload for user role changed event
- */
 class UserRoleChangedPayload {
   @IsUUID()
   userId: string;
@@ -71,9 +59,6 @@ class UserRoleChangedPayload {
   operatorId: string;
 }
 
-/**
- * Payload for user deactivated event
- */
 class UserDeactivatedPayload {
   @IsUUID()
   userId: string;
@@ -82,9 +67,6 @@ class UserDeactivatedPayload {
   operatorId: string;
 }
 
-/**
- * Payload for user activated event
- */
 class UserActivatedPayload {
   @IsUUID()
   userId: string;
@@ -93,9 +75,6 @@ class UserActivatedPayload {
   operatorId: string;
 }
 
-/**
- * Payload for user deleted event
- */
 class UserDeletedPayload {
   @IsUUID()
   userId: string;
@@ -104,9 +83,6 @@ class UserDeletedPayload {
   operatorId: string;
 }
 
-/**
- * All identity related event schemas
- */
 export const IdentityEventSchemas = {
   USER_CREATED: {
     eventName: 'identity.user.created',

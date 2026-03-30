@@ -1,8 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { type IEventBus } from 'src/common/event-manager';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -22,7 +21,7 @@ export class InitiatePasswordResetUseCase {
     @Inject(PASSWORD_RESET_TOKEN_REPOSITORY)
     private readonly passwordResetTokenRepository: PasswordResetTokenRepositoryPort,
     @Inject(EVENT_BUS_TOKEN)
-    private readonly eventBus: IEventBus,
+    private readonly eventBus: EventBusPort,
     private readonly configService: ConfigService,
   ) {}
 

@@ -1,13 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { validateSync, ValidationError } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
-import { EventValidationError } from '../../entities/errors/event.errors';
-import { BaseEvent } from '../../entities/events/base.event';
+import { EventValidationError } from '../../../domain/errors/event.errors';
+import { BaseEvent } from '../../../domain/events/base.event';
+import { validateEventPayload } from '../../../application/utils/validate-event-payload';
 
-/**
- * Decorator that validates event payload against its schema
- * Provides type safety and runtime validation
- */
 export function ValidateEvent() {
   return (
     target: any,
@@ -27,32 +22,15 @@ export function ValidateEvent() {
         }
 
         try {
-          // Get event schema
           const schema = event.getSchema();
           if (!schema) {
             throw new EventValidationError('Event schema not found', []);
           }
 
-          // Convert payload to class instance
-          const PayloadClass = schema.schema.constructor as new () => object;
-          const payloadInstance = plainToInstance(PayloadClass, event.payload);
+          const payloadInstance = await validateEventPayload(schema, event.payload);
 
-          // Validate using class-validator
-          const errors: ValidationError[] = validateSync(payloadInstance);
-
-          if (errors.length > 0) {
-            throw new EventValidationError(
-              `Invalid event payload for ${event.eventName}`,
-              errors,
-            );
-          }
-
-          // Return original method result
           return originalMethod.apply(this, [
-            {
-              ...event,
-              payload: payloadInstance,
-            },
+            { ...event, payload: payloadInstance },
           ]);
         } catch (error) {
           logger.error(

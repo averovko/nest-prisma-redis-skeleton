@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN } from 'src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../../domain/ports/credentials.repository.port';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '../../domain/ports/password-reset-token.repository.port';
 import { UserPasswordResetRequestedEvent } from '../../domain/events/user.events';

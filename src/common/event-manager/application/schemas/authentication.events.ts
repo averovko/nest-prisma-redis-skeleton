@@ -1,53 +1,29 @@
 import { IsEmail, IsUUID } from 'class-validator';
-import { EventSchema } from '../event.interface';
+import { EventSchema } from '../../domain/events/event.interface';
 
-/**
- * Base payload for user events
- */
 class BaseAuthenticationPayload {
   @IsUUID()
-  authId: string;
+  userId: string;
 }
 
-/**
- * Payload for user registered event
- */
 export class UserRegisteredPayload extends BaseAuthenticationPayload {
   @IsEmail()
   email: string;
 }
 
-/**
- * Payload for user logged in event
- */
 export class UserLoggedInPayload extends BaseAuthenticationPayload {}
 
-/**
- * Payload for user logged out event
- */
 export class UserLoggedOutPayload extends BaseAuthenticationPayload {}
 
-/**
- * Payload for user password changed event
- */
 export class UserPasswordChangedPayload extends BaseAuthenticationPayload {}
 
-/**
- * Payload for password reset requested event
- */
 export class UserPasswordResetRequestedPayload extends BaseAuthenticationPayload {
   @IsEmail()
   email: string;
 }
 
-/**
- * Payload for password reset completed event
- */
 export class UserPasswordResetCompletedPayload extends BaseAuthenticationPayload {}
 
-/**
- * All authentication related event schemas
- */
 export const AuthenticationEventSchemas = {
   USER_REGISTERED: {
     eventName: 'authentication.user.registered',

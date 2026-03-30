@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppError } from 'src/common/errors';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN } from 'src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../../domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../../domain/ports/refresh-token.repository.port';
 import { AuthenticationErrorCode } from '../../domain/errors/authentication.error-codes';

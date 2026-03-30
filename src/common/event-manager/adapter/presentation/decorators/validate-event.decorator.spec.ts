@@ -1,8 +1,8 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { ValidateEvent } from './validate-event.decorator';
-import { BaseEvent } from '../../entities/events/base.event';
-import { EventSchema } from '../../entities/events/event.interface';
-import { EventValidationError } from '../../entities/errors/event.errors';
+import { BaseEvent } from '../../../domain/events/base.event';
+import { EventSchema } from '../../../domain/events/event.interface';
+import { EventValidationError } from '../../../domain/errors/event.errors';
 
 class TestPayload {
   @IsString()

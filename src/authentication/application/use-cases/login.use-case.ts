@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { type IEventBus } from 'src/common/event-manager';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -36,7 +35,7 @@ export class LoginUseCase {
     @Inject(TOKEN_ISSUER_PORT)
     private readonly tokenIssuer: TokenIssuerPort,
     @Inject(EVENT_BUS_TOKEN)
-    private readonly eventBus: IEventBus,
+    private readonly eventBus: EventBusPort,
     private readonly configService: ConfigService,
   ) {}
 

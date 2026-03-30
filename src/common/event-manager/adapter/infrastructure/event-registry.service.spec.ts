@@ -1,18 +1,10 @@
-jest.mock('../../../identity/domain/entities/role.enum', () => ({
+jest.mock('src/common/auth', () => ({
   Role: { USER: 'USER', ADMIN: 'ADMIN', ROOT: 'ROOT' },
 }));
 
-jest.mock('class-validator', () => ({
-  ...jest.requireActual('class-validator'),
-  validateSync: jest.fn().mockReturnValue([]),
-}));
-
-import { validateSync, ValidationError } from 'class-validator';
 import { EventRegistryService } from './event-registry.service';
-import { EventSchema } from '../entities/events/event.interface';
-import { EventValidationError } from '../entities/errors/event.errors';
-
-const mockValidateSync = validateSync as jest.MockedFunction<typeof validateSync>;
+import { EventSchema } from '../../domain/events/event.interface';
+import { EventValidationError } from '../../domain/errors/event.errors';
 
 class MockPayload {
   value: string;
@@ -94,20 +86,6 @@ describe('EventRegistryService', () => {
 
     it('throws EventValidationError for missing version', () => {
       const schema = { ...buildSchema('test.event'), version: '' };
-
-      expect(() => service.registerEventType(schema)).toThrow(
-        EventValidationError,
-      );
-    });
-
-    it('throws EventValidationError when validateSync returns validation errors', () => {
-      const validationError = Object.assign(new ValidationError(), {
-        property: 'field',
-        constraints: { isUUID: 'must be UUID' },
-      });
-      mockValidateSync.mockReturnValueOnce([validationError]);
-
-      const schema = buildSchema('test.invalid.schema');
 
       expect(() => service.registerEventType(schema)).toThrow(
         EventValidationError,

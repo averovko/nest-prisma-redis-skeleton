@@ -1,8 +1,10 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { EventBusAdapter } from './event-bus.adapter';
-import { BaseEvent } from '../entities/events/base.event';
-import { EventSchema } from '../entities/events/event.interface';
-import { EventValidationError } from '../entities/errors/event.errors';
+import { EventValidator } from './event-validator';
+import { BaseEvent } from '../../domain/events/base.event';
+import { EventSchema } from '../../domain/events/event.interface';
+import { EventValidationError } from '../../domain/errors/event.errors';
+import { EventValidatorPort } from '../../application/ports/event-validator.port';
 
 class SimplePayload {
   @IsString()
@@ -42,10 +44,11 @@ describe('EventBusAdapter', () => {
   let adapter: EventBusAdapter;
   const mockEmitAsync = jest.fn().mockResolvedValue([]);
   const mockEventEmitter = { emitAsync: mockEmitAsync } as any;
+  const eventValidator: EventValidatorPort = new EventValidator();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    adapter = new EventBusAdapter(mockEventEmitter);
+    adapter = new EventBusAdapter(mockEventEmitter, eventValidator);
   });
 
   describe('publish()', () => {

@@ -1,28 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BaseEvent } from '../entities/events/base.event';
-import { EventBusMessage } from '../entities/events/event.interface';
-import { EventValidationError } from '../entities/errors/event.errors';
+import { BaseEvent } from '../../domain/events/base.event';
+import { EventBusMessage } from '../../domain/events/event.interface';
+import { EventValidationError } from '../../domain/errors/event.errors';
+import { EventBusPort } from '../../application/ports/event-bus.port';
+import { type EventValidatorPort, EVENT_VALIDATOR_TOKEN } from '../../application/ports/event-validator.port';
 
-/**
- * Adapter for publishing and subscribing to events using NestJS EventEmitter
- */
 @Injectable()
-export class EventBusAdapter {
-  private readonly logger: Logger;
+export class EventBusAdapter implements EventBusPort {
+  private readonly logger = new Logger(EventBusAdapter.name);
 
-  constructor(private readonly eventEmitter: EventEmitter2) {
-    this.logger = new Logger(EventBusAdapter.name);
-  }
+  constructor(
+    private readonly eventEmitter: EventEmitter2,
+    @Inject(EVENT_VALIDATOR_TOKEN) private readonly eventValidator: EventValidatorPort,
+  ) {}
 
-  /**
-   * Publish an event to all subscribers
-   * @throws EventValidationError if validation fails
-   */
   async publish<T extends object>(event: BaseEvent<T>): Promise<void> {
     try {
-      // Validate event before publishing
-      await event.validate();
+      await this.eventValidator.validate(event.getSchema(), event.payload);
 
       const message: EventBusMessage<T> = {
         eventId: event.eventId,

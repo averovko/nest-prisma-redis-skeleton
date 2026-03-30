@@ -1,7 +1,6 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { BaseEvent } from './base.event';
 import { EventSchema } from './event.interface';
-import { EventValidationError } from '../errors/event.errors';
 
 class TestPayload {
   @IsString()
@@ -27,16 +26,6 @@ class ValidTestEvent extends BaseEvent<TestPayload> {
 
   toJSON(): TestPayload {
     return { value: this.value };
-  }
-}
-
-class InvalidTestEvent extends BaseEvent<TestPayload> {
-  constructor() {
-    super(testSchema);
-  }
-
-  toJSON(): TestPayload {
-    return { value: '' };
   }
 }
 
@@ -103,22 +92,6 @@ describe('BaseEvent', () => {
       const event = new ValidTestEvent('hello');
 
       expect(event.getPartitionKey()).toBe(event.eventId);
-    });
-  });
-
-  describe('validate()', () => {
-    it('resolves without error for a valid payload', async () => {
-      const event = new ValidTestEvent('hello');
-
-      await expect(event.validate()).resolves.toBeUndefined();
-    });
-
-    it('throws EventValidationError for an invalid payload', async () => {
-      const event = new InvalidTestEvent();
-
-      await expect(event.validate()).rejects.toBeInstanceOf(
-        EventValidationError,
-      );
     });
   });
 

@@ -124,7 +124,8 @@ export class AuthenticationController {
     @AuthContext() authCtx: AuthCtx,
   ): Promise<void> {
     const person = authCtx.getPerson();
-    await this.changePasswordUseCase.execute(person!.authId, body);
+    const user = authCtx.getUser();
+    await this.changePasswordUseCase.execute(person!.authId, user!.id, body);
   }
 
   @Post('reset-password')

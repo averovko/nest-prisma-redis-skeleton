@@ -1,6 +1,5 @@
-import { BaseEvent } from '../../../common/event-manager/entities/events/base.event';
-import { EventMetadata } from '../../../common/event-manager/entities/events/event.interface';
-import { AuthenticationEventSchemas } from '../../../common/event-manager/entities/events/schemas';
+import { BaseEvent, AuthenticationEventSchemas } from 'src/common/event-manager';
+import { EventMetadata } from 'src/common/event-manager';
 import { Credentials } from '../entities/credentials.entity';
 
 export class UserRegisteredEvent extends BaseEvent<
@@ -14,8 +13,7 @@ export class UserRegisteredEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_REGISTERED, params);
     this.eventPayload = {
-      // userId: credential.id,
-      authId: credentials.authId,
+      userId: credentials.authId,
       email: credentials.email,
     };
   }
@@ -36,7 +34,7 @@ export class UserLoggedInEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_LOGGED_IN, params);
     this.eventPayload = {
-      authId: credentials.authId,
+      userId: credentials.authId,
     };
   }
 
@@ -56,7 +54,7 @@ export class UserLoggedOutEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_LOGGED_OUT, params);
     this.eventPayload = {
-      authId: credentials.authId,
+      userId: credentials.authId,
     };
   }
 
@@ -71,12 +69,12 @@ export class UserPasswordChangedEvent extends BaseEvent<
   private readonly eventPayload: typeof AuthenticationEventSchemas.USER_PASSWORD_CHANGED.schema;
 
   constructor(
-    credentials: Credentials,
+    userId: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_CHANGED, params);
     this.eventPayload = {
-      authId: credentials.authId,
+      userId: userId,
     };
   }
 
@@ -97,7 +95,7 @@ export class UserPasswordResetRequestedEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_REQUESTED, params);
     this.eventPayload = {
-      authId: credentials.authId,
+      userId: credentials.authId,
       email: credentials.email,
     };
   }
@@ -118,7 +116,7 @@ export class UserPasswordResetCompletedEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_COMPLETED, params);
     this.eventPayload = {
-      authId: credentials.authId,
+      userId: credentials.authId,
     };
   }
 
@@ -127,4 +125,4 @@ export class UserPasswordResetCompletedEvent extends BaseEvent<
   }
 }
 
-export { AuthenticationEventSchemas as USER_EVENTS } from '../../../common/event-manager/entities/events/schemas';
+export { AuthenticationEventSchemas as USER_EVENTS } from 'src/common/event-manager';

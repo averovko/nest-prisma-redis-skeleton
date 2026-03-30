@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthCtx, AuthGuard } from 'src/common/auth';
+import { AuthCtx, AuthGuard, User } from 'src/common/auth';
 import { TokenPairDto } from './dto/token-pair.output.dto';
 import { RegisterUseCase } from '../application/use-cases/register.use-case';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
@@ -22,7 +22,7 @@ describe('AuthenticationController', () => {
   let mockConfirmPasswordResetUseCase: jest.Mocked<ConfirmPasswordResetUseCase>;
 
   const buildMockAuthCtx = (authId = 'auth-id-1'): AuthCtx =>
-    AuthCtx.forPerson({ authId }, undefined);
+    AuthCtx.forPerson({ authId }, { id: 'user-id-1', authId} as unknown as User);
 
   beforeEach(async () => {
     mockRegisterUseCase = { execute: jest.fn() } as any;
@@ -127,6 +127,7 @@ describe('AuthenticationController', () => {
 
       expect(mockChangePasswordUseCase.execute).toHaveBeenCalledWith(
         'auth-id-1',
+        'user-id-1',
         inputBody,
       );
     });

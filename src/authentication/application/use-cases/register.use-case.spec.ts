@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/common/errors';
-import { EVENT_BUS_TOKEN } from 'src/common/event-manager/entities/tokens';
+import { EVENT_BUS_TOKEN } from 'src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../../domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../../domain/ports/refresh-token.repository.port';
 import { PASSWORD_HASHER_PORT } from '../../domain/ports/password-hasher.port';

@@ -1,5 +1,4 @@
-import { ValidationError } from 'class-validator';
-import { EventValidationError } from './event.errors';
+import { EventValidationError, EventFieldError } from './event.errors';
 
 describe('EventValidationError', () => {
   it('is an instance of Error', () => {
@@ -21,11 +20,8 @@ describe('EventValidationError', () => {
   });
 
   it('stores validationErrors array', () => {
-    const validationErrors: ValidationError[] = [
-      Object.assign(new ValidationError(), {
-        property: 'email',
-        constraints: { isEmail: 'email must be an email' },
-      }),
+    const validationErrors: EventFieldError[] = [
+      { field: 'email', messages: ['email must be an email'] },
     ];
     const error = new EventValidationError('failed', validationErrors);
 
@@ -39,22 +35,19 @@ describe('EventValidationError', () => {
   });
 
   describe('getValidationMessages()', () => {
-    it('returns constraint messages from validation errors', () => {
-      const validationErrors: ValidationError[] = [
-        Object.assign(new ValidationError(), {
-          property: 'email',
-          constraints: {
-            isEmail: 'email must be valid',
-            isNotEmpty: 'email should not be empty',
-          },
-        }),
+    it('returns all constraint messages from validation errors', () => {
+      const validationErrors: EventFieldError[] = [
+        {
+          field: 'email',
+          messages: ['email must be valid', 'email should not be empty'],
+        },
       ];
       const error = new EventValidationError('failed', validationErrors);
       const messages = error.getValidationMessages();
 
-      expect(messages).toHaveLength(1);
-      expect(messages[0]).toContain('email must be valid');
-      expect(messages[0]).toContain('email should not be empty');
+      expect(messages).toHaveLength(2);
+      expect(messages).toContain('email must be valid');
+      expect(messages).toContain('email should not be empty');
     });
 
     it('returns empty array when no validation errors', () => {
@@ -64,18 +57,15 @@ describe('EventValidationError', () => {
       expect(messages).toEqual([]);
     });
 
-    it('handles validation errors without constraints', () => {
-      const validationErrors: ValidationError[] = [
-        Object.assign(new ValidationError(), {
-          property: 'field',
-          constraints: undefined,
-        }),
+    it('returns empty array when validation errors have no messages', () => {
+      const validationErrors: EventFieldError[] = [
+        { field: 'field', messages: [] },
       ];
       const error = new EventValidationError('failed', validationErrors);
       const messages = error.getValidationMessages();
 
-      expect(messages).toHaveLength(1);
-      expect(messages[0]).toBe('');
+      expect(messages).toHaveLength(0);
+      expect(messages).toEqual([]);
     });
   });
 });

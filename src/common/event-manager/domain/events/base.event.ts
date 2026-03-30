@@ -1,32 +1,12 @@
 import { v7 as uuidv7 } from 'uuid';
 import { EventBusMessage, EventMetadata, EventSchema } from './event.interface';
-import { EventValidator } from '../validation/event.validator';
 
-/**
- * Base event class that all domain events must extend
- * Implements both event-driven and message-driven patterns
- */
 export abstract class BaseEvent<
   T extends object = object,
 > implements EventBusMessage<T> {
-  /**
-   * Unique identifier for this event instance
-   */
   public readonly eventId: string;
-
-  /**
-   * Name of the event
-   */
   public readonly eventName: string;
-
-  /**
-   * Event metadata
-   */
   public readonly metadata: EventMetadata;
-
-  /**
-   * Schema definition for this event
-   */
   protected readonly schema: EventSchema<T>;
 
   constructor(
@@ -45,39 +25,17 @@ export abstract class BaseEvent<
     };
   }
 
-  /**
-   * Get the event payload
-   * Must match the schema definition
-   */
   abstract toJSON(): T;
 
-  /**
-   * Get the event payload
-   */
   get payload(): T {
     return this.toJSON();
   }
 
-  /**
-   * Get the event schema
-   */
   getSchema(): EventSchema<T> {
     return this.schema;
   }
 
-  /**
-   * Returns the partition key for Kafka
-   * Default implementation uses eventId
-   */
   getPartitionKey(): string {
     return this.eventId;
-  }
-
-  /**
-   * Validate the event payload against its schema
-   * @throws EventValidationError if validation fails
-   */
-  async validate(): Promise<void> {
-    await EventValidator.validate(this.schema, this.payload);
   }
 }
