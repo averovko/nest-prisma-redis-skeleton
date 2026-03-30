@@ -1,0 +1,95 @@
+---
+description: Hexagonal, onion, and clean architecture patterns and layer rules
+globs: src/**/*.ts
+alwaysApply: false
+---
+# Hexagonal Architecture
+
+This project follows hexagonal (ports & adapters), onion, and clean architecture.
+
+## Layer Definitions
+
+```
+presentation → application → domain ← infrastructure
+```
+
+### Domain Layer (`domain/`)
+- Pure TypeScript, zero framework dependencies (no NestJS decorators)
+- Contains: entities, value objects, events, errors, repository port interfaces
+- Port interfaces define contracts: `{Entity}RepositoryPort`
+- DI tokens use `Symbol('NAME')` or `const NAME = Symbol('NAME')`
+
+### Application Layer (`application/`)
+- May use `@Injectable()` from NestJS
+- Contains: use cases, event handlers, application DTOs
+- Use cases inject ports via `@Inject(TOKEN)`, never concrete implementations
+- Event handlers use `@OnEvent()` and delegate to use cases
+
+### Infrastructure Layer (`infrastructure/`)
+- Implements domain ports using concrete technologies
+- Contains: Prisma repositories, external service adapters
+- Classes implement port interfaces: `class EntityRepository implements EntityRepositoryPort`
+
+### Presentation Layer (`presentation/`)
+- HTTP-facing NestJS controllers with Swagger decorators
+- Contains: controllers, REST DTOs with class-validator
+- DTOs use `fromDomain()` or `fromApplication()` static factory methods
+
+## Dependency Rules
+
+- Domain imports nothing from other layers
+- Application imports from domain only
+- Infrastructure imports from domain (implements ports)
+- Presentation imports from application (uses use cases and DTOs)
+- Infrastructure and presentation never import from each other
+
+```typescript
+// CORRECT: use case injects port interface
+@Inject(CREDENTIALS_REPOSITORY)
+private readonly credentialsRepository: CredentialsRepositoryPort
+
+// WRONG: use case imports concrete repository
+import { CredentialsRepository } from '../../infrastructure/repositories/credentials.repository';
+```
+
+## Port & Adapter Pattern
+
+### Ports (interfaces in `domain/ports/`)
+
+```typescript
+export const ENTITY_REPOSITORY = Symbol('ENTITY_REPOSITORY');
+
+export interface EntityRepositoryPort {
+  create(input: CreateEntityInput): Promise<Entity>;
+  findById(id: string): Promise<Entity | null>;
+}
+```
+
+### Adapters (implementations in `infrastructure/`)
+
+```typescript
+@Injectable()
+export class EntityRepository implements EntityRepositoryPort {
+  constructor(private readonly prisma: PrismaService) {}
+  // ... implement all port methods
+}
+```
+
+### Module Wiring
+
+```typescript
+@Module({
+  providers: [
+    { provide: ENTITY_REPOSITORY, useClass: EntityRepository },
+    SomeUseCase,
+  ],
+})
+```
+
+## Anti-Patterns
+
+- Domain layer importing NestJS decorators (except for event interfaces from common)
+- Use cases instantiating infrastructure classes directly
+- Controllers accessing repositories directly (must go through use cases)
+- Importing from another feature module (use event bus instead)
+- Repository implementations containing business logic

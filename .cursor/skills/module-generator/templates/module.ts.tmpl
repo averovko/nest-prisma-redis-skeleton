@@ -1,0 +1,20 @@
+import { Module } from '@nestjs/common';
+import { AppConfigModule } from 'src/common/configuration/config.module';
+
+@Module({
+  imports: [AppConfigModule],
+  providers: [
+    // Port → Adapter bindings
+    // { provide: ENTITY_REPOSITORY, useClass: EntityRepository },
+
+    // Use cases
+    // CreateEntityUseCase,
+
+    // Event handlers
+    // EntityActivityHandler,
+  ],
+  controllers: [
+    // EntityController,
+  ],
+})
+export class {{ModuleName}}Module {}

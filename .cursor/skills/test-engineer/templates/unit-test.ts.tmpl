@@ -1,0 +1,54 @@
+import { Test, TestingModule } from '@nestjs/testing';
+
+describe('{{UseCaseName}}', () => {
+  let sut: {{UseCaseName}};
+  let mock{{PortName}}: jest.Mocked<{{PortInterface}}>;
+  let mockEventBus: jest.Mocked<EventBusPort>;
+
+  beforeEach(async () => {
+    mock{{PortName}} = {
+      create: jest.fn(),
+      findById: jest.fn(),
+      // TODO: add other port methods
+    };
+
+    mockEventBus = {
+      publish: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        {{UseCaseName}},
+        { provide: {{ENTITY_REPOSITORY}}, useValue: mock{{PortName}} },
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+      ],
+    }).compile();
+
+    sut = module.get({{UseCaseName}});
+  });
+
+  describe('execute', () => {
+    it('should succeed with valid input', async () => {
+      // Arrange
+      const input{{Action}} = { /* TODO: valid input */ };
+      const expected{{Entity}} = { /* TODO: expected result */ };
+      mock{{PortName}}.create.mockResolvedValue(expected{{Entity}});
+
+      // Act
+      const actualResult = await sut.execute(input{{Action}});
+
+      // Assert
+      expect(actualResult).toEqual(expected{{Entity}});
+      expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw when entity not found', async () => {
+      // Arrange
+      mock{{PortName}}.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(sut.execute({ id: 'non-existent' }))
+        .rejects.toThrow();
+    });
+  });
+});

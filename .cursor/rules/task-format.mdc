@@ -12,6 +12,7 @@ alwaysApply: false
 
 Metadata:
   Type: Feature | Bug | Technical Debt | Infrastructure
+  Change Type: New Feature | Enhancement | Bug Fix | Refactoring | Integration
   Component: Backend | Frontend | Infrastructure | Documentation
   Priority: Low | Medium | High
   Status: Backlog | In Progress | Review | Done
@@ -49,3 +50,10 @@ References:
   - Similar implementation: [path]
   - Design file: [link]
 ```
+
+## Task File Locations
+
+- Feature specifications: `tasks/features/FEAT-{id}-{name}.md`
+- Architecture designs: `tasks/designs/DESIGN-{feat-id}.md`
+- Implementation tasks: `tasks/work/TASK-{id}-{name}.md`
+- Test plans: `tasks/tests/TEST-{task-id}.md`

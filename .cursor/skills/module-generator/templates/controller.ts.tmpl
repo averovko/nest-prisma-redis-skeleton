@@ -1,0 +1,29 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  GlobalErrorFilter,
+  ErrorResponse,
+  COMMON_PUBLIC_ERRORS,
+} from 'src/common/errors';
+import { AuthGuard, RolesGuard, RequireAnyRoles, Role } from 'src/common/auth';
+import { CreatedResponse, OkResponse } from 'src/common';
+
+@Controller({ path: '{{module-name}}', version: '1' })
+@UseFilters(GlobalErrorFilter)
+@ApiTags('{{module-name}}')
+@ErrorResponse(COMMON_PUBLIC_ERRORS)
+export class {{ModuleName}}Controller {
+  constructor(
+    // TODO: Inject use cases
+  ) {}
+
+  // TODO: Add endpoint methods
+}

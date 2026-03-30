@@ -1,0 +1,25 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager/application/ports/event-bus.port';
+import {
+  {{ENTITY_NAME}}_REPOSITORY,
+  type {{EntityName}}RepositoryPort,
+} from '../../domain/ports/{{entity-name}}.repository.port';
+
+@Injectable()
+export class {{ActionName}}UseCase {
+  constructor(
+    @Inject({{ENTITY_NAME}}_REPOSITORY)
+    private readonly {{entityName}}Repository: {{EntityName}}RepositoryPort,
+    @Inject(EVENT_BUS_TOKEN)
+    private readonly eventBus: EventBusPort,
+  ) {}
+
+  async execute(input: {{ActionInput}}): Promise<{{ActionOutput}}> {
+    // TODO: Implement business logic
+    // 1. Validate input / check preconditions
+    // 2. Execute domain operation via repository port
+    // 3. Publish domain event via event bus
+    // 4. Return result
+    throw new Error('Not implemented');
+  }
+}

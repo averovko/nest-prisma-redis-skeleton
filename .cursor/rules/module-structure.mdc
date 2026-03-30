@@ -1,0 +1,68 @@
+---
+description: Module folder structure and scaffolding rules for new feature modules
+globs: 
+alwaysApply: false
+---
+# Module Structure
+
+Follow the canonical folder structure defined in `docs/module-structure.md` for every feature module.
+
+## Canonical Layout
+
+```
+src/{module-name}/
+├── {module-name}.module.ts
+├── __fixtures__/
+│   └── {module-name}.fixtures.ts
+├── domain/
+│   ├── entities/
+│   ├── events/
+│   ├── errors/
+│   └── ports/
+├── application/
+│   ├── use-cases/
+│   ├── handlers/
+│   └── dto/
+├── infrastructure/
+│   ├── repositories/
+│   └── services/
+└── presentation/
+    ├── {module-name}.controller.ts
+    └── dto/
+```
+
+## File Naming
+
+- Entities: `{name}.entity.ts`
+- Value objects: `{name}.value-object.ts`
+- Events: `{entity}.events.ts`
+- Errors: `{module}.error-codes.ts`, `{module}.errors.ts`, `{module}.error-factory.ts`
+- Ports: `{entity}.repository.port.ts`
+- Use cases: `{action}.use-case.ts`
+- Handlers: `{entity}-activity.handler.ts`
+- DTOs (application): `{action}.input.ts`, `{entity}.output.ts`
+- Repositories: `{entity}.repository.ts`
+- Services: `{service-name}.service.ts`
+- Controllers: `{module-name}.controller.ts`
+- DTOs (presentation): `{action}.input.dto.ts`, `{entity}.output.dto.ts`
+- Tests: co-located as `{name}.spec.ts`
+
+## Scaffolding Order (Inside-Out)
+
+1. Domain entities and value objects
+2. Domain events with schemas
+3. Domain errors and error factory
+4. Domain port interfaces with DI tokens
+5. Application DTOs
+6. Application use cases
+7. Application event handlers
+8. Infrastructure repositories
+9. Infrastructure services
+10. Presentation DTOs
+11. Presentation controllers
+12. Module file with DI wiring
+13. Register in `app.module.ts`
+
+## Reference
+
+See `docs/module-structure.md` for detailed layer responsibilities, dependency direction, and reference module examples.

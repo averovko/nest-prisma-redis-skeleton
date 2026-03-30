@@ -3,14 +3,17 @@ description: Implementation process and task workflow
 globs: 
 alwaysApply: false
 ---
-## Implementation process
+## Implementation Process
 
 ### STEP 1: Task Analysis
 
-- Extract and undements
+Use the `requirements-analyst` skill if requirements are unclear.
+
+- Extract and understand:
+  - Requirements
   - Acceptance criteria
   - Technical notes
-  - Dependencies task
+  - Dependencies on other tasks
 - Review similar implementations in codebase
 - Identify reusable patterns and components
 - List potential technical challenges
@@ -22,62 +25,72 @@ alwaysApply: false
 - Create feature branch with correct naming
 - Set up test environment if needed
 
-### STEP 3: Confirm current context
+### STEP 3: Confirm Current Context
 
-- If Change Type is one of Enhancement, Integration, Refactoring, you must investigate current code that relate task description
+- If Change Type is Enhancement, Integration, or Refactoring, investigate current code related to task description:
   - Understand impact of change
   - Understand scope of change
-  - Don't change current code if no need
-- Read the file: @architecture.mermaid
-  - Extract and undeboundaries and relationships
-    - Data flow patterns
-    - System interfaces
-    - Component dependencies
-  - Validate any changes against architectural constraints
-  - Ensure new code maintains defined separation of concerns
-- Read the file: @schema.prisma
-- Read the file: @technicalnd the module's ste-structure.md
+  - Don't change current code if not needed
+- Read the module's architecture docs in `docs/`
+- Read `docs/module-structure.md` for folder structure reference
+- Read `prisma/schema.prisma` for data model context
+- Validate changes against @hexagonal-architecture.mdc constraints
+- Ensure new code maintains defined separation of concerns per @event-driven.mdc
 
-### STEP 4: Implementhis task is complex or high risk or integration-heavy, consider to perform Dependency Analysis and Planning first. You can create sub folder in `tasks/work/` to store analysis files.
+### STEP 4: Implementation
+
+Use the `module-generator` skill for scaffolding new modules. Use the `solution-architect` skill if the task is complex, high risk, or integration-heavy.
 
 1. Create skeleton:
-   - Module structure following patterns
-   - Interface definitions
-   - Type definitions
+   - Module structure following `docs/module-structure.md`
+   - Interface definitions (ports)
+   - Type definitions (entities, value objects)
 2. Add tests structure:
-   - Unit test files
+   - Unit test files per @testing-standards.mdc
    - Integration test points
    - E2E test structure
-3. Implement data layer:
-   - Entities/Models
-   - Repositories
+3. Implement data layer (inside-out, domain first):
+   - Entities and value objects
+   - Repository port interfaces with DI tokens
    - Data validation
    - Unit tests
 4. Implement business logic:
-   - Services with clean interfaces
-   - Error handling
-   - Event handling
+   - Use cases with clean interfaces injecting ports
+   - Error handling with module-specific error factory
+   - Event publishing via `EventBusPort`
    - Unit tests
-5. Implement presentation layer:
-   - Controllers/Resolvers
-   - DTOs with validation
+5. Implement infrastructure layer:
+   - Repository implementations (Prisma)
+   - External service adapters
+   - Integration tests
+6. Implement presentation layer:
+   - Controllers with versioning and Swagger decorators
+   - REST DTOs with class-validator decorators
    - API documentation
-   - Unit tests
-6. Add end-to-end tests:
+   - Controller unit tests
+7. Add event handlers:
+   - `@OnEvent()` subscribers in `application/handlers/`
+   - Register event schemas in `src/common/event-manager/application/schemas/`
+8. Add end-to-end tests:
    - Happy path scenarios
    - Error scenarios
    - Edge cases
-7. Add documentation:
+9. Add documentation:
    - API documentation
-   - Technical documentation
+   - Technical documentation in `docs/`
    - Update architecture diagrams
 
 ### STEP 5: Quality Checks
 
+Use the `code-security-reviewer` skill for comprehensive review.
+
 - Run linter and fix issues
-- Run tests and ensure coverage
+- Run tests and ensure coverage meets 80%+ threshold
+- Verify architecture compliance (@hexagonal-architecture.mdc)
+- Verify event patterns (@event-driven.mdc)
 
-### STEP 6: Keep documentation updated
+### STEP 6: Keep Documentation Updated
 
-- Update task status
-- Update relate docs
+- Update task status in `tasks/work/`
+- Update related docs in `docs/`
+- Follow @handoff-templates.mdc for role transitions

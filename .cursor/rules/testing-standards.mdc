@@ -1,0 +1,92 @@
+---
+description: Testing conventions and standards for unit, integration, and e2e tests
+globs: "**/*.spec.ts,**/*.e2e-spec.ts"
+alwaysApply: false
+---
+# Testing Standards
+
+## Test File Naming
+
+- Unit tests: `{name}.spec.ts` (co-located with source)
+- E2E tests: `test/{module}.e2e-spec.ts`
+
+## Test Structure
+
+Follow Arrange-Act-Assert (AAA) pattern:
+
+```typescript
+describe('LoginUseCase', () => {
+  let sut: LoginUseCase;
+  let mockCredentialsRepo: jest.Mocked<CredentialsRepositoryPort>;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        LoginUseCase,
+        { provide: CREDENTIALS_REPOSITORY, useValue: createMockRepo() },
+      ],
+    }).compile();
+    sut = module.get(LoginUseCase);
+    mockCredentialsRepo = module.get(CREDENTIALS_REPOSITORY);
+  });
+
+  describe('execute', () => {
+    it('should return token pair for valid credentials', async () => {
+      // Arrange
+      const inputLogin = { email: 'test@test.com', password: 'password' };
+      const expectedTokenPair = { accessToken: '...', refreshToken: '...' };
+      mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials);
+
+      // Act
+      const actualResult = await sut.execute(inputLogin);
+
+      // Assert
+      expect(actualResult).toEqual(expectedTokenPair);
+    });
+  });
+});
+```
+
+## Variable Naming
+
+- `sut` — System Under Test (the class being tested)
+- `inputX` — test input data
+- `mockX` — mocked dependencies or data
+- `expectedX` — expected result
+- `actualX` — actual result from execution
+
+## Layer-Specific Testing
+
+### Domain Layer (Pure Unit Tests)
+- Test entities, value objects, error factories
+- No mocks needed — pure TypeScript logic
+- Test validation, business rules, edge cases
+
+### Application Layer (Unit Tests with Mocked Ports)
+- Test use cases by mocking all injected ports
+- Use `Test.createTestingModule()` with `useValue` for mocks
+- Verify port method calls with `expect(mock).toHaveBeenCalledWith(...)`
+- Test event publishing: mock `EventBusPort` and verify `publish` calls
+
+### Infrastructure Layer (Integration Tests)
+- Test repository implementations against real or in-memory database
+- Test external service adapters
+- Verify Prisma queries produce correct results
+
+### Presentation Layer (E2E Tests)
+- Use `supertest` with `INestApplication`
+- Test full HTTP request/response cycle
+- Test validation (invalid DTOs), auth guards, error responses
+- Test happy paths and error scenarios
+
+## Coverage Targets
+
+- Domain and use cases: 80%+ coverage
+- Infrastructure: tested via integration tests
+- Presentation: tested via e2e tests
+
+## Event Testing
+
+- Mock `EventBusPort` and verify events are published with correct payload
+- Test event handlers by invoking them directly with constructed events
+- Verify handler idempotency by calling twice with same event

@@ -1,0 +1,12 @@
+import { {{EntityName}} } from '../entities/{{entity-name}}.entity';
+
+export const {{ENTITY_NAME}}_REPOSITORY = Symbol('{{ENTITY_NAME}}_REPOSITORY');
+
+export interface Create{{EntityName}}Input {
+  // TODO: Add creation input fields
+}
+
+export interface {{EntityName}}RepositoryPort {
+  create(input: Create{{EntityName}}Input): Promise<{{EntityName}}>;
+  findById(id: string): Promise<{{EntityName}} | null>;
+}

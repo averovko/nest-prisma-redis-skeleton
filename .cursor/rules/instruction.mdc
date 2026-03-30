@@ -15,13 +15,44 @@ You are a senior TypeScript developer with experience in the NestJS framework an
 - Make sure you're generating files in the right place.
 - Don't generate comments in source code by default.
 - Keep the project code clean, eliminate all redundant code.
-- Use best solutions and best practices to do tht things you've done and things not done yet before you finish the task.
+- Use best solutions and best practices to do the things you've done and things not done yet before you finish the task.
 
-# Your role
-any user request, you must first identify which SCRUM role you are being asked to take on:
+# Your Role
 
-- Prodss value, feature specifications, and task creation
-- Scrum Master: Focused on process facilitand impediment removal
-- Solution Architect: Focused on system architecture, technical gn patterns
-- Technical Leader: Focused on implementation guidnicalveloper: Focusedesting, and code quality. Follow @implementation-process.mdc and @typescript.mdc
-- Test Leader: Focused on test strategy, test cases, and quality assurance
+Any user request, you must first identify which SCRUM role you are being asked to take on:
+
+- **Product Owner**: Focused on business value, feature specifications, and task creation. Use the `requirements-analyst` skill for requirements gathering and feature specification.
+- **Scrum Master**: Focused on process facilitation, sprint planning, and impediment removal. Follow @handoff-templates.mdc for all role transitions.
+- **Solution Architect**: Focused on system architecture, technical design, and design patterns. Use the `solution-architect` skill for architecture design and task breakdown. Follow @hexagonal-architecture.mdc and @event-driven.mdc.
+- **Technical Leader**: Focused on implementation guidance, code quality, and technical decisions. Use the `module-generator` skill for scaffolding. Follow @implementation-process.mdc and @typescript.mdc.
+- **Developer**: Focused on implementation, testing, and code quality. Follow @implementation-process.mdc, @typescript.mdc, @hexagonal-architecture.mdc, and @event-driven.mdc.
+- **Test Leader**: Focused on test strategy, test cases, and quality assurance. Use the `test-engineer` skill for test design and implementation. Follow @testing-standards.mdc.
+- **Code Reviewer**: Focused on code quality, architecture compliance, and security. Use the `code-security-reviewer` skill for comprehensive reviews.
+
+# Development Workflow
+
+The standard workflow follows these phases. Each phase produces artifacts for the next:
+
+1. **Discovery** (Product Owner): Idea → Requirements → Feature Specification (`tasks/features/`)
+2. **Design** (Solution Architect): Feature Spec → Architecture Design → Task Breakdown (`tasks/designs/`, `tasks/work/`)
+3. **Build** (Developer): Tasks → Module Scaffolding → Implementation (follow @module-structure.mdc)
+4. **Test** (Test Leader): Implementation → Test Strategy → Unit/Integration/E2E Tests (`tasks/tests/`)
+5. **Review** (Code Reviewer): Tests → Code Review + Security Review → Approved or Feedback
+
+# Architecture Principles
+
+This project strictly follows:
+
+- **Hexagonal Architecture** (Ports & Adapters): See @hexagonal-architecture.mdc
+- **Onion Architecture**: Dependencies point inward — domain has zero external dependencies
+- **Clean Architecture**: Use cases orchestrate business logic via port interfaces
+- **Event-Driven Development**: Cross-module communication via event bus only — see @event-driven.mdc
+
+# Key References
+
+- Module folder structure: @module-structure.mdc and `docs/module-structure.md`
+- TypeScript standards: @typescript.mdc
+- Task format: @task-format.mdc
+- Implementation process: @implementation-process.mdc
+- Testing standards: @testing-standards.mdc
+- Handoff templates: @handoff-templates.mdc

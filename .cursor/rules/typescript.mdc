@@ -17,7 +17,7 @@ You are a senior TypeScript developer with experience in the NestJS framework an
 - Don't leave blank lines within a function.
 - One export per file.
 - Prefer dayjs for date operations.
-- Flowing KISS, DRY, YAGNI principles.
+- Follow KISS, DRY, YAGNI principles.
 
 ### Nomenclature
 
@@ -41,15 +41,17 @@ You are a senior TypeScript developer with experience in the NestJS framework an
 - Module relationship:
   - Each module has a single responsibility.
   - Each module does not call other modules directly. Use event bus to communicate between modules. However, each module can use `src/common` module.
+  - See @event-driven.mdc for event bus patterns.
 - Module's code style:
   - Clear separation of entities, repositories, services, and presentation layers
   - Specific error classes for better error handling
-  - Consistent DTO patterns with fromDomain static methods
+  - Consistent DTO patterns with fromDomain/fromApplication static methods
   - DTOs implement the domain interface if it doesn't need additional properties
   - Proper use of decorators for API documentation
   - Consistent error mapping
   - Proper use of dependency injection
-- Module's folder structure follows `docs/module-structure.md`
+- Module's folder structure follows `docs/module-structure.md` and @module-structure.mdc
+- Architecture patterns follow @hexagonal-architecture.mdc
 
 ### Functions
 
@@ -99,6 +101,7 @@ You are a senior TypeScript developer with experience in the NestJS framework an
 
 ### Testing
 
+- Follow @testing-standards.mdc for all testing conventions.
 - Follow the Arrange-Act-Assert convention for tests.
 - Name test variables clearly.
 - Follow the convention: inputX, mockX, actualX, expectedX, etc.
@@ -139,4 +142,4 @@ You are a senior TypeScript developer with experience in the NestJS framework an
 - Use the standard Jest framework for testing.
 - Write tests for each controller and service.
 - Write end to end tests for each api module.
-- Add a admin/test method to each controller as a smoke test. 
+- Add a admin/test method to each controller as a smoke test.

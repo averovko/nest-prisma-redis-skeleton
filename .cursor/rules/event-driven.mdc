@@ -1,0 +1,99 @@
+---
+description: Event-driven development patterns and event bus usage
+globs: src/**/*.ts
+alwaysApply: false
+---
+# Event-Driven Development
+
+Cross-module communication uses the event bus exclusively. Modules never import from each other directly.
+
+## Event Naming Convention
+
+Format: `{module}.{entity}.{action}` (dot-separated, lowercase)
+
+```typescript
+'authentication.user.registered'
+'authentication.user.logged.in'
+'identity.user.created'
+'identity.user.updated'
+```
+
+## Publishing Events
+
+### 1. Define Event Schema (`src/common/event-manager/application/schemas/{module}.events.ts`)
+
+```typescript
+import { IsUUID, IsEmail } from 'class-validator';
+import { EventSchema } from '../../domain/events/event.interface';
+
+class EntityActionPayload {
+  @IsUUID()
+  entityId: string;
+}
+
+export const ModuleEventSchemas = {
+  ENTITY_ACTION: {
+    eventName: 'module.entity.action',
+    schema: new EntityActionPayload(),
+    version: '1.0.0',
+    module: 'module-name',
+    description: 'Emitted when entity action occurs',
+  } as EventSchema<EntityActionPayload>,
+} as const;
+```
+
+### 2. Create Event Class (`{module}/domain/events/{entity}.events.ts`)
+
+```typescript
+import { BaseEvent } from 'src/common/event-manager';
+
+export class EntityActionEvent extends BaseEvent<typeof ModuleEventSchemas.ENTITY_ACTION.schema> {
+  private readonly eventPayload: typeof ModuleEventSchemas.ENTITY_ACTION.schema;
+
+  constructor(entityId: string, params?: Omit<EventMetadata, 'version' | 'timestamp'>) {
+    super(ModuleEventSchemas.ENTITY_ACTION, params);
+    this.eventPayload = { entityId };
+  }
+
+  toJSON() {
+    return this.eventPayload;
+  }
+}
+
+export { ModuleEventSchemas as MODULE_EVENTS } from 'src/common/event-manager';
+```
+
+### 3. Publish from Use Case
+
+```typescript
+@Inject(EVENT_BUS_TOKEN)
+private readonly eventBus: EventBusPort;
+
+await this.eventBus.publish(new EntityActionEvent(entity.id));
+```
+
+## Subscribing to Events
+
+Create handler classes in `{module}/application/handlers/`:
+
+```typescript
+@Injectable()
+export class EntityActivityHandler {
+  constructor(private readonly someUseCase: SomeUseCase) {}
+
+  @OnEvent(MODULE_EVENTS.ENTITY_ACTION.eventName)
+  handleEntityAction(event: EntityActionEvent) {
+    return this.someUseCase.execute(event);
+  }
+}
+```
+
+## Rules
+
+- Event handlers must be idempotent — processing the same event twice produces the same result
+- Event handlers delegate to use cases, never contain business logic directly
+- Use `correlationId` in event metadata for tracing across module boundaries
+- Event payloads use `class-validator` decorators for runtime validation
+- Register all event schemas in `src/common/event-manager/application/schemas/`
+- Export event schemas index from `src/common/event-manager/application/schemas/index.ts`
+- Re-export schemas as `MODULE_EVENTS` from the domain events index

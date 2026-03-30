@@ -1,13 +1,41 @@
 ---
-description: Handoff Message Templates, finish work proceduce
+description: Handoff Message Templates, finish work procedure
 globs: 
 alwaysApply: false
 ---
 # Handoff Message Templates
 
-This document contains standardized templates for all handoff messages in the SCRUM workflow. Use these templates for consistency and clarity when handing off work between roles.
+Standardized templates for all handoff messages in the SCRUM workflow. Use these templates for consistency and clarity when handing off work between roles.
+
+## Requirements Analysis Complete
+
+```
+@SolutionArchitect
+
+Task: [Task-ID]
+
+Requirements analysis for [Feature Name] is complete and ready for architecture design.
+
+Completed:
+- Feature specification documented in tasks/features/FEAT-[id]-[name].md
+- User stories and acceptance criteria defined
+- Domain events identified
+- Integration points mapped
+- Edge cases documented
+
+Next steps:
+- Architecture design needed
+- Task breakdown to follow
+
+Links:
+- Feature specification: tasks/features/FEAT-[id]-[name].md
+- Related documents: docs/[related-doc].md
+
+Priority: [High/Medium/Low]
+```
 
 ## Feature Specification Complete
+
 ```
 @SolutionArchitect
 
@@ -16,7 +44,7 @@ Task: [Task-ID]
 Feature specification for [Feature Name] is complete and ready for architecture review.
 
 Completed:
-- Business requirements documented in [business.md](mdc:docs/business.md)
+- Business requirements documented in tasks/features/FEAT-[id]-[name].md
 - User stories and acceptance criteria defined
 - Integration points identified
 
@@ -25,7 +53,7 @@ Next steps:
 - Technical design to follow
 
 Links:
-- Feature documentation: docs/business.md#[feature-section]
+- Feature documentation: tasks/features/FEAT-[id]-[name].md
 - Related documents: docs/[related-doc].md
 - Commit: [link-to-actual-commit]
 
@@ -33,6 +61,7 @@ Priority: [High/Medium/Low]
 ```
 
 ## Architecture Review Complete
+
 ```
 @ScrumMaster
 
@@ -41,8 +70,8 @@ Task: [Task-ID]
 Architecture review for [Feature Name] is complete and ready for sprint consideration.
 
 Completed:
-- Architecture decisions documented in [link-to-actual-docs]
-- Component diagrams updated in [link-to-actual-docs]
+- Architecture decisions documented in tasks/designs/DESIGN-[feat-id].md
+- Component diagrams updated
 - Technical constraints identified
 
 Next steps:
@@ -50,8 +79,7 @@ Next steps:
 - Decision on current or future sprint inclusion required
 
 Links:
-- Architecture document: [link-to-actual-docs]
-- Component diagrams: [link-to-actual-docs]
+- Architecture document: tasks/designs/DESIGN-[feat-id].md
 - Commit: [link-to-actual-commit]
 
 Technical considerations:
@@ -61,6 +89,7 @@ Technical considerations:
 ```
 
 ## Architecture Review Decision
+
 ```
 @ProductOwner @SolutionArchitect
 
@@ -93,6 +122,7 @@ Additional information:
 ```
 
 ## Tasks Ready for Planning
+
 ```
 @ScrumMaster
 
@@ -111,7 +141,7 @@ Next steps:
 - Priority assessment
 
 Links:
-- Task details: tasks/backlog.md#[task-id]
+- Task details: tasks/work/TASK-[id]-[name].md
 - Related tasks: [links to related tasks]
 - Commit: [link-to-actual-commit]
 
@@ -121,105 +151,8 @@ Task Information:
 - Risk level: [Low/Medium/High]
 ```
 
-## Task Selection for Sprint
-```
-@ProductOwner
-
-Task selection for Sprint [X] is ready for review.
-
-Completed:
-- Task prioritization
-- Capacity planning
-- Dependency mapping
-- Risk assessment
-
-Proposed Tasks:
-- [Task-ID-1]: [Brief description], [Story Points]
-- [Task-ID-2]: [Brief description], [Story Points]
-- [Task-ID-3]: [Brief description], [Story Points]
-- [Optional Task-ID-4]: [Brief description], [Story Points]
-
-Next steps:
-- Your review and approval needed
-- Sprint planning meeting scheduled for [date/time]
-- Team capacity: [X] story points available
-
-Links:
-- Proposed sprint tasks: tasks/sprint-planning/sprint-[X]-proposal.md
-- Task details: tasks/backlog.md
-- Previous sprint metrics: tasks/sprint-metrics/sprint-[X-1].md
-
-Selection Rationale:
-- [Explanation of task selection criteria]
-- [Notes on priorities and dependencies]
-- [Capacity considerations]
-```
-
-## Sprint Planning Complete
-```
-@Team
-
-Sprint planning for Sprint [X] is complete.
-
-Completed:
-- Sprint goals defined
-- Tasks selected and prioritized
-- Work capacity allocated
-- Dependencies identified
-
-Selected Tasks:
-- [Task-ID-1]: [Brief description] - Assigned to @Developer1
-- [Task-ID-2]: [Brief description] - Assigned to @Developer2
-- [Task-ID-3]: [Brief description] - Assigned to @TestLeader
-
-Next steps:
-- Development work to begin
-- Daily standups at [time]
-- Sprint review scheduled for [date]
-
-Links:
-- Sprint planning document: tasks/sprint-planning/sprint-[X].md
-- Sprint backlog: tasks/sprint-current-tasks.md
-- Commit: [link-to-commit-with-sprint-planning-updates]
-
-Sprint Goals:
-- [Primary sprint objective]
-- [Secondary sprint objective]
-```
-
-## Technical Design Request
-```
-@TechnicalLeader
-
-Tasks for Sprint [X] are ready for technical design.
-
-Tasks requiring design:
-- [Task-ID-1]: [Brief description]
-- [Task-ID-2]: [Brief description]
-- [Task-ID-3]: [Brief description]
-
-Sprint constraints:
-- Design deadline: [Date - typically 2-3 days into sprint]
-- Sprint end date: [Date]
-- Implementation dependencies: [List any critical dependencies]
-
-Architecture references:
-- Feature architecture: [link-to-architecture-docs]
-- System components: [link-to-component-docs]
-- Design decisions: [link-to-design-decisions]
-
-Priority order:
-- 1: [Task-ID-1] - Critical path
-- 2: [Task-ID-2] - Dependent tasks waiting
-- 3: [Task-ID-3] - Can be designed later in sprint
-
-Links:
-- Sprint backlog: tasks/sprint-current-tasks.md
-- Architecture documents: docs/architecture-decisions.md
-- Previous similar implementations: [links to relevant code]
-```
-
 ## Technical Design Complete
+
 ```
 @Developer
 
@@ -228,16 +161,16 @@ Task: [Task-ID]
 Technical design for [Task-ID] is complete.
 
 Completed:
-- Component design documented in [link-to-actual-docs]
-- Interface contracts defined in [link-to-actual-docs]
+- Component design documented in tasks/designs/DESIGN-[feat-id].md
+- Interface contracts defined
 - Implementation patterns selected
 
 Next steps:
-- Implementation
-- Test creation
+- Implementation using module-generator skill
+- Test creation using test-engineer skill
 
 Links:
-- Technical design document: [link-to-actual-docs]
+- Technical design document: tasks/designs/DESIGN-[feat-id].md
 - Example patterns: [link-to-actual-docs]
 - Commit: [link-to-actual-commit]
 
@@ -246,25 +179,26 @@ Implementation guidance:
 ```
 
 ## Implementation Complete
+
 ```
-@TechnicalLeader
+@TestLeader
 
 Task: [Task-ID]
 
-Implementation for [Task-ID] is complete and ready for review.
+Implementation for [Task-ID] is complete and ready for testing.
 
 Completed:
 - All requirements implemented
-- Tests created with [X]% coverage
+- Unit tests created with [X]% coverage
 - Documentation updated
 
 Next steps:
-- Code review needed
-- Address any feedback
+- Test strategy design using test-engineer skill
+- Integration and E2E test creation
+- Code review using code-security-reviewer skill
 
 Links:
-- Pull request: https://github.com/org/repo/pull/123
-- Key implementation files: 
+- Key implementation files:
   - src/[module]/[file1].ts
   - src/[module]/[file2].ts
 - Test results: [link-to-test-results]
@@ -274,6 +208,7 @@ Implementation notes:
 ```
 
 ## Code Review Complete
+
 ```
 @TestLeader
 
@@ -282,7 +217,7 @@ Task: [Task-ID]
 Implementation for [Task-ID] is approved and ready for testing.
 
 Completed:
-- Code review
+- Code review (architecture compliance, code quality, security)
 - Implementation verified against requirements
 - Documentation reviewed
 
@@ -292,15 +227,16 @@ Next steps:
 - Acceptance testing
 
 Links:
-- Approved PR: https://github.com/org/repo/pull/123
+- Approved PR: [link-to-pr]
 - Implementation documentation: docs/[module]/[feature].md
-- Merged code: src/[module]/[feature]/
+- Merged code: src/[module]/
 
 Testing considerations:
 - [Key testing considerations with file references]
 ```
 
 ## Testing Complete
+
 ```
 @ProductOwner
 
@@ -309,54 +245,55 @@ Task: [Task-ID]
 [Feature Name] has passed all testing and is ready for acceptance.
 
 Completed:
-- Functional testing
-- Integration testing
-- Performance testing
+- Unit tests: [X]% coverage
+- Integration tests: [status]
+- E2E tests: [status]
+- Security review: [status]
 
 Next steps:
 - Acceptance review
 - Release preparation
 
 Links:
-- Test results: tests/results/[feature-name].md
+- Test plan: tasks/tests/TEST-[task-id].md
+- Test results: [link-to-test-results]
 - Feature documentation: docs/[feature-name].md
-- Deployed feature URL: [if applicable]
 
 Performance metrics:
 - [Key performance metrics]
 ```
 
-## Daily Sprint Status Update
+## Security Review Complete
+
 ```
-@Team
+@Developer
 
-Sprint [X] Day [Y] status update:
+Task: [Task-ID]
 
-Progress:
-- [Task-ID-1]: [Status] - [Progress details]
-- [Task-ID-2]: [Status] - [Progress details]
-- [Task-ID-3]: [Status] - [Progress details]
+Security review for [Task-ID] is complete.
 
-Blockers:
-- [Blocker-1]: [Description] - Owned by @[Role]
-- [Blocker-2]: [Description] - Owned by @[Role]
+Result: [APPROVED / ISSUES FOUND]
 
-Risk Assessment:
-- [Risk-1]: [Mitigation plan]
-- [Risk-2]: [Mitigation plan]
+Findings:
+- CRITICAL: [count] issues requiring immediate fix
+- WARNING: [count] issues that should be addressed
+- SUGGESTION: [count] optional improvements
+
+Details:
+- [Finding 1]: [Description] — [Recommendation]
+- [Finding 2]: [Description] — [Recommendation]
 
 Next steps:
-- [Team-wide action item]
-- [Role-specific action items]
-- Tomorrow's focus areas
+- [If approved] Ready for merge
+- [If issues found] Fix critical and warning issues, then re-review
 
 Links:
-- Updated sprint board: tasks/sprint-current-tasks.md
-- Burndown chart: tasks/sprint-metrics/sprint-[X]-burndown.md
-- Commit: [link-to-sprint-status-update-commit]
+- Review report: [link]
+- OWASP reference: [link]
 ```
 
 ## Sprint Completion
+
 ```
 @Team @ProductOwner
 
@@ -387,5 +324,4 @@ Next steps:
 Links:
 - Sprint summary: docs/sprint-summaries/sprint-[X]-summary.md
 - Sprint metrics: docs/sprint-metrics/sprint-[X]-metrics.md
-- Sprint demo recording: [link if applicable]
 ```

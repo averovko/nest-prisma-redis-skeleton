@@ -1,0 +1,20 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/common/prisma/prisma.service';
+import {
+  {{EntityName}}RepositoryPort,
+  Create{{EntityName}}Input,
+} from '../../domain/ports/{{entity-name}}.repository.port';
+import { {{EntityName}} } from '../../domain/entities/{{entity-name}}.entity';
+
+@Injectable()
+export class {{EntityName}}Repository implements {{EntityName}}RepositoryPort {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(input: Create{{EntityName}}Input): Promise<{{EntityName}}> {
+    return this.prisma.client.{{entityName}}.create({ data: input });
+  }
+
+  async findById(id: string): Promise<{{EntityName}} | null> {
+    return this.prisma.client.{{entityName}}.findUnique({ where: { id } });
+  }
+}
