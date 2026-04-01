@@ -139,6 +139,47 @@ describe('RegisterUseCase', () => {
       );
     });
 
+    it('includes firstName in the published UserRegisteredEvent', async () => {
+      mockCredentialsRepo.existsByEmail.mockResolvedValue(false);
+      mockPasswordHasher.hash.mockResolvedValue('$2b$12$hashed');
+      mockCredentialsRepo.create.mockResolvedValue(mockCredentials());
+      mockTokenIssuer.issueTokenPair.mockReturnValue(mockTokenPair());
+      mockRefreshTokenRepo.create.mockResolvedValue({});
+
+      await useCase.execute(inputRegister);
+
+      const publishedEvent: UserRegisteredEvent =
+        mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.payload.firstName).toBe(inputRegister.firstName);
+    });
+
+    it('forwards requestContext as event metadata when provided', async () => {
+      mockCredentialsRepo.existsByEmail.mockResolvedValue(false);
+      mockPasswordHasher.hash.mockResolvedValue('$2b$12$hashed');
+      mockCredentialsRepo.create.mockResolvedValue(mockCredentials());
+      mockTokenIssuer.issueTokenPair.mockReturnValue(mockTokenPair());
+      mockRefreshTokenRepo.create.mockResolvedValue({});
+      const requestContext = { ipAddress: '1.2.3.4', userAgent: 'UA', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+
+      await useCase.execute(inputRegister, requestContext);
+
+      const publishedEvent: UserRegisteredEvent = mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.metadata.metadata).toEqual(requestContext);
+    });
+
+    it('publishes event without metadata when requestContext is not provided', async () => {
+      mockCredentialsRepo.existsByEmail.mockResolvedValue(false);
+      mockPasswordHasher.hash.mockResolvedValue('$2b$12$hashed');
+      mockCredentialsRepo.create.mockResolvedValue(mockCredentials());
+      mockTokenIssuer.issueTokenPair.mockReturnValue(mockTokenPair());
+      mockRefreshTokenRepo.create.mockResolvedValue({});
+
+      await useCase.execute(inputRegister);
+
+      const publishedEvent: UserRegisteredEvent = mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.metadata.metadata).toBeUndefined();
+    });
+
     it('throws EMAIL_ALREADY_TAKEN when email is already registered', async () => {
       mockCredentialsRepo.existsByEmail.mockResolvedValue(true);
 

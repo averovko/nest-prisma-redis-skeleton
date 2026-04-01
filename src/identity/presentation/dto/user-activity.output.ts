@@ -1,0 +1,35 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { UserActivityType } from '../../domain/entities/user-activity.entity';
+
+import { UserActivity } from '../../domain/entities/user-activity.entity';
+
+export class UserActivityDto {
+  @ApiProperty({ example: '018fb0ab-f1e3-7bd7-961c-8b14b479a718' })
+  id: string;
+
+  @ApiProperty({ example: '018fb0ab-f1e3-7bd7-961c-8b14b479a710' })
+  authId: string;
+
+  @ApiProperty({ example: '018fb0ab-f1e3-7bd7-961c-8b14b479a711' })
+  performedBy?: string;
+
+  @ApiProperty({ example: UserActivityType.ACCOUNT_ACTIVATED })
+  activityType: string;
+
+  @ApiProperty({ example: { timestamp: new Date() } })
+  details: Record<string, any>;
+
+  @ApiProperty({ example: new Date() })
+  timestamp: Date;
+
+  static fromApplication(activity: UserActivity): UserActivityDto {
+    return {
+      id: activity.id,
+      authId: activity.authId,
+      performedBy: activity.performedBy ?? '',
+      activityType: activity.activityType,
+      details: activity.details,
+      timestamp: activity.timestamp,
+    };
+  }
+}

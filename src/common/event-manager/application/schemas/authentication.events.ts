@@ -1,14 +1,17 @@
-import { IsEmail, IsUUID } from 'class-validator';
+import { IsEmail, IsString, IsUUID } from 'class-validator';
 import { EventSchema } from '../../domain/events/event.interface';
 
 class BaseAuthenticationPayload {
   @IsUUID()
-  userId: string;
+  authId: string;
 }
 
 export class UserRegisteredPayload extends BaseAuthenticationPayload {
   @IsEmail()
   email: string;
+
+  @IsString()
+  firstName: string;
 }
 
 export class UserLoggedInPayload extends BaseAuthenticationPayload {}

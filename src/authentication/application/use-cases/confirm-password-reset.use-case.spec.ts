@@ -91,6 +91,22 @@ describe('ConfirmPasswordResetUseCase', () => {
       );
     });
 
+    it('forwards requestContext as event metadata when provided', async () => {
+      mockPasswordResetTokenRepo.findByHash.mockResolvedValue(mockPasswordResetToken());
+      mockCredentialsRepo.findById.mockResolvedValue(mockCredentials());
+      mockPasswordHasher.hash.mockResolvedValue('$new$hash');
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(mockCredentials());
+      mockPasswordResetTokenRepo.deleteById.mockResolvedValue(undefined);
+      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      const requestContext = { ipAddress: '7.7.7.7', userAgent: 'ResetUA' };
+
+      await useCase.execute(inputConfirm, requestContext);
+
+      const publishedEvent: UserPasswordResetCompletedEvent =
+        mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.metadata.metadata).toEqual(requestContext);
+    });
+
     it('looks up the token by SHA-256 hash of the raw input token', async () => {
       const expectedHash = createHash('sha256')
         .update(inputConfirm.token)

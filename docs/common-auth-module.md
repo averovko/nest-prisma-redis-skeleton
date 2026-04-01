@@ -90,6 +90,35 @@ The module follows **Hexagonal Architecture** (Ports & Adapters):
 
 ---
 
+## Request Context Middleware
+
+**File:** `src/common/presentation/middleware/request-context.middleware.ts`
+
+`RequestContextMiddleware` is a global NestJS middleware registered in `AppModule` for **all routes** (`*`). It runs before guards and route handlers, making request context available to every endpoint — authenticated or not.
+
+```typescript
+@Injectable()
+export class RequestContextMiddleware implements NestMiddleware {
+  use(req: RequestWithContext, _res: Response, next: NextFunction): void {
+    const userDetails = ParseUserAgentHelper(req);
+    req.requestContext = {
+      ipAddress: userDetails.ipAddress,
+      userAgent: userDetails.userAgent,
+      device:    userDetails.device,
+      client:    userDetails.client,
+      os:        userDetails.os,
+    };
+    next();
+  }
+}
+```
+
+The extracted `requestContext` is available as `req.requestContext` (typed `RequestContext | undefined`). Guards and controllers read from this field:
+- `JWTGuard` and `OptionalAuthGuard` call `authCtx.withRequestContext(req.requestContext ?? {})` to enrich the resolved `AuthCtx`.
+- `@ReqContext()` param decorator reads `req.requestContext` directly for unauthenticated routes.
+
+---
+
 ## Folder Structure
 
 ```
@@ -167,7 +196,9 @@ src/common/auth/
                 ├── optional-auth-context.decorator.ts @OptionalAuthContext()
                 ├── optional-auth-context.decorator.spec.ts
                 ├── require-any-roles.decorator.ts     @RequireAnyRoles()
-                └── require-any-roles.decorator.spec.ts
+                ├── require-any-roles.decorator.spec.ts
+                ├── request-context.decorator.ts       @ReqContext()
+                └── request-context.decorator.spec.ts
 ```
 
 ---
@@ -188,6 +219,7 @@ class AuthCtx {
   static forPerson(person: Person, user: User | undefined, expireAt?: number): AuthCtx
   static forService(service: Service, expireAt?: number): AuthCtx
   static fromSnapshot(snapshot: AuthCtxSnapshot): AuthCtx
+  withRequestContext(ctx: RequestContext): AuthCtx  // returns new enriched instance
 
   isPerson(): boolean
   isService(): boolean
@@ -197,6 +229,7 @@ class AuthCtx {
   getPerson(): Person | undefined
   getService(): Service | undefined
   getUser(): User | undefined
+  getRequestContext(): RequestContext | undefined
   requireUser(): User         // throws AuthDomainError('require-user') if absent
   requirePerson(): Person     // throws AuthDomainError('require-person') if absent
   assertHasAnyRole(roles: Role[]): void  // throws AuthDomainError('no-privilege') if unmet
@@ -205,6 +238,21 @@ class AuthCtx {
 ```
 
 **Key contract:** `AuthCtx` is **immutable** after construction (all properties `private readonly`). Serialized to/from `AuthCtxSnapshot` for Redis storage.
+
+`withRequestContext()` returns a **new** `AuthCtx` instance — it does not mutate the original. This keeps cached instances (in Redis) clean: the resolved/cached `AuthCtx` never carries per-request ip/userAgent/device/client/os. The `JWTGuard` calls `withRequestContext()` after resolving the token and attaches the enriched instance to the HTTP request:
+
+```typescript
+interface RequestContext {
+  ipAddress?: string;
+  userAgent?: string;
+  location?: string;
+  device?: string;
+  client?: string;
+  os?: string;
+}
+```
+
+The request context flows through event metadata (`EventMetadata.metadata`) and is extracted by activity use-cases to populate `UserActivity.ipAddress`, `userAgent`, `location`, `device`, `client`, and `os`.
 
 ---
 
@@ -645,6 +693,27 @@ Class/method decorator (sets NestJS metadata). Not a guard itself — consumed b
 
 ---
 
+#### `@ReqContext()`
+
+Returns the `RequestContext` (ip, userAgent, device, client, os) from the request set by `RequestContextMiddleware`. Returns `undefined` if the middleware did not run. **Never throws** — safe for all route types.
+
+Use this on unauthenticated routes where `@AuthContext()` is not available:
+
+```typescript
+@Post('register')
+async register(
+  @Body() body: RegisterDto,
+  @ReqContext() requestContext: RequestContext,
+): Promise<TokenPairDto> {
+  const tokenPair = await this.registerUseCase.execute(body, requestContext);
+  return TokenPairDto.fromApplication(tokenPair);
+}
+```
+
+On authenticated routes, get request context via `authCtx.getRequestContext()` instead (it was set by the guard using the same middleware data).
+
+---
+
 ### `auth-error.mapper.ts`
 
 Maps `AuthAppError` codes to `AppError` (HTTP exceptions) from `src/common/errors`:
@@ -718,29 +787,33 @@ All configuration is loaded via `src/common/configuration/configuration.ts` and 
 HTTP Request: GET /identity/users/me
   Authorization: Bearer eyJhbGc...
 
-  1. JWTGuard.canActivate()
+  1. RequestContextMiddleware.use()
+     └─ req.requestContext = { ipAddress, userAgent, device, client, os }
+
+  2. JWTGuard.canActivate()
      ├─ extractBearerToken() → "eyJhbGc..."
      └─ resolveAuthCtx.execute("eyJhbGc...")
            │
-           ├─ 2. CacheManagerAuthCtxCacheAdapter.getByToken()
+           ├─ 3. CacheManagerAuthCtxCacheAdapter.getByToken()
            │      key = "authCtx:<jwt-signature>"
-           │      Redis HIT → return cached AuthCtx (skip steps 3-6)
+           │      Redis HIT → return cached AuthCtx (skip steps 4-7)
            │
-           ├─ 3. JwtAuthTokenAdapter.resolvePayload()
+           ├─ 4. JwtAuthTokenAdapter.resolvePayload()
            │      decode/verify → TokenPayload { sub, email, phone, exp }
            │
-           ├─ 4. PrismaUserLookupAdapter.findByAuthId(sub)
+           ├─ 5. PrismaUserLookupAdapter.findByAuthId(sub)
            │      SELECT * FROM users WHERE auth_id = sub → User | undefined
            │
-           ├─ 5. AuthCtx.forPerson(person, user, exp)
+           ├─ 6. AuthCtx.forPerson(person, user, exp)
            │
-           └─ 6. CacheManagerAuthCtxCacheAdapter.setByToken()
+           └─ 7. CacheManagerAuthCtxCacheAdapter.setByToken()
                   key = "authCtx:<jwt-signature>", ttlMs = min(remaining exp, maxTtl)
 
-  7. request.authCtx = authCtx
-  8. Controller handler called
-  9. @AuthContext() injects authCtx
- 10. @AuthContextUser() extracts user from authCtx
+  8. request.authCtx = authCtx.withRequestContext(req.requestContext)
+  9. Controller handler called
+ 10. @AuthContext() injects enriched authCtx
+ 11. @AuthContextUser() extracts user from authCtx
+ 12. authCtx.getRequestContext() returns { ipAddress, userAgent, device, client, os }
 ```
 
 ### Role-Protected Route
@@ -757,16 +830,32 @@ HTTP Request: DELETE /identity/users/:id
      └─ authCtxFacade.assertRoles() maps to AuthAppError → mapAuthAppError → AppError 403
 ```
 
+### Unauthenticated Route (e.g. register / login)
+
+```
+HTTP Request: POST /authentication/register
+
+  1. RequestContextMiddleware.use()
+     └─ req.requestContext = { ipAddress, userAgent, device, client, os }
+
+  2. No guard (or no token)
+  3. @ReqContext() → req.requestContext (ip, ua, device, client, os)
+  4. UseCase receives requestContext, publishes event with metadata = requestContext
+```
+
 ### Optional Auth Route
 
 ```
 HTTP Request: GET /feed
   (no Authorization header)
 
-  1. OptionalAuthGuard.canActivate()
+  1. RequestContextMiddleware.use()
+     └─ req.requestContext = { ipAddress, userAgent, device, client, os }
+
+  2. OptionalAuthGuard.canActivate()
      ├─ no Bearer token → return true immediately
-  2. request.authCtx = undefined
-  3. @OptionalAuthContext() → undefined (no error)
+  3. request.authCtx = undefined
+  4. @OptionalAuthContext() → undefined (no error)
 ```
 
 ---
@@ -907,7 +996,7 @@ ttl = max(0, min(ttl, cacheMaxTtlMs))         # cap to 1 hour
 
 ```typescript
 // Domain types
-export { AuthCtx, Role, type User, type Person } from './domain';
+export { AuthCtx, Role, type User, type Person, type RequestContext } from './domain';
 
 // NestJS presentation
 export {
@@ -915,6 +1004,7 @@ export {
   AuthContextUser,    // param decorator → User (or User field)
   OptionalAuthContext,// param decorator → AuthCtx | undefined
   RequireAnyRoles,    // class/method decorator → sets roles metadata
+  ReqContext,         // param decorator → RequestContext | undefined (all routes)
   JWTGuard,           // guard → requires valid JWT
   AuthGuard,          // alias for JWTGuard
   OptionalAuthGuard,  // guard → optional JWT
@@ -970,3 +1060,5 @@ All 57 files under `src/common/auth` include `*.spec.ts` counterparts for every 
 | Decorators | `auth-context-user.decorator.spec.ts` | Full user, field extraction, no user |
 | Decorators | `optional-auth-context.decorator.spec.ts` | Present → return, absent → undefined |
 | Decorators | `require-any-roles.decorator.spec.ts` | Metadata set with correct key and roles |
+| Decorators | `request-context.decorator.spec.ts` | Returns requestContext or undefined |
+| Middleware | `src/common/presentation/middleware/request-context.middleware.spec.ts` | Header extraction, fallback to req.ip, next() called |

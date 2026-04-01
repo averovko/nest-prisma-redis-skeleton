@@ -5,12 +5,16 @@ import { AuthCtx } from '../../../domain';
 import { AuthAppError } from '../../../application';
 import { OptionalAuthGuard } from './optional-auth.guard';
 
-function buildMutableRequestContext(authorizationHeader?: string): {
+function buildMutableRequestContext(
+  authorizationHeader?: string,
+  requestContext?: Record<string, unknown>,
+): {
   request: Record<string, unknown>;
   context: ExecutionContext;
 } {
   const request: Record<string, unknown> = {
     headers: { authorization: authorizationHeader },
+    requestContext,
   };
   const context = {
     switchToHttp: () => ({
@@ -55,17 +59,23 @@ describe('OptionalAuthGuard', () => {
     expect(mockResolveAuthCtx.execute).not.toHaveBeenCalled();
   });
 
-  it('attaches authCtx to request and returns true when token is valid', async () => {
+  it('attaches enriched authCtx to request and returns true when token is valid', async () => {
     const authCtx = AuthCtx.forService({ id: 'svc-1' });
     mockResolveAuthCtx.execute.mockResolvedValue(authCtx);
     const guard = buildGuard();
-    const { request, context } =
-      buildMutableRequestContext('Bearer valid-token');
+    const { request, context } = buildMutableRequestContext('Bearer valid-token', {
+      ipAddress: '10.0.0.1',
+      userAgent: 'TestAgent',
+    });
 
     const result = await guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(request['authCtx']).toBe(authCtx);
+    expect(request['authCtx']).toBeInstanceOf(AuthCtx);
+    expect((request['authCtx'] as AuthCtx).getRequestContext()).toEqual({
+      ipAddress: '10.0.0.1',
+      userAgent: 'TestAgent',
+    });
   });
 
   it('returns true silently when resolveAuthCtx throws invalid-token', async () => {

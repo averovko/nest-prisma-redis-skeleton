@@ -49,6 +49,17 @@ describe('LogoutUseCase', () => {
       );
     });
 
+    it('forwards requestContext as event metadata when provided', async () => {
+      mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
+      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      const requestContext = { ipAddress: '10.0.0.1', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+
+      await useCase.execute('auth-id-1', requestContext);
+
+      const publishedEvent: UserLoggedOutEvent = mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.metadata.metadata).toEqual(requestContext);
+    });
+
     it('looks up credentials by the provided authId', async () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
       mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(

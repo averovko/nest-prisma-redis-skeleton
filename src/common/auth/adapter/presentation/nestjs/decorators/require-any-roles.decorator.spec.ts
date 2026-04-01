@@ -5,11 +5,7 @@ describe('RequireAnyRoles decorator', () => {
   it('returns a SetMetadata decorator with ROLES_KEY and provided roles', () => {
     class TestController {}
     const decorator = RequireAnyRoles(Role.ADMIN, Role.ROOT);
-    decorator(
-      TestController,
-      undefined as unknown as string,
-      undefined as unknown as number,
-    );
+    decorator(TestController);
 
     const roles = Reflect.getMetadata(ROLES_KEY, TestController);
     expect(roles).toEqual([Role.ADMIN, Role.ROOT]);
@@ -17,11 +13,7 @@ describe('RequireAnyRoles decorator', () => {
 
   it('stores a single role correctly', () => {
     class TestController {}
-    RequireAnyRoles(Role.USER)(
-      TestController,
-      undefined as unknown as string,
-      undefined as unknown as number,
-    );
+    RequireAnyRoles(Role.USER)(TestController);
 
     const roles = Reflect.getMetadata(ROLES_KEY, TestController);
     expect(roles).toEqual([Role.USER]);

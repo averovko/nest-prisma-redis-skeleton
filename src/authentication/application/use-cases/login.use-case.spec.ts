@@ -93,6 +93,19 @@ describe('LoginUseCase', () => {
       );
     });
 
+    it('forwards requestContext as event metadata when provided', async () => {
+      mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
+      mockPasswordHasher.compare.mockResolvedValue(true);
+      mockTokenIssuer.issueTokenPair.mockReturnValue(mockTokenPair());
+      mockRefreshTokenRepo.create.mockResolvedValue({});
+      const requestContext = { ipAddress: '1.2.3.4', userAgent: 'UA' };
+
+      await useCase.execute(inputLogin, requestContext);
+
+      const publishedEvent: UserLoggedInEvent = mockEventBus.publish.mock.calls[0][0];
+      expect(publishedEvent.metadata.metadata).toEqual(requestContext);
+    });
+
     it('throws INVALID_CREDENTIALS when user is not found', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(null);
 

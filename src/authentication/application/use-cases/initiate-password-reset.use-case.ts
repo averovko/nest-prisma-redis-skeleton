@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
+import { type RequestContext } from 'src/common/auth';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -25,7 +26,7 @@ export class InitiatePasswordResetUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: InitiatePasswordResetInput): Promise<void> {
+  async execute(input: InitiatePasswordResetInput, requestContext?: RequestContext): Promise<void> {
     const credentials = await this.credentialsRepository.findByEmail(
       input.email,
     );
@@ -38,6 +39,10 @@ export class InitiatePasswordResetUseCase {
     );
 
     const rawToken = randomBytes(32).toString('hex');
+
+    // TODO: remove later - only for testing purposes, since we don't have email sending implemented yet
+    console.debug('Generated password reset token (for testing purposes):', rawToken);
+
     const tokenHash = createHash('sha256').update(rawToken).digest('hex');
     const passwordResetTokenTtlMs = this.configService.get<number>(
       'security.passwordResetTokenTtlMs',
@@ -50,8 +55,9 @@ export class InitiatePasswordResetUseCase {
       expiresAt: new Date(Date.now() + passwordResetTokenTtlMs),
     });
 
+    const eventParams = requestContext ? { metadata: requestContext } : undefined;
     await this.eventBus.publish(
-      new UserPasswordResetRequestedEvent(credentials, rawToken),
+      new UserPasswordResetRequestedEvent(credentials, rawToken, eventParams),
     );
   }
 }

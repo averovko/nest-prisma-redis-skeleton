@@ -17,12 +17,23 @@ export interface Service {
   id: string;
 }
 
+export interface RequestContext {
+  ipAddress?: string;
+  userAgent?: string;
+  location?: string;
+  device?: string;
+  client?: string;
+  os?: string;
+  [key: string]: unknown;
+}
+
 export interface AuthCtxSnapshot {
   agentType: AgentType;
   expireAt?: number;
   person?: Person;
   service?: Service;
   user?: User;
+  requestContext?: RequestContext;
 }
 
 interface AuthCtxProps {
@@ -31,6 +42,7 @@ interface AuthCtxProps {
   person?: Person;
   service?: Service;
   user?: User;
+  requestContext?: RequestContext;
 }
 
 export class AuthCtx {
@@ -39,6 +51,7 @@ export class AuthCtx {
   private readonly person?: Person;
   private readonly service?: Service;
   private readonly user?: User;
+  private readonly requestContext?: RequestContext;
 
   private constructor(props: AuthCtxProps) {
     this.agentType = props.agentType;
@@ -46,6 +59,7 @@ export class AuthCtx {
     this.person = props.person;
     this.service = props.service;
     this.user = props.user;
+    this.requestContext = props.requestContext;
   }
 
   static forPerson(
@@ -62,6 +76,17 @@ export class AuthCtx {
 
   static fromSnapshot(snapshot: AuthCtxSnapshot): AuthCtx {
     return new AuthCtx(snapshot);
+  }
+
+  withRequestContext(ctx: RequestContext): AuthCtx {
+    return new AuthCtx({
+      agentType: this.agentType,
+      expireAt: this.expireAt,
+      person: this.person,
+      service: this.service,
+      user: this.user,
+      requestContext: ctx,
+    });
   }
 
   isPerson(): boolean {
@@ -96,6 +121,10 @@ export class AuthCtx {
     return this.user;
   }
 
+  getRequestContext(): RequestContext | undefined {
+    return this.requestContext;
+  }
+
   requireUser(): User {
     if (!this.user) throw new AuthDomainError('require-user');
     return this.user;
@@ -120,6 +149,7 @@ export class AuthCtx {
       person: this.person,
       service: this.service,
       user: this.user,
+      requestContext: this.requestContext,
     };
   }
 }

@@ -3,6 +3,7 @@ export {
   AuthCtx,
   type AuthCtxSnapshot,
   type Person,
+  type RequestContext,
   type Service,
 } from './entities/auth-ctx.model';
 export { Role } from './entities/role.enum';

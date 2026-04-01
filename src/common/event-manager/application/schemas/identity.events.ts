@@ -51,6 +51,9 @@ class UserRoleChangedPayload {
   @IsUUID()
   userId: string;
 
+  @IsString()
+  authId: string;
+
   @IsArray()
   @IsEnum(Role, { each: true })
   roles: Role[];
@@ -63,6 +66,9 @@ class UserDeactivatedPayload {
   @IsUUID()
   userId: string;
 
+  @IsString()
+  authId: string;
+
   @IsUUID()
   operatorId: string;
 }
@@ -71,6 +77,9 @@ class UserActivatedPayload {
   @IsUUID()
   userId: string;
 
+  @IsString()
+  authId: string;
+
   @IsUUID()
   operatorId: string;
 }
@@ -78,6 +87,9 @@ class UserActivatedPayload {
 class UserDeletedPayload {
   @IsUUID()
   userId: string;
+
+  @IsString()
+  authId: string;
 
   @IsUUID()
   operatorId: string;

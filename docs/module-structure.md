@@ -126,9 +126,23 @@ Each module's events must be registered in `src/common/event-manager/application
 2. Define `EventSchema<T>` objects with `eventName`, `version`, `module`, `description`
 3. Export as a const object (e.g., `AuthenticationEventSchemas`)
 
+## Optional Folder: `domain/queries/`
+
+Some modules define query/filter objects in a `domain/queries/` folder. This is acceptable — query objects are domain-level value objects that define search and filter contracts without framework dependencies.
+
+```
+domain/
+  └── queries/
+      └── {entity}-search.query.ts    # Plain interface/class with optional search params
+```
+
+These should contain no class-validator decorators or NestJS imports; they are mapped from presentation DTOs in the presentation layer.
+
+---
+
 ## Reference Modules
 
-- **Authentication** (`src/authentication/`): Full hexagonal structure with domain ports, infrastructure repositories, and presentation controller
-- **Identity** (`src/identity/`): Event handler pattern with cross-module event consumption
+- **Authentication** (`src/authentication/`): Full hexagonal structure with domain ports (`domain/ports/`), infrastructure repositories, and presentation controller. Canonical reference for auth flows.
+- **Identity** (`src/identity/`): Full hexagonal structure with domain ports, `domain/queries/` for search contracts, event handler consuming cross-module events via the shared event bus (`src/common/event-manager`), and `UserActivityType` enum defined natively in the domain layer.
 - **Event Manager** (`src/common/event-manager/`): Canonical adapter pattern with `adapter/infrastructure/` and `adapter/presentation/`
 - **Auth** (`src/common/auth/`): Canonical adapter pattern with full port/adapter separation

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
+import { type RequestContext } from 'src/common/auth';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -23,7 +24,7 @@ export class ChangePasswordUseCase {
     private readonly eventBus: EventBusPort,
   ) {}
 
-  async execute(authId: string, userId: string, input: ChangePasswordInput): Promise<void> {
+  async execute(authId: string, input: ChangePasswordInput, requestContext?: RequestContext): Promise<void> {
     const credentials = await this.credentialsRepository.findByAuthId(authId);
     if (!credentials) {
       throw AuthenticationErrorFactory.credentialsNotFound();
@@ -38,14 +39,11 @@ export class ChangePasswordUseCase {
     }
 
     const newPasswordHash = await this.passwordHasher.hash(input.newPassword);
-    const updatedCredentials =
-      await this.credentialsRepository.updatePasswordHash(
+    await this.credentialsRepository.updatePasswordHash(
         authId,
         newPasswordHash,
       );
-
-    await this.eventBus.publish(
-      new UserPasswordChangedEvent(userId),
-    );
+    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    await this.eventBus.publish(new UserPasswordChangedEvent(authId, eventParams));
   }
 }

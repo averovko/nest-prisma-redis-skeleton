@@ -9,12 +9,14 @@ export class UserRegisteredEvent extends BaseEvent<
 
   constructor(
     credentials: Credentials,
+    firstName: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_REGISTERED, params);
     this.eventPayload = {
-      userId: credentials.authId,
+      authId: credentials.authId,
       email: credentials.email,
+      firstName,
     };
   }
 
@@ -34,7 +36,7 @@ export class UserLoggedInEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_LOGGED_IN, params);
     this.eventPayload = {
-      userId: credentials.authId,
+      authId: credentials.authId,
     };
   }
 
@@ -54,7 +56,7 @@ export class UserLoggedOutEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_LOGGED_OUT, params);
     this.eventPayload = {
-      userId: credentials.authId,
+      authId: credentials.authId,
     };
   }
 
@@ -69,12 +71,12 @@ export class UserPasswordChangedEvent extends BaseEvent<
   private readonly eventPayload: typeof AuthenticationEventSchemas.USER_PASSWORD_CHANGED.schema;
 
   constructor(
-    userId: string,
+    authId: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_CHANGED, params);
     this.eventPayload = {
-      userId: userId,
+      authId,
     };
   }
 
@@ -95,7 +97,7 @@ export class UserPasswordResetRequestedEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_REQUESTED, params);
     this.eventPayload = {
-      userId: credentials.authId,
+      authId: credentials.authId,
       email: credentials.email,
     };
   }
@@ -116,7 +118,7 @@ export class UserPasswordResetCompletedEvent extends BaseEvent<
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_COMPLETED, params);
     this.eventPayload = {
-      userId: credentials.authId,
+      authId: credentials.authId,
     };
   }
 

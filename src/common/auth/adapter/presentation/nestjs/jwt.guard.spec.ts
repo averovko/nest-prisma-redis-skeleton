@@ -16,12 +16,16 @@ function buildMockContext(authorizationHeader?: string): ExecutionContext {
   } as unknown as ExecutionContext;
 }
 
-function buildMutableRequestContext(authorizationHeader?: string): {
+function buildMutableRequestContext(
+  authorizationHeader?: string,
+  requestContext?: Record<string, unknown>,
+): {
   request: Record<string, unknown>;
   context: ExecutionContext;
 } {
   const request: Record<string, unknown> = {
     headers: { authorization: authorizationHeader },
+    requestContext,
   };
   const context = {
     switchToHttp: () => ({
@@ -69,14 +73,31 @@ describe('JWTGuard', () => {
     const authCtx = AuthCtx.forService({ id: 'svc-1' });
     mockResolveAuthCtx.execute.mockResolvedValue(authCtx);
     const guard = buildGuard();
-    const { request, context } =
-      buildMutableRequestContext('Bearer valid-token');
+    const { request, context } = buildMutableRequestContext('Bearer valid-token', {
+      ipAddress: '10.0.0.1',
+      userAgent: 'TestAgent',
+    });
 
     const result = await guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(request['authCtx']).toBe(authCtx);
+    expect(request['authCtx']).toBeInstanceOf(AuthCtx);
+    expect((request['authCtx'] as AuthCtx).getRequestContext()).toEqual({
+      ipAddress: '10.0.0.1',
+      userAgent: 'TestAgent',
+    });
     expect(mockResolveAuthCtx.execute).toHaveBeenCalledWith('valid-token');
+  });
+
+  it('uses empty requestContext when middleware did not set it', async () => {
+    const authCtx = AuthCtx.forService({ id: 'svc-2' });
+    mockResolveAuthCtx.execute.mockResolvedValue(authCtx);
+    const guard = buildGuard();
+    const { request, context } = buildMutableRequestContext('Bearer valid-token', undefined);
+
+    await guard.canActivate(context);
+
+    expect((request['authCtx'] as AuthCtx).getRequestContext()).toEqual({});
   });
 
   it('throws mapped AppError when resolveAuthCtx throws AuthAppError', async () => {

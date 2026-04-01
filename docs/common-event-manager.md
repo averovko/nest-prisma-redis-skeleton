@@ -498,11 +498,13 @@ Module: `authentication` | Delimiter format: `authentication.user.{action}`
 
 ```typescript
 class BaseAuthenticationPayload {
-  @IsUUID() userId: string;
+  @IsUUID() authId: string;
 }
 ```
 
-`UserRegisteredPayload` and `UserPasswordResetRequestedPayload` additionally require `@IsEmail() email: string`.
+`UserPasswordResetRequestedPayload` additionally requires `@IsEmail() email: string`.
+
+`UserRegisteredPayload` additionally requires `@IsEmail() email: string` and `@IsString() firstName: string`.
 
 ---
 
@@ -514,10 +516,10 @@ Module: `identity` | Format: `identity.user.{action}`
 |---|---|---|---|
 | `USER_CREATED` | `identity.user.created` | `UserCreatedPayload` | `userId`, `authId`, `firstName`, `roles`, `isActive`, optional `email`, `phone`, `lastName`, `avatar` |
 | `USER_UPDATED` | `identity.user.updated` | `UserUpdatedPayload` | Same as `UserCreatedPayload` |
-| `USER_ROLE_CHANGED` | `identity.user.role.changed` | `UserRoleChangedPayload` | `userId`, `roles`, `operatorId` |
-| `USER_DEACTIVATED` | `identity.user.deactivated` | `UserDeactivatedPayload` | `userId`, `operatorId` |
-| `USER_ACTIVATED` | `identity.user.activated` | `UserActivatedPayload` | `userId`, `operatorId` |
-| `USER_DELETED` | `identity.user.deleted` | `UserDeletedPayload` | `userId`, `operatorId` |
+| `USER_ROLE_CHANGED` | `identity.user.role.changed` | `UserRoleChangedPayload` | `userId`, `authId`, `roles`, `operatorId` |
+| `USER_DEACTIVATED` | `identity.user.deactivated` | `UserDeactivatedPayload` | `userId`, `authId`, `operatorId` |
+| `USER_ACTIVATED` | `identity.user.activated` | `UserActivatedPayload` | `userId`, `authId`, `operatorId` |
+| `USER_DELETED` | `identity.user.deleted` | `UserDeletedPayload` | `userId`, `authId`, `operatorId` |
 
 > `roles` fields use `Role` imported from `src/common/auth` (the public barrel, not an internal path).
 
@@ -582,9 +584,9 @@ export class AuthenticationService {
     @InjectEventBus() private readonly eventBus: EventBusPort,
   ) {}
 
-  async register(userId: string, email: string): Promise<void> {
+  async register(authId: string, email: string, firstName: string): Promise<void> {
     // ... business logic ...
-    await this.eventBus.publish(new UserRegisteredEvent({ userId, email }));
+    await this.eventBus.publish(new UserRegisteredEvent({ authId, email, firstName }));
   }
 }
 ```
@@ -606,7 +608,7 @@ export class IdentityEventHandler {
     message: EventBusMessage<UserRegisteredPayload>,
   ): Promise<void> {
     const { payload, metadata } = message;
-    // Create user profile from payload.userId, payload.email
+    // Create user profile from payload.authId, payload.email, payload.firstName
   }
 }
 ```
@@ -664,7 +666,7 @@ this.registerEventSchemas(OrderEventSchemas as Record<string, EventSchema<object
 ```typescript
 await this.eventBus.publish(
   new UserRegisteredEvent(
-    { userId, email },
+    { authId, email },
     { correlationId: requestId },
   ),
 );

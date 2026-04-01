@@ -29,7 +29,7 @@ export class OptionalAuthGuard implements CanActivate {
 
     try {
       const authCtx = await this.resolveAuthCtx.execute(token);
-      request.authCtx = authCtx;
+      request.authCtx = authCtx.withRequestContext(request.requestContext ?? {});
     } catch (err) {
       if (err instanceof AuthAppError && err.code === 'invalid-token') {
         return true;

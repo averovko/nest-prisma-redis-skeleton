@@ -19,8 +19,10 @@ import {
   Role,
   AuthGuard,
   AuthContext,
+  ReqContext,
   RolesGuard,
   RequireAnyRoles,
+  type RequestContext,
 } from 'src/common/auth';
 import { CreatedResponse, OkResponse } from 'src/common';
 import { RegisterUseCase } from '../application/use-cases/register.use-case';
@@ -64,8 +66,11 @@ export class AuthenticationController {
     EMAIL_ALREADY_TAKEN:
       AUTHENTICATION_ERRORS[AuthenticationErrorCode.EMAIL_ALREADY_TAKEN],
   })
-  async register(@Body() body: RegisterDto): Promise<TokenPairDto> {
-    const tokenPair = await this.registerUseCase.execute(body);
+  async register(
+    @Body() body: RegisterDto,
+    @ReqContext() requestContext: RequestContext,
+  ): Promise<TokenPairDto> {
+    const tokenPair = await this.registerUseCase.execute(body, requestContext);
     return TokenPairDto.fromApplication(tokenPair);
   }
 
@@ -77,8 +82,11 @@ export class AuthenticationController {
     INVALID_CREDENTIALS:
       AUTHENTICATION_ERRORS[AuthenticationErrorCode.INVALID_CREDENTIALS],
   })
-  async login(@Body() body: LoginDto): Promise<TokenPairDto> {
-    const tokenPair = await this.loginUseCase.execute(body);
+  async login(
+    @Body() body: LoginDto,
+    @ReqContext() requestContext: RequestContext,
+  ): Promise<TokenPairDto> {
+    const tokenPair = await this.loginUseCase.execute(body, requestContext);
     return TokenPairDto.fromApplication(tokenPair);
   }
 
@@ -105,7 +113,7 @@ export class AuthenticationController {
   @ApiOperation({ summary: 'Logout and invalidate refresh tokens' })
   async logout(@AuthContext() authCtx: AuthCtx): Promise<void> {
     const person = authCtx.getPerson();
-    await this.logoutUseCase.execute(person!.authId);
+    await this.logoutUseCase.execute(person!.authId, authCtx.getRequestContext());
   }
 
   @Patch('password')
@@ -124,8 +132,7 @@ export class AuthenticationController {
     @AuthContext() authCtx: AuthCtx,
   ): Promise<void> {
     const person = authCtx.getPerson();
-    const user = authCtx.getUser();
-    await this.changePasswordUseCase.execute(person!.authId, user!.id, body);
+    await this.changePasswordUseCase.execute(person!.authId, body, authCtx.getRequestContext());
   }
 
   @Post('reset-password')
@@ -136,8 +143,9 @@ export class AuthenticationController {
   })
   async initiatePasswordReset(
     @Body() body: InitiatePasswordResetDto,
+    @ReqContext() requestContext: RequestContext,
   ): Promise<void> {
-    await this.initiatePasswordResetUseCase.execute(body);
+    await this.initiatePasswordResetUseCase.execute(body, requestContext);
   }
 
   @Post('reset-password/confirm')
@@ -153,7 +161,8 @@ export class AuthenticationController {
   })
   async confirmPasswordReset(
     @Body() body: ConfirmPasswordResetDto,
+    @ReqContext() requestContext: RequestContext,
   ): Promise<void> {
-    await this.confirmPasswordResetUseCase.execute(body);
+    await this.confirmPasswordResetUseCase.execute(body, requestContext);
   }
 }

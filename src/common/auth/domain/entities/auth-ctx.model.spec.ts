@@ -2,6 +2,7 @@ import {
   AuthCtx,
   AgentType,
   type Person,
+  type RequestContext,
   type Service,
   type AuthCtxSnapshot,
 } from '../index';
@@ -162,6 +163,59 @@ describe('AuthCtx', () => {
       expect(() => ctx.assertHasAnyRole([Role.USER])).toThrow(
         expect.objectContaining({ code: 'require-user' }),
       );
+    });
+  });
+
+  describe('withRequestContext', () => {
+    const inputContext: RequestContext = {
+      ipAddress: '127.0.0.1',
+      userAgent: 'Mozilla/5.0',
+      location: 'US',
+      device: 'Desktop',
+      client: 'Chrome 120.0',
+      os: 'MacOS 14.2',
+    };
+
+    it('returns a new AuthCtx instance with request context attached', () => {
+      const original = AuthCtx.forPerson(mockPerson, mockUser);
+
+      const enriched = original.withRequestContext(inputContext);
+
+      expect(enriched).not.toBe(original);
+      expect(enriched.getRequestContext()).toEqual(inputContext);
+    });
+
+    it('does not mutate the original AuthCtx', () => {
+      const original = AuthCtx.forPerson(mockPerson, mockUser);
+
+      original.withRequestContext(inputContext);
+
+      expect(original.getRequestContext()).toBeUndefined();
+    });
+
+    it('preserves all original properties on the enriched instance', () => {
+      const original = AuthCtx.forPerson(mockPerson, mockUser, 9999);
+
+      const enriched = original.withRequestContext(inputContext);
+
+      expect(enriched.isPerson()).toBe(true);
+      expect(enriched.getPerson()).toEqual(mockPerson);
+      expect(enriched.getUser()).toEqual(mockUser);
+      expect(enriched.getExpireAt()).toBe(9999);
+    });
+
+    it('includes requestContext in toSnapshot', () => {
+      const ctx = AuthCtx.forPerson(mockPerson, mockUser).withRequestContext(inputContext);
+
+      const snapshot = ctx.toSnapshot();
+
+      expect(snapshot.requestContext).toEqual(inputContext);
+    });
+
+    it('returns undefined from getRequestContext when not enriched', () => {
+      const ctx = AuthCtx.forPerson(mockPerson, mockUser);
+
+      expect(ctx.getRequestContext()).toBeUndefined();
     });
   });
 });

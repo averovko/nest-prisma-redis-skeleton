@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
+import { type RequestContext } from 'src/common/auth';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -39,7 +40,7 @@ export class RegisterUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: RegisterInput): Promise<TokenPairOutput> {
+  async execute(input: RegisterInput, requestContext?: RequestContext): Promise<TokenPairOutput> {
     const emailTaken = await this.credentialsRepository.existsByEmail(
       input.email,
     );
@@ -71,13 +72,13 @@ export class RegisterUseCase {
       expiresAt: new Date(Date.now() + refreshTokenTtlMs),
     });
 
-    await this.eventBus.publish(new UserRegisteredEvent(credentials));
+    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    await this.eventBus.publish(new UserRegisteredEvent(credentials, input.firstName, eventParams));
 
     return tokenPair;
   }
 
   private hashToken(token: string): string {
-    const { createHash } = require('crypto');
     return createHash('sha256').update(token).digest('hex');
   }
 }

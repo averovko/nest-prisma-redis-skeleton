@@ -1,4 +1,7 @@
 import { Request } from 'express';
-import { AuthCtx } from '../../../domain';
+import { AuthCtx, type RequestContext } from '../../../domain';
 
-export type RequestWithAuthCtx = Request & { authCtx?: AuthCtx };
+export type RequestWithAuthCtx = Request & {
+  authCtx?: AuthCtx;
+  requestContext?: RequestContext;
+};

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
+import { type RequestContext } from 'src/common/auth';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -22,12 +23,13 @@ export class LogoutUseCase {
     private readonly eventBus: EventBusPort,
   ) {}
 
-  async execute(authId: string): Promise<void> {
+  async execute(authId: string, requestContext?: RequestContext): Promise<void> {
     const credentials = await this.credentialsRepository.findByAuthId(authId);
     if (!credentials) {
       throw AuthenticationErrorFactory.credentialsNotFound();
     }
     await this.refreshTokenRepository.deleteAllByCredentialsId(credentials.id);
-    await this.eventBus.publish(new UserLoggedOutEvent(credentials));
+    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    await this.eventBus.publish(new UserLoggedOutEvent(credentials, eventParams));
   }
 }

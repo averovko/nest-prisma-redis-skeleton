@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
+import { type RequestContext } from 'src/common/auth';
 import {
   CREDENTIALS_REPOSITORY,
   type CredentialsRepositoryPort,
@@ -39,7 +40,7 @@ export class LoginUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: LoginInput): Promise<TokenPairOutput> {
+  async execute(input: LoginInput, requestContext?: RequestContext): Promise<TokenPairOutput> {
     const credentials = await this.credentialsRepository.findByEmail(
       input.email,
     );
@@ -73,7 +74,8 @@ export class LoginUseCase {
       expiresAt: new Date(Date.now() + refreshTokenTtlMs),
     });
 
-    await this.eventBus.publish(new UserLoggedInEvent(credentials));
+    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    await this.eventBus.publish(new UserLoggedInEvent(credentials, eventParams));
 
     return tokenPair;
   }
