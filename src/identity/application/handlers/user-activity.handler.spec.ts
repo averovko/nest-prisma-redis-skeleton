@@ -15,7 +15,10 @@ import {
   type UserRegisteredPayload,
 } from 'src/common/event-manager';
 import { Role } from 'src/common/auth';
-import { mockUser, mockUserActivity } from 'src/identity/__fixtures__/identity.fixtures';
+import {
+  mockUser,
+  mockUserActivity,
+} from 'src/identity/__fixtures__/identity.fixtures';
 import {
   UserCreatedUseCase,
   UserUpdatedUseCase,
@@ -50,34 +53,73 @@ describe('UserActivityHandler', () => {
   const mockActivity = mockUserActivity();
 
   beforeEach(async () => {
-    mockUserCreatedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserUpdatedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserRoleChangedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserActivatedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserDeactivatedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserDeletedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserPasswordChangedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserRegisteredUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserLoggedInUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserLoggedOutUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserPasswordResetRequestedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
-    mockUserPasswordResetCompletedUseCase = { execute: jest.fn().mockResolvedValue(mockActivity) };
+    mockUserCreatedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserUpdatedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserRoleChangedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserActivatedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserDeactivatedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserDeletedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserPasswordChangedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserRegisteredUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserLoggedInUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserLoggedOutUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserPasswordResetRequestedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
+    mockUserPasswordResetCompletedUseCase = {
+      execute: jest.fn().mockResolvedValue(mockActivity),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserActivityHandler,
         { provide: UserCreatedUseCase, useValue: mockUserCreatedUseCase },
         { provide: UserUpdatedUseCase, useValue: mockUserUpdatedUseCase },
-        { provide: UserRoleChangedUseCase, useValue: mockUserRoleChangedUseCase },
+        {
+          provide: UserRoleChangedUseCase,
+          useValue: mockUserRoleChangedUseCase,
+        },
         { provide: UserActivatedUseCase, useValue: mockUserActivatedUseCase },
-        { provide: UserDeactivatedUseCase, useValue: mockUserDeactivatedUseCase },
+        {
+          provide: UserDeactivatedUseCase,
+          useValue: mockUserDeactivatedUseCase,
+        },
         { provide: UserDeletedUseCase, useValue: mockUserDeletedUseCase },
-        { provide: UserPasswordChangedUseCase, useValue: mockUserPasswordChangedUseCase },
+        {
+          provide: UserPasswordChangedUseCase,
+          useValue: mockUserPasswordChangedUseCase,
+        },
         { provide: UserRegisteredUseCase, useValue: mockUserRegisteredUseCase },
         { provide: UserLoggedInUseCase, useValue: mockUserLoggedInUseCase },
         { provide: UserLoggedOutUseCase, useValue: mockUserLoggedOutUseCase },
-        { provide: UserPasswordResetRequestedUseCase, useValue: mockUserPasswordResetRequestedUseCase },
-        { provide: UserPasswordResetCompletedUseCase, useValue: mockUserPasswordResetCompletedUseCase },
+        {
+          provide: UserPasswordResetRequestedUseCase,
+          useValue: mockUserPasswordResetRequestedUseCase,
+        },
+        {
+          provide: UserPasswordResetCompletedUseCase,
+          useValue: mockUserPasswordResetCompletedUseCase,
+        },
       ],
     }).compile();
 
@@ -115,7 +157,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserRoleChanged(inputEvent);
 
-      expect(mockUserRoleChangedUseCase.execute).toHaveBeenCalledWith(inputEvent);
+      expect(mockUserRoleChangedUseCase.execute).toHaveBeenCalledWith(
+        inputEvent,
+      );
     });
   });
 
@@ -143,7 +187,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserDeactivated(inputEvent);
 
-      expect(mockUserDeactivatedUseCase.execute).toHaveBeenCalledWith(inputEvent);
+      expect(mockUserDeactivatedUseCase.execute).toHaveBeenCalledWith(
+        inputEvent,
+      );
     });
   });
 
@@ -166,13 +212,18 @@ describe('UserActivityHandler', () => {
       const inputMessage: EventBusMessage<UserPasswordChangedPayload> = {
         eventId: 'evt-1',
         eventName: 'authentication.user.password.changed',
-        payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com' },
+        payload: {
+          authId: '550e8400-e29b-41d4-a716-446655440001',
+          email: 'test@example.com',
+        },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
 
       sut.handleUserPasswordChanged(inputMessage);
 
-      expect(mockUserPasswordChangedUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(mockUserPasswordChangedUseCase.execute).toHaveBeenCalledWith(
+        inputMessage,
+      );
     });
   });
 
@@ -192,7 +243,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserRegistered(inputMessage);
 
-      expect(mockUserRegisteredUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(mockUserRegisteredUseCase.execute).toHaveBeenCalledWith(
+        inputMessage,
+      );
     });
   });
 
@@ -207,7 +260,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserLoggedIn(inputMessage);
 
-      expect(mockUserLoggedInUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(mockUserLoggedInUseCase.execute).toHaveBeenCalledWith(
+        inputMessage,
+      );
     });
   });
 
@@ -222,7 +277,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserLoggedOut(inputMessage);
 
-      expect(mockUserLoggedOutUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(mockUserLoggedOutUseCase.execute).toHaveBeenCalledWith(
+        inputMessage,
+      );
     });
   });
 
@@ -241,7 +298,9 @@ describe('UserActivityHandler', () => {
 
       sut.handleUserPasswordResetRequested(inputMessage);
 
-      expect(mockUserPasswordResetRequestedUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(
+        mockUserPasswordResetRequestedUseCase.execute,
+      ).toHaveBeenCalledWith(inputMessage);
     });
   });
 
@@ -250,13 +309,18 @@ describe('UserActivityHandler', () => {
       const inputMessage: EventBusMessage<UserPasswordResetCompletedPayload> = {
         eventId: 'evt-1',
         eventName: 'authentication.user.password.reset.completed',
-        payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com' },
+        payload: {
+          authId: '550e8400-e29b-41d4-a716-446655440001',
+          email: 'test@example.com',
+        },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
 
       sut.handleUserPasswordResetCompleted(inputMessage);
 
-      expect(mockUserPasswordResetCompletedUseCase.execute).toHaveBeenCalledWith(inputMessage);
+      expect(
+        mockUserPasswordResetCompletedUseCase.execute,
+      ).toHaveBeenCalledWith(inputMessage);
     });
   });
 });

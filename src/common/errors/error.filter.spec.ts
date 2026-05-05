@@ -111,9 +111,7 @@ describe('GlobalErrorFilter', () => {
 
       filter.catch(error, host);
 
-      expect(statusMock).toHaveBeenCalledWith(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      expect(statusMock).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonMock).toHaveBeenCalledWith(
         expect.objectContaining({ code: 'internal.error' }),
       );

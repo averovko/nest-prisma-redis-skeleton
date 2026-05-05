@@ -18,7 +18,9 @@ describe('UniSenderEmailSenderService', () => {
       }),
     };
 
-    sut = new UniSenderEmailSenderService(configService as unknown as ConfigService);
+    sut = new UniSenderEmailSenderService(
+      configService as unknown as ConfigService,
+    );
   });
 
   afterEach(() => {
@@ -41,7 +43,10 @@ describe('UniSenderEmailSenderService', () => {
     ).resolves.toBeUndefined();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, options] = fetchMock.mock.calls[0] as [string, { method: string }];
+    const [url, options] = fetchMock.mock.calls[0] as [
+      string,
+      { method: string },
+    ];
     expect(url).toContain('https://api.unisender.com/ru/api/sendEmail?');
     expect(url).toContain('api_key=unisender-api-key');
     expect(url).toContain('email=user%40test.dev');

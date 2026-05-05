@@ -42,14 +42,19 @@ describe('RegisterUseCase', () => {
     mockConfigService = {
       get: jest.fn().mockReturnValue(30 * 24 * 60 * 60 * 1000),
     };
-    const mockEmailVerificationTokenRepo = { create: jest.fn().mockResolvedValue({}) };
+    const mockEmailVerificationTokenRepo = {
+      create: jest.fn().mockResolvedValue({}),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RegisterUseCase,
         { provide: CREDENTIALS_REPOSITORY, useValue: mockCredentialsRepo },
         { provide: REFRESH_TOKEN_REPOSITORY, useValue: mockRefreshTokenRepo },
-        { provide: EMAIL_VERIFICATION_TOKEN_REPOSITORY, useValue: mockEmailVerificationTokenRepo },
+        {
+          provide: EMAIL_VERIFICATION_TOKEN_REPOSITORY,
+          useValue: mockEmailVerificationTokenRepo,
+        },
         { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
         { provide: TOKEN_ISSUER_PORT, useValue: mockTokenIssuer },
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
@@ -162,11 +167,18 @@ describe('RegisterUseCase', () => {
       mockCredentialsRepo.create.mockResolvedValue(mockCredentials());
       mockTokenIssuer.issueTokenPair.mockReturnValue(mockTokenPair());
       mockRefreshTokenRepo.create.mockResolvedValue({});
-      const requestContext = { ipAddress: '1.2.3.4', userAgent: 'UA', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+      const requestContext = {
+        ipAddress: '1.2.3.4',
+        userAgent: 'UA',
+        device: 'Desktop',
+        client: 'Chrome',
+        os: 'Linux',
+      };
 
       await useCase.execute(inputRegister, requestContext);
 
-      const publishedEvent: UserRegisteredEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserRegisteredEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toEqual(requestContext);
     });
 
@@ -179,7 +191,8 @@ describe('RegisterUseCase', () => {
 
       await useCase.execute(inputRegister);
 
-      const publishedEvent: UserRegisteredEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserRegisteredEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toBeUndefined();
     });
 

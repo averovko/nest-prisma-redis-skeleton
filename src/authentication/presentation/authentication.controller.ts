@@ -117,7 +117,10 @@ export class AuthenticationController {
   @ApiOperation({ summary: 'Logout and invalidate refresh tokens' })
   async logout(@AuthContext() authCtx: AuthCtx): Promise<void> {
     const person = authCtx.getPerson();
-    await this.logoutUseCase.execute(person!.authId, authCtx.getRequestContext());
+    await this.logoutUseCase.execute(
+      person!.authId,
+      authCtx.getRequestContext(),
+    );
   }
 
   @Patch('password')
@@ -136,7 +139,11 @@ export class AuthenticationController {
     @AuthContext() authCtx: AuthCtx,
   ): Promise<void> {
     const person = authCtx.getPerson();
-    await this.changePasswordUseCase.execute(person!.authId, body, authCtx.getRequestContext());
+    await this.changePasswordUseCase.execute(
+      person!.authId,
+      body,
+      authCtx.getRequestContext(),
+    );
   }
 
   @Post('reset-password')

@@ -69,8 +69,8 @@ describe('commonErrorMap', () => {
           if (
             value !== null &&
             typeof value === 'object' &&
-            'status' in (value as object) &&
-            'message' in (value as object)
+            'status' in value &&
+            'message' in value
           ) {
             const entry = value as { status: unknown; message: unknown };
             expect(typeof entry.status).toBe('number');

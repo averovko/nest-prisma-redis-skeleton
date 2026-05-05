@@ -11,7 +11,9 @@ export interface CreateEmailVerificationTokenInput {
 }
 
 export interface EmailVerificationTokenRepositoryPort {
-  create(input: CreateEmailVerificationTokenInput): Promise<EmailVerificationToken>;
+  create(
+    input: CreateEmailVerificationTokenInput,
+  ): Promise<EmailVerificationToken>;
   findByHash(tokenHash: string): Promise<EmailVerificationToken | null>;
   deleteById(id: string): Promise<void>;
   deleteAllByCredentialsId(credentialsId: string): Promise<void>;

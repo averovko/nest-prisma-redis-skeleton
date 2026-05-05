@@ -40,7 +40,10 @@ describe('UserActivity', () => {
 
     it('sets timestamp to current date when not provided', () => {
       const before = Date.now();
-      const actualActivity = new UserActivity({ id: 'act-1', authId: 'auth-1' });
+      const actualActivity = new UserActivity({
+        id: 'act-1',
+        authId: 'auth-1',
+      });
       const after = Date.now();
 
       expect(actualActivity.timestamp.getTime()).toBeGreaterThanOrEqual(before);

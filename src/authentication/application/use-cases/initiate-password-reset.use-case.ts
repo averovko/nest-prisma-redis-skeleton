@@ -26,7 +26,10 @@ export class InitiatePasswordResetUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: InitiatePasswordResetInput, requestContext?: RequestContext): Promise<void> {
+  async execute(
+    input: InitiatePasswordResetInput,
+    requestContext?: RequestContext,
+  ): Promise<void> {
     const credentials = await this.credentialsRepository.findByEmail(
       input.email,
     );
@@ -51,7 +54,9 @@ export class InitiatePasswordResetUseCase {
       expiresAt: new Date(Date.now() + passwordResetTokenTtlMs),
     });
 
-    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    const eventParams = requestContext
+      ? { metadata: requestContext }
+      : undefined;
     await this.eventBus.publish(
       new UserPasswordResetRequestedEvent(credentials, rawToken, eventParams),
     );

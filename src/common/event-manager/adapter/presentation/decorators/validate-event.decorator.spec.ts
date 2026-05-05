@@ -63,7 +63,9 @@ describe('ValidateEvent decorator', () => {
   });
 
   it('throws EventValidationError when event has empty eventName', async () => {
-    const malformed = { payload: { message: 'ok' } } as unknown as BaseEvent<TestPayload>;
+    const malformed = {
+      payload: { message: 'ok' },
+    } as unknown as BaseEvent<TestPayload>;
 
     await expect(handler.handle(malformed)).rejects.toBeInstanceOf(
       EventValidationError,

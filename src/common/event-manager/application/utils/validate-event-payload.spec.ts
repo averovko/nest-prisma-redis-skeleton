@@ -22,7 +22,10 @@ const emailSchema: EventSchema<EmailPayload> = {
 
 describe('validateEventPayload()', () => {
   it('resolves with a transformed class instance for a valid payload', async () => {
-    const inputPayload: EmailPayload = { email: 'user@example.com', name: 'Alice' };
+    const inputPayload: EmailPayload = {
+      email: 'user@example.com',
+      name: 'Alice',
+    };
 
     const result = await validateEventPayload(emailSchema, inputPayload);
 
@@ -32,7 +35,10 @@ describe('validateEventPayload()', () => {
   });
 
   it('throws EventValidationError when email is invalid', async () => {
-    const inputPayload = { email: 'not-an-email', name: 'Alice' } as EmailPayload;
+    const inputPayload = {
+      email: 'not-an-email',
+      name: 'Alice',
+    } as EmailPayload;
 
     await expect(
       validateEventPayload(emailSchema, inputPayload),
@@ -40,7 +46,10 @@ describe('validateEventPayload()', () => {
   });
 
   it('throws EventValidationError when required field is empty', async () => {
-    const inputPayload = { email: 'user@example.com', name: '' } as EmailPayload;
+    const inputPayload = {
+      email: 'user@example.com',
+      name: '',
+    } as EmailPayload;
 
     await expect(
       validateEventPayload(emailSchema, inputPayload),

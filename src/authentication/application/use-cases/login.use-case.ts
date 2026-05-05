@@ -40,7 +40,10 @@ export class LoginUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: LoginInput, requestContext?: RequestContext): Promise<TokenPairOutput> {
+  async execute(
+    input: LoginInput,
+    requestContext?: RequestContext,
+  ): Promise<TokenPairOutput> {
     const credentials = await this.credentialsRepository.findByEmail(
       input.email,
     );
@@ -74,8 +77,12 @@ export class LoginUseCase {
       expiresAt: new Date(Date.now() + refreshTokenTtlMs),
     });
 
-    const eventParams = requestContext ? { metadata: requestContext } : undefined;
-    await this.eventBus.publish(new UserLoggedInEvent(credentials, eventParams));
+    const eventParams = requestContext
+      ? { metadata: requestContext }
+      : undefined;
+    await this.eventBus.publish(
+      new UserLoggedInEvent(credentials, eventParams),
+    );
 
     return tokenPair;
   }

@@ -37,7 +37,10 @@ const logger = new Logger('NotificationModule');
         unisender: UniSenderEmailSenderService,
         consoleSender: ConsoleEmailSenderService,
       ) => {
-        const provider = config.get<string>('notification.email.provider', 'console');
+        const provider = config.get<string>(
+          'notification.email.provider',
+          'console',
+        );
         switch (provider) {
           case 'smtp':
             logger.log('Using SMTP email sender');
@@ -52,7 +55,9 @@ const logger = new Logger('NotificationModule');
             logger.log('Using console email sender');
             return consoleSender;
           default:
-            logger.log(`Unknown email provider "${provider}", falling back to console`);
+            logger.log(
+              `Unknown email provider "${provider}", falling back to console`,
+            );
             return consoleSender;
         }
       },
@@ -71,7 +76,10 @@ const logger = new Logger('NotificationModule');
         unisender: UniSenderSmsSenderService,
         consoleSender: ConsoleSmsSenderService,
       ) => {
-        const provider = config.get<string>('notification.sms.provider', 'console');
+        const provider = config.get<string>(
+          'notification.sms.provider',
+          'console',
+        );
         switch (provider) {
           case 'unisender':
             logger.log('Using UniSender SMS sender');
@@ -80,11 +88,17 @@ const logger = new Logger('NotificationModule');
             logger.log('Using console SMS sender');
             return consoleSender;
           default:
-            logger.log(`Unknown SMS provider "${provider}", falling back to console`);
+            logger.log(
+              `Unknown SMS provider "${provider}", falling back to console`,
+            );
             return consoleSender;
         }
       },
-      inject: [ConfigService, UniSenderSmsSenderService, ConsoleSmsSenderService],
+      inject: [
+        ConfigService,
+        UniSenderSmsSenderService,
+        ConsoleSmsSenderService,
+      ],
     },
     {
       provide: TEMPLATE_RENDERER_PORT,

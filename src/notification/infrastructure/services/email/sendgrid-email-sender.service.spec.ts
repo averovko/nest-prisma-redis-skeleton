@@ -22,7 +22,9 @@ describe('SendGridEmailSenderService', () => {
       }),
     };
 
-    sut = new SendGridEmailSenderService(configService as unknown as ConfigService);
+    sut = new SendGridEmailSenderService(
+      configService as unknown as ConfigService,
+    );
     (sgMail.send as jest.Mock).mockResolvedValue([{} as never, {}]);
   });
 
@@ -32,7 +34,10 @@ describe('SendGridEmailSenderService', () => {
 
   it('reads api key on module init', () => {
     sut.onModuleInit();
-    expect(configService.get).toHaveBeenCalledWith('notification.email.sendgrid.apiKey', '');
+    expect(configService.get).toHaveBeenCalledWith(
+      'notification.email.sendgrid.apiKey',
+      '',
+    );
   });
 
   it('sends email with fallback "from" from config', async () => {
@@ -68,7 +73,9 @@ describe('SendGridEmailSenderService', () => {
   });
 
   it('throws NotificationError when sendgrid fails', async () => {
-    (sgMail.send as jest.Mock).mockRejectedValueOnce(new Error('sendgrid error'));
+    (sgMail.send as jest.Mock).mockRejectedValueOnce(
+      new Error('sendgrid error'),
+    );
 
     await expect(
       sut.send({

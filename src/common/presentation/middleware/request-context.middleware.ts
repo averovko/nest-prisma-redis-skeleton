@@ -9,7 +9,6 @@ export type RequestWithContext = Request & { requestContext?: RequestContext };
 @Injectable()
 export class RequestContextMiddleware implements NestMiddleware {
   use(req: RequestWithContext, _res: Response, next: NextFunction): void {
-
     const userDetails = ParseUserAgentHelper(req);
     const location = IPToLocationHelper(userDetails.ipAddress);
 

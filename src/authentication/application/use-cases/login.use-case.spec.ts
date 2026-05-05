@@ -102,7 +102,8 @@ describe('LoginUseCase', () => {
 
       await useCase.execute(inputLogin, requestContext);
 
-      const publishedEvent: UserLoggedInEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserLoggedInEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toEqual(requestContext);
     });
 

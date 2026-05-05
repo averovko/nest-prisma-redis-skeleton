@@ -13,7 +13,9 @@ describe('ConsoleSmsSenderService', () => {
   });
 
   it('logs sms message with expected format', async () => {
-    const loggerSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const loggerSpy = jest
+      .spyOn(Logger.prototype, 'log')
+      .mockImplementation(() => undefined);
 
     await expect(
       sut.send({
@@ -22,6 +24,8 @@ describe('ConsoleSmsSenderService', () => {
       }),
     ).resolves.toBeUndefined();
 
-    expect(loggerSpy).toHaveBeenCalledWith('[SMS] To: +79001234567 | Body: Test SMS body');
+    expect(loggerSpy).toHaveBeenCalledWith(
+      '[SMS] To: +79001234567 | Body: Test SMS body',
+    );
   });
 });

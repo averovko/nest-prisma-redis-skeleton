@@ -11,7 +11,12 @@ describe('sms-sender.port', () => {
       send: jest.fn().mockResolvedValue(undefined),
     };
 
-    await expect(sender.send({ to: '+79001234567', body: 'hello' })).resolves.toBeUndefined();
-    expect(sender.send).toHaveBeenCalledWith({ to: '+79001234567', body: 'hello' });
+    await expect(
+      sender.send({ to: '+79001234567', body: 'hello' }),
+    ).resolves.toBeUndefined();
+    expect(sender.send).toHaveBeenCalledWith({
+      to: '+79001234567',
+      body: 'hello',
+    });
   });
 });

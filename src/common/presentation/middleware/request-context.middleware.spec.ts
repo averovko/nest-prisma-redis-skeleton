@@ -10,9 +10,13 @@ jest.mock('src/common/helpers', () => ({
   IPToLocationHelper: jest.fn(),
 }));
 
-const mockedParseUserAgentHelper = ParseUserAgentHelper as jest.MockedFunction<typeof ParseUserAgentHelper>;
+const mockedParseUserAgentHelper = ParseUserAgentHelper as jest.MockedFunction<
+  typeof ParseUserAgentHelper
+>;
 
-function buildRequest(overrides: Partial<RequestWithContext> = {}): RequestWithContext {
+function buildRequest(
+  overrides: Partial<RequestWithContext> = {},
+): RequestWithContext {
   return {
     headers: {},
     ip: undefined,

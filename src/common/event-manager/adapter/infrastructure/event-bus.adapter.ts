@@ -4,7 +4,10 @@ import { BaseEvent } from '../../domain/events/base.event';
 import { EventBusMessage } from '../../domain/events/event.interface';
 import { EventValidationError } from '../../domain/errors/event.errors';
 import { EventBusPort } from '../../application/ports/event-bus.port';
-import { type EventValidatorPort, EVENT_VALIDATOR_TOKEN } from '../../application/ports/event-validator.port';
+import {
+  type EventValidatorPort,
+  EVENT_VALIDATOR_TOKEN,
+} from '../../application/ports/event-validator.port';
 
 @Injectable()
 export class EventBusAdapter implements EventBusPort {
@@ -12,7 +15,8 @@ export class EventBusAdapter implements EventBusPort {
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
-    @Inject(EVENT_VALIDATOR_TOKEN) private readonly eventValidator: EventValidatorPort,
+    @Inject(EVENT_VALIDATOR_TOKEN)
+    private readonly eventValidator: EventValidatorPort,
   ) {}
 
   async publish<T extends object>(event: BaseEvent<T>): Promise<void> {

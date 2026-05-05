@@ -19,7 +19,10 @@ describe('CacheService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new CacheService(mockRedisService as any, mockConfigService as any);
+    service = new CacheService(
+      mockRedisService as any,
+      mockConfigService as any,
+    );
   });
 
   describe('get()', () => {
@@ -102,7 +105,10 @@ describe('CacheService', () => {
   describe('constructor', () => {
     it('reads defaultTtl from config service', () => {
       const configService = { get: jest.fn().mockReturnValue(30) };
-      const svc = new CacheService(mockRedisService as any, configService as any);
+      const svc = new CacheService(
+        mockRedisService as any,
+        configService as any,
+      );
 
       configService.get.mockReturnValue(30);
       mockRedis.setex.mockResolvedValue('OK');

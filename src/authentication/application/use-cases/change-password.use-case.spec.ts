@@ -69,12 +69,15 @@ describe('ChangePasswordUseCase', () => {
       mockCredentialsRepo.findByAuthId.mockResolvedValue(mockCredentials());
       mockPasswordHasher.compare.mockResolvedValue(true);
       mockPasswordHasher.hash.mockResolvedValue('$new$hash');
-      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(mockCredentials());
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(
+        mockCredentials(),
+      );
       const requestContext = { ipAddress: '5.5.5.5', userAgent: 'UA/2.0' };
 
       await useCase.execute(inputAuthId, inputChangePassword, requestContext);
 
-      const publishedEvent: UserPasswordChangedEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserPasswordChangedEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toEqual(requestContext);
     });
 

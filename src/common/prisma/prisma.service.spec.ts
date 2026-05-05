@@ -34,16 +34,18 @@ describe('PrismaService', () => {
         PrismaService,
         {
           provide: ConfigService,
-          useValue: { getOrThrow: jest.fn().mockReturnValue({
-            master: {
-              host: 'localhost', 
-              port: 5432, 
-              user: 'postgres', 
-              password: 'postgres', 
-              name: 'postgres',
-            }, 
-            readReplicas: [],
-          }) },
+          useValue: {
+            getOrThrow: jest.fn().mockReturnValue({
+              master: {
+                host: 'localhost',
+                port: 5432,
+                user: 'postgres',
+                password: 'postgres',
+                name: 'postgres',
+              },
+              readReplicas: [],
+            }),
+          },
         },
       ],
     }).compile();

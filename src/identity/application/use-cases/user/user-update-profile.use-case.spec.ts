@@ -75,7 +75,9 @@ describe('UserUpdateProfileUseCase', () => {
     it('does not update or publish event when user is not found', async () => {
       mockUserRepo.findUnique.mockResolvedValue(null);
 
-      await expect(sut.execute('non-existent', inputProfile)).rejects.toBeInstanceOf(AppError);
+      await expect(
+        sut.execute('non-existent', inputProfile),
+      ).rejects.toBeInstanceOf(AppError);
 
       expect(mockUserRepo.update).not.toHaveBeenCalled();
       expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -85,9 +87,7 @@ describe('UserUpdateProfileUseCase', () => {
       mockUserRepo.findUnique.mockResolvedValue(mockUser());
       mockUserRepo.update.mockRejectedValue(new Error('db error'));
 
-      await expect(
-        sut.execute('user-1', inputProfile),
-      ).rejects.toMatchObject({
+      await expect(sut.execute('user-1', inputProfile)).rejects.toMatchObject({
         code: IdentityErrorCode.USER_UPDATE_FAILED,
       });
     });

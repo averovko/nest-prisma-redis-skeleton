@@ -69,5 +69,4 @@ export class EventRegistryService implements OnModuleInit, EventRegistryPort {
   getEventTypesByModule(module: string): EventSchema<object>[] {
     return this.getAllEventTypes().filter((schema) => schema.module === module);
   }
-
 }

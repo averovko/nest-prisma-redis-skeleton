@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { type RequestContext } from 'src/common/auth';
-import { type EventBusMessage, type UserLoggedInPayload } from 'src/common/event-manager';
+import {
+  type EventBusMessage,
+  type UserLoggedInPayload,
+} from 'src/common/event-manager';
 import { UserActivity, UserActivityType } from 'src/identity/domain/entities';
 import {
   type IUserActivityRepository,

@@ -7,7 +7,10 @@ import {
 } from 'src/generated/prisma/client';
 
 import { IUserActivityRepository } from '../../domain/ports/user-activity.repository.port';
-import { UserActivity, UserActivityType } from '../../domain/entities/user-activity.entity';
+import {
+  UserActivity,
+  UserActivityType,
+} from '../../domain/entities/user-activity.entity';
 import { ActivitySearchQuery } from '../../domain/queries/activity-search.query';
 
 @Injectable()
@@ -18,7 +21,8 @@ export class UserActivityRepository implements IUserActivityRepository {
     const created = await this.prisma.client.userActivity.create({
       data: {
         authId: activity.authId,
-        activityType: activity.activityType as unknown as PrismaUserActivityType,
+        activityType:
+          activity.activityType as unknown as PrismaUserActivityType,
         performedBy: activity.performedBy,
         details: activity.details,
         metadata: activity.metadata ?? {},

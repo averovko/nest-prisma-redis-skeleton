@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EmailSenderPort, SendEmailOptions } from '../../../domain/ports/email-sender.port';
+import {
+  EmailSenderPort,
+  SendEmailOptions,
+} from '../../../domain/ports/email-sender.port';
 
 @Injectable()
 export class ConsoleEmailSenderService implements EmailSenderPort {
@@ -8,8 +11,8 @@ export class ConsoleEmailSenderService implements EmailSenderPort {
   async send(options: SendEmailOptions): Promise<void> {
     this.logger.log(
       `[EMAIL] To: ${options.to} | Subject: ${options.subject}\n` +
-      `--- HTML BODY ---\n` +
-      `${options.html}...`,
+        `--- HTML BODY ---\n` +
+        `${options.html}...`,
     );
   }
 }

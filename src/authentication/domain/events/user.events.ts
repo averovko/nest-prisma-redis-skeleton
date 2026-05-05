@@ -1,4 +1,7 @@
-import { BaseEvent, AuthenticationEventSchemas } from 'src/common/event-manager';
+import {
+  BaseEvent,
+  AuthenticationEventSchemas,
+} from 'src/common/event-manager';
 import { EventMetadata } from 'src/common/event-manager';
 import { Credentials } from '../entities/credentials.entity';
 

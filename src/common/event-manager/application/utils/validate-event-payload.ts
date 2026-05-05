@@ -1,7 +1,10 @@
 import { validate, ValidationError } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { EventSchema } from '../../domain/events/event.interface';
-import { EventValidationError, EventFieldError } from '../../domain/errors/event.errors';
+import {
+  EventValidationError,
+  EventFieldError,
+} from '../../domain/errors/event.errors';
 
 export async function validateEventPayload<T extends object>(
   schema: EventSchema<T>,

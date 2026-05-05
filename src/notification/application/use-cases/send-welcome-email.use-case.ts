@@ -1,7 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EMAIL_SENDER_PORT, type EmailSenderPort } from '../../domain/ports/email-sender.port';
-import { TEMPLATE_RENDERER_PORT, type TemplateRendererPort } from '../../domain/ports/template-renderer.port';
+import {
+  EMAIL_SENDER_PORT,
+  type EmailSenderPort,
+} from '../../domain/ports/email-sender.port';
+import {
+  TEMPLATE_RENDERER_PORT,
+  type TemplateRendererPort,
+} from '../../domain/ports/template-renderer.port';
 import { NotificationTemplate } from '../../domain/entities/notification-template.enum';
 import { type SendWelcomeEmailInput } from '../dto/send-email.input';
 
@@ -24,18 +30,27 @@ export class SendWelcomeEmailUseCase {
     }
 
     try {
-      const appName = this.configService.get<string>('notification.appName', 'App');
-      const frontendUrl = this.configService.get<string>('notification.frontendUrl', 'https://example.com');
+      const appName = this.configService.get<string>(
+        'notification.appName',
+        'App',
+      );
+      const frontendUrl = this.configService.get<string>(
+        'notification.frontendUrl',
+        'https://example.com',
+      );
       const appDomain = new URL(frontendUrl).hostname;
       const verificationLink = `${frontendUrl}/verify-email?token=${input.verificationToken}`;
 
-      const html = await this.templateRenderer.render(NotificationTemplate.WELCOME, {
-        appName,
-        appDomain,
-        firstName: input.firstName,
-        verificationLink,
-        year: new Date().getFullYear(),
-      });
+      const html = await this.templateRenderer.render(
+        NotificationTemplate.WELCOME,
+        {
+          appName,
+          appDomain,
+          firstName: input.firstName,
+          verificationLink,
+          year: new Date().getFullYear(),
+        },
+      );
 
       await this.emailSender.send({
         to: input.email,
@@ -45,7 +60,10 @@ export class SendWelcomeEmailUseCase {
 
       this.logger.log(`Welcome email sent to ${input.email}`);
     } catch (error) {
-      this.logger.error(`Failed to send welcome email to ${input.email}`, error);
+      this.logger.error(
+        `Failed to send welcome email to ${input.email}`,
+        error,
+      );
     }
   }
 }

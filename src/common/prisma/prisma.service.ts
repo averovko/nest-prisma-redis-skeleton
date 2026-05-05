@@ -9,7 +9,6 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { readReplicas } from '@prisma/extension-read-replicas';
 import { PrismaClient } from 'src/generated/prisma/client';
 
-
 type DatabaseNodeConfig = {
   host: string;
   port: number;
@@ -29,7 +28,9 @@ function buildConnectionString(input: DatabaseNodeConfig): string {
   return `postgres://${input.user}:${input.password}@${input.host}:${input.port}/${input.name}?sslmode=${sslMode}`;
 }
 
-export type ExtendedPrismaClient = ReturnType<PrismaService['createExtendedClient']>;
+export type ExtendedPrismaClient = ReturnType<
+  PrismaService['createExtendedClient']
+>;
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
@@ -46,7 +47,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(
       `Init master DB connection host=${database.master.host} port=${database.master.port} db=${database.master.name}`,
     );
-    const mainAdapter = new PrismaPg({ connectionString: masterConnectionString });
+    const mainAdapter = new PrismaPg({
+      connectionString: masterConnectionString,
+    });
     const mainClient = new PrismaClient({ adapter: mainAdapter });
     const replicaClients: PrismaClient[] = (database.readReplicas ?? []).map(
       (replica, idx) => {

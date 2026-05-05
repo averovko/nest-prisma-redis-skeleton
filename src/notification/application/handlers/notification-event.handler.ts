@@ -26,7 +26,9 @@ export class NotificationEventHandler {
   ) {}
 
   @OnEvent(AuthenticationEventSchemas.USER_REGISTERED.eventName)
-  async handleUserRegistered(message: EventBusMessage<UserRegisteredPayload>): Promise<void> {
+  async handleUserRegistered(
+    message: EventBusMessage<UserRegisteredPayload>,
+  ): Promise<void> {
     this.logger.debug(`Handling USER_REGISTERED for ${message.payload.email}`);
     await this.sendWelcomeEmailUseCase.execute({
       email: message.payload.email,
@@ -36,8 +38,12 @@ export class NotificationEventHandler {
   }
 
   @OnEvent(AuthenticationEventSchemas.USER_PASSWORD_RESET_REQUESTED.eventName)
-  async handlePasswordResetRequested(message: EventBusMessage<UserPasswordResetRequestedPayload>): Promise<void> {
-    this.logger.debug(`Handling USER_PASSWORD_RESET_REQUESTED for ${message.payload.email}`);
+  async handlePasswordResetRequested(
+    message: EventBusMessage<UserPasswordResetRequestedPayload>,
+  ): Promise<void> {
+    this.logger.debug(
+      `Handling USER_PASSWORD_RESET_REQUESTED for ${message.payload.email}`,
+    );
     await this.sendPasswordResetEmailUseCase.execute({
       email: message.payload.email,
       rawToken: message.payload.rawToken,
@@ -45,8 +51,12 @@ export class NotificationEventHandler {
   }
 
   @OnEvent(AuthenticationEventSchemas.USER_PASSWORD_CHANGED.eventName)
-  async handlePasswordChanged(message: EventBusMessage<UserPasswordChangedPayload>): Promise<void> {
-    this.logger.debug(`Handling USER_PASSWORD_CHANGED for ${message.payload.authId}`);
+  async handlePasswordChanged(
+    message: EventBusMessage<UserPasswordChangedPayload>,
+  ): Promise<void> {
+    this.logger.debug(
+      `Handling USER_PASSWORD_CHANGED for ${message.payload.authId}`,
+    );
     const ctx = message.metadata.metadata as RequestContext | undefined;
     await this.sendPasswordChangedEmailUseCase.execute({
       email: message.payload.email,
@@ -56,8 +66,12 @@ export class NotificationEventHandler {
   }
 
   @OnEvent(AuthenticationEventSchemas.USER_PASSWORD_RESET_COMPLETED.eventName)
-  async handlePasswordResetCompleted(message: EventBusMessage<UserPasswordResetCompletedPayload>): Promise<void> {
-    this.logger.debug(`Handling USER_PASSWORD_RESET_COMPLETED for ${message.payload.authId}`);
+  async handlePasswordResetCompleted(
+    message: EventBusMessage<UserPasswordResetCompletedPayload>,
+  ): Promise<void> {
+    this.logger.debug(
+      `Handling USER_PASSWORD_RESET_COMPLETED for ${message.payload.authId}`,
+    );
     const ctx = message.metadata.metadata as RequestContext | undefined;
     await this.sendPasswordResetCompletedEmailUseCase.execute({
       email: message.payload.email,

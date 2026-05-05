@@ -18,7 +18,9 @@ describe('SendWelcomeEmailUseCase', () => {
 
   beforeEach(async () => {
     mockEmailSender = { send: jest.fn().mockResolvedValue(undefined) };
-    mockTemplateRenderer = { render: jest.fn().mockResolvedValue('<html>welcome</html>') };
+    mockTemplateRenderer = {
+      render: jest.fn().mockResolvedValue('<html>welcome</html>'),
+    };
     mockConfigService = {
       get: jest.fn((key: string, def?: unknown) => {
         const config: Record<string, unknown> = {
@@ -83,7 +85,9 @@ describe('SendWelcomeEmailUseCase', () => {
     });
 
     it('does NOT throw when templateRenderer fails — swallows error', async () => {
-      mockTemplateRenderer.render.mockRejectedValue(new Error('template not found'));
+      mockTemplateRenderer.render.mockRejectedValue(
+        new Error('template not found'),
+      );
 
       await expect(sut.execute(input)).resolves.toBeUndefined();
     });

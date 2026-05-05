@@ -118,9 +118,16 @@ describe('InitiatePasswordResetUseCase', () => {
 
     it('forwards requestContext as event metadata when provided', async () => {
       mockCredentialsRepo.findByEmail.mockResolvedValue(mockCredentials());
-      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockPasswordResetTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       mockPasswordResetTokenRepo.create.mockResolvedValue({});
-      const requestContext = { ipAddress: '9.9.9.9', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+      const requestContext = {
+        ipAddress: '9.9.9.9',
+        device: 'Desktop',
+        client: 'Chrome',
+        os: 'Linux',
+      };
 
       await useCase.execute(inputInitiate, requestContext);
 

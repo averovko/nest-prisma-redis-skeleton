@@ -106,29 +106,29 @@ describe('PageOptionsDto', () => {
       expect(meta.hasPreviousPage).toBe(true);
     });
 
-  describe('@Transform callbacks via class-transformer', () => {
-    it('transforms string pageNumber to integer', () => {
-      const dto = plainToInstance(PageOptionsDto, { pageNumber: '3' });
+    describe('@Transform callbacks via class-transformer', () => {
+      it('transforms string pageNumber to integer', () => {
+        const dto = plainToInstance(PageOptionsDto, { pageNumber: '3' });
 
-      expect(dto.pageNumber).toBe(3);
-    });
-
-    it('transforms string pageSize to integer', () => {
-      const dto = plainToInstance(PageOptionsDto, { pageSize: '25' });
-
-      expect(dto.pageSize).toBe(25);
-    });
-
-    it('transforms both fields from strings simultaneously', () => {
-      const dto = plainToInstance(PageOptionsDto, {
-        pageNumber: '2',
-        pageSize: '50',
+        expect(dto.pageNumber).toBe(3);
       });
 
-      expect(dto.pageNumber).toBe(2);
-      expect(dto.pageSize).toBe(50);
+      it('transforms string pageSize to integer', () => {
+        const dto = plainToInstance(PageOptionsDto, { pageSize: '25' });
+
+        expect(dto.pageSize).toBe(25);
+      });
+
+      it('transforms both fields from strings simultaneously', () => {
+        const dto = plainToInstance(PageOptionsDto, {
+          pageNumber: '2',
+          pageSize: '50',
+        });
+
+        expect(dto.pageNumber).toBe(2);
+        expect(dto.pageSize).toBe(50);
+      });
     });
-  });
 
     it('handles totalItems=0 correctly', () => {
       const dto = new PageOptionsDto(0, 10);

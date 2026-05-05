@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { USER_ACTIVITY_REPOSITORY } from 'src/identity/domain/ports/user-activity.repository.port';
 import { UserActivityType } from 'src/identity/domain/entities';
-import { type EventBusMessage, type UserLoggedOutPayload } from 'src/common/event-manager';
+import {
+  type EventBusMessage,
+  type UserLoggedOutPayload,
+} from 'src/common/event-manager';
 import { mockUserActivity } from 'src/identity/__fixtures__/identity.fixtures';
 import { UserLoggedOutUseCase } from './user-logged-out.use-case';
 
@@ -72,7 +75,11 @@ describe('UserLoggedOutUseCase', () => {
         ...inputMessage,
         metadata: {
           ...inputMessage.metadata,
-          metadata: { ipAddress: '1.2.3.4', userAgent: 'TestAgent', device: 'dev-1' },
+          metadata: {
+            ipAddress: '1.2.3.4',
+            userAgent: 'TestAgent',
+            device: 'dev-1',
+          },
         },
       };
 

@@ -5,7 +5,10 @@ import {
 } from 'src/identity/domain/ports/user.repository.port';
 import { IdentityErrorFactory } from 'src/identity/domain/errors';
 import { PatchProfileInput } from '../../dto/profile.input';
-import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager/application/ports/event-bus.port';
+import {
+  EVENT_BUS_TOKEN,
+  type EventBusPort,
+} from 'src/common/event-manager/application/ports/event-bus.port';
 import { UserUpdatedEvent } from 'src/identity/domain/events/user.events';
 import { User } from 'src/identity/domain/entities';
 import { type RequestContext } from 'src/common/auth';
@@ -21,7 +24,11 @@ export class UserUpdateProfileUseCase {
     private readonly eventBus: EventBusPort,
   ) {}
 
-  async execute(userId: string, input: PatchProfileInput, requestContext?: RequestContext): Promise<User> {
+  async execute(
+    userId: string,
+    input: PatchProfileInput,
+    requestContext?: RequestContext,
+  ): Promise<User> {
     const user = await this.userRepository.findUnique({
       where: { id: userId },
     });
@@ -40,8 +47,12 @@ export class UserUpdateProfileUseCase {
         },
       });
 
-      const eventParams = requestContext ? { metadata: requestContext } : undefined;
-      await this.eventBus.publish(new UserUpdatedEvent(updatedUser, eventParams));
+      const eventParams = requestContext
+        ? { metadata: requestContext }
+        : undefined;
+      await this.eventBus.publish(
+        new UserUpdatedEvent(updatedUser, eventParams),
+      );
 
       return updatedUser;
     } catch (error) {

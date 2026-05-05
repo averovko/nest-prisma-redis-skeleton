@@ -31,7 +31,9 @@ export class VerifyEmailUseCase {
     }
 
     if (verificationToken.expiresAt < new Date()) {
-      await this.emailVerificationTokenRepository.deleteById(verificationToken.id);
+      await this.emailVerificationTokenRepository.deleteById(
+        verificationToken.id,
+      );
       return this.success();
     }
 

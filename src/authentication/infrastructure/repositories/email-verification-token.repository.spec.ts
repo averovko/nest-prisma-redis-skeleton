@@ -25,7 +25,9 @@ describe('EmailVerificationTokenRepository', () => {
         {
           provide: PrismaService,
           useValue: {
-            client: { emailVerificationToken: mockPrismaEmailVerificationToken },
+            client: {
+              emailVerificationToken: mockPrismaEmailVerificationToken,
+            },
           },
         },
       ],
@@ -68,7 +70,9 @@ describe('EmailVerificationTokenRepository', () => {
         expiresAt: new Date(),
         createdAt: new Date(),
       };
-      mockPrismaEmailVerificationToken.findUnique.mockResolvedValue(expectedToken);
+      mockPrismaEmailVerificationToken.findUnique.mockResolvedValue(
+        expectedToken,
+      );
 
       const actualResult = await repository.findByHash('verification-hash');
 
@@ -101,7 +105,9 @@ describe('EmailVerificationTokenRepository', () => {
 
   describe('deleteAllByCredentialsId', () => {
     it('calls prisma.emailVerificationToken.deleteMany with credentials id', async () => {
-      mockPrismaEmailVerificationToken.deleteMany.mockResolvedValue({ count: 2 });
+      mockPrismaEmailVerificationToken.deleteMany.mockResolvedValue({
+        count: 2,
+      });
 
       await repository.deleteAllByCredentialsId('cred-id-1');
 

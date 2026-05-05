@@ -100,5 +100,4 @@ export class IdentityErrorFactory {
   static requirePerson(): RequirePersonError {
     return new RequirePersonError();
   }
-
 }

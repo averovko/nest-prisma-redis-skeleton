@@ -18,7 +18,11 @@ describe('Authentication Domain Events', () => {
     const inputVerificationToken = 'verification-token-abc123';
 
     it('toJSON returns authId, email, firstName, and verificationToken', () => {
-      const event = new UserRegisteredEvent(inputCredentials, inputFirstName, inputVerificationToken);
+      const event = new UserRegisteredEvent(
+        inputCredentials,
+        inputFirstName,
+        inputVerificationToken,
+      );
       expect(event.toJSON()).toEqual({
         authId: inputCredentials.authId,
         email: inputCredentials.email,
@@ -28,13 +32,25 @@ describe('Authentication Domain Events', () => {
     });
 
     it('has a unique eventId', () => {
-      const eventA = new UserRegisteredEvent(inputCredentials, inputFirstName, inputVerificationToken);
-      const eventB = new UserRegisteredEvent(inputCredentials, inputFirstName, inputVerificationToken);
+      const eventA = new UserRegisteredEvent(
+        inputCredentials,
+        inputFirstName,
+        inputVerificationToken,
+      );
+      const eventB = new UserRegisteredEvent(
+        inputCredentials,
+        inputFirstName,
+        inputVerificationToken,
+      );
       expect(eventA.eventId).not.toBe(eventB.eventId);
     });
 
     it('has the correct eventName', () => {
-      const event = new UserRegisteredEvent(inputCredentials, inputFirstName, inputVerificationToken);
+      const event = new UserRegisteredEvent(
+        inputCredentials,
+        inputFirstName,
+        inputVerificationToken,
+      );
       expect(event.eventName).toBe('authentication.user.registered');
     });
   });
@@ -66,7 +82,10 @@ describe('Authentication Domain Events', () => {
   describe('UserPasswordChangedEvent', () => {
     it('toJSON returns authId and email', () => {
       const event = new UserPasswordChangedEvent(inputAuthId, inputEmail);
-      expect(event.toJSON()).toEqual({ authId: inputAuthId, email: inputEmail });
+      expect(event.toJSON()).toEqual({
+        authId: inputAuthId,
+        email: inputEmail,
+      });
     });
 
     it('has the correct eventName', () => {
@@ -128,12 +147,20 @@ describe('Authentication Domain Events', () => {
 
   describe('BaseEvent properties', () => {
     it('payload getter returns the same value as toJSON', () => {
-      const event = new UserRegisteredEvent(inputCredentials, 'John', 'token-xyz');
+      const event = new UserRegisteredEvent(
+        inputCredentials,
+        'John',
+        'token-xyz',
+      );
       expect(event.payload).toEqual(event.toJSON());
     });
 
     it('metadata contains timestamp and version', () => {
-      const event = new UserRegisteredEvent(inputCredentials, 'John', 'token-xyz');
+      const event = new UserRegisteredEvent(
+        inputCredentials,
+        'John',
+        'token-xyz',
+      );
       expect(event.metadata.timestamp).toBeDefined();
       expect(event.metadata.version).toBe('1.0.0');
     });

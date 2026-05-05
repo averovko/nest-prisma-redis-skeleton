@@ -16,7 +16,9 @@ describe('SendPasswordResetEmailUseCase', () => {
 
   beforeEach(async () => {
     mockEmailSender = { send: jest.fn().mockResolvedValue(undefined) };
-    mockTemplateRenderer = { render: jest.fn().mockResolvedValue('<html>reset</html>') };
+    mockTemplateRenderer = {
+      render: jest.fn().mockResolvedValue('<html>reset</html>'),
+    };
     const mockConfigService = {
       get: jest.fn((key: string, def?: unknown) => {
         const config: Record<string, unknown> = {

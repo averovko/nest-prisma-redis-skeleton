@@ -28,27 +28,27 @@ import { AuthenticationController } from './presentation/authentication.controll
   providers: [
     {
       provide: CREDENTIALS_REPOSITORY,
-      useClass: CredentialsRepository
+      useClass: CredentialsRepository,
     },
     {
       provide: REFRESH_TOKEN_REPOSITORY,
-      useClass: RefreshTokenRepository
+      useClass: RefreshTokenRepository,
     },
     {
       provide: PASSWORD_RESET_TOKEN_REPOSITORY,
-      useClass: PasswordResetTokenRepository
+      useClass: PasswordResetTokenRepository,
     },
     {
       provide: EMAIL_VERIFICATION_TOKEN_REPOSITORY,
-      useClass: EmailVerificationTokenRepository
+      useClass: EmailVerificationTokenRepository,
     },
     {
       provide: PASSWORD_HASHER_PORT,
-      useClass: BcryptPasswordHasher
+      useClass: BcryptPasswordHasher,
     },
     {
       provide: TOKEN_ISSUER_PORT,
-      useClass: JwtTokenIssuer
+      useClass: JwtTokenIssuer,
     },
     RegisterUseCase,
     LoginUseCase,
@@ -61,4 +61,4 @@ import { AuthenticationController } from './presentation/authentication.controll
   ],
   controllers: [AuthenticationController],
 })
-export class AuthenticationModule { }
+export class AuthenticationModule {}

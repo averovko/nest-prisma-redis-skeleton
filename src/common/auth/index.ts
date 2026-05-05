@@ -1,4 +1,10 @@
-export { AuthCtx, Role, type User, type Person, type RequestContext } from './domain';
+export {
+  AuthCtx,
+  Role,
+  type User,
+  type Person,
+  type RequestContext,
+} from './domain';
 export {
   AuthContext,
   AuthContextUser,

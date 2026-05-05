@@ -24,7 +24,10 @@ describe('AuthenticationController', () => {
   let mockVerifyEmailUseCase: jest.Mocked<VerifyEmailUseCase>;
 
   const buildMockAuthCtx = (authId = 'auth-id-1'): AuthCtx =>
-    AuthCtx.forPerson({ authId }, { id: 'user-id-1', authId} as unknown as User);
+    AuthCtx.forPerson({ authId }, {
+      id: 'user-id-1',
+      authId,
+    } as unknown as User);
 
   beforeEach(async () => {
     mockRegisterUseCase = { execute: jest.fn() } as any;
@@ -74,7 +77,10 @@ describe('AuthenticationController', () => {
 
       const actualResult = await controller.register(inputBody, requestContext);
 
-      expect(mockRegisterUseCase.execute).toHaveBeenCalledWith(inputBody, requestContext);
+      expect(mockRegisterUseCase.execute).toHaveBeenCalledWith(
+        inputBody,
+        requestContext,
+      );
       expect(actualResult).toBeInstanceOf(TokenPairDto);
       expect(actualResult.accessToken).toBe('access.jwt.token');
       expect(actualResult.refreshToken).toBe('refresh.jwt.token');
@@ -89,7 +95,10 @@ describe('AuthenticationController', () => {
 
       const actualResult = await controller.login(inputBody, requestContext);
 
-      expect(mockLoginUseCase.execute).toHaveBeenCalledWith(inputBody, requestContext);
+      expect(mockLoginUseCase.execute).toHaveBeenCalledWith(
+        inputBody,
+        requestContext,
+      );
       expect(actualResult).toBeInstanceOf(TokenPairDto);
     });
   });
@@ -113,11 +122,15 @@ describe('AuthenticationController', () => {
     it('executes LogoutUseCase with the authId and requestContext from auth context', async () => {
       mockLogoutUseCase.execute.mockResolvedValue(undefined);
       const requestContext = { ipAddress: '10.0.0.1', userAgent: 'UA' };
-      const inputAuthCtx = buildMockAuthCtx('auth-id-1').withRequestContext(requestContext);
+      const inputAuthCtx =
+        buildMockAuthCtx('auth-id-1').withRequestContext(requestContext);
 
       await controller.logout(inputAuthCtx);
 
-      expect(mockLogoutUseCase.execute).toHaveBeenCalledWith('auth-id-1', requestContext);
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledWith(
+        'auth-id-1',
+        requestContext,
+      );
     });
   });
 
@@ -129,7 +142,8 @@ describe('AuthenticationController', () => {
         newPassword: 'new12345',
       };
       const requestContext = { ipAddress: '10.0.0.1' };
-      const inputAuthCtx = buildMockAuthCtx('auth-id-1').withRequestContext(requestContext);
+      const inputAuthCtx =
+        buildMockAuthCtx('auth-id-1').withRequestContext(requestContext);
 
       await controller.changePassword(inputBody, inputAuthCtx);
 
@@ -160,7 +174,12 @@ describe('AuthenticationController', () => {
     it('executes ConfirmPasswordResetUseCase with the request body and requestContext', async () => {
       mockConfirmPasswordResetUseCase.execute.mockResolvedValue(undefined);
       const inputBody = { token: 'reset-token', newPassword: 'new12345' };
-      const requestContext = { ipAddress: '5.6.7.8', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+      const requestContext = {
+        ipAddress: '5.6.7.8',
+        device: 'Desktop',
+        client: 'Chrome',
+        os: 'Linux',
+      };
 
       await controller.confirmPasswordReset(inputBody, requestContext);
 

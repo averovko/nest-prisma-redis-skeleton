@@ -43,7 +43,10 @@ const mockUserEntity = {
 class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
-    const authCtx = AuthCtx.forPerson({ authId: TEST_AUTH_ID }, mockUserEntity as any);
+    const authCtx = AuthCtx.forPerson(
+      { authId: TEST_AUTH_ID },
+      mockUserEntity as any,
+    );
     req.authCtx = authCtx;
     return true;
   }

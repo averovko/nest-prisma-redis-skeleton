@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { USER_ACTIVITY_REPOSITORY } from 'src/identity/domain/ports/user-activity.repository.port';
 import { UserActivityType } from 'src/identity/domain/entities';
-import { type EventBusMessage, type UserPasswordResetRequestedPayload } from 'src/common/event-manager';
+import {
+  type EventBusMessage,
+  type UserPasswordResetRequestedPayload,
+} from 'src/common/event-manager';
 import { mockUserActivity } from 'src/identity/__fixtures__/identity.fixtures';
 import { UserPasswordResetRequestedUseCase } from './user-password-reset-requested.use-case';
 
@@ -39,7 +42,9 @@ describe('UserPasswordResetRequestedUseCase', () => {
   describe('execute', () => {
     it('creates a PASSWORD_RESET_REQUEST activity from the message', async () => {
       mockActivityRepo.create.mockResolvedValue(
-        mockUserActivity({ activityType: UserActivityType.PASSWORD_RESET_REQUEST }),
+        mockUserActivity({
+          activityType: UserActivityType.PASSWORD_RESET_REQUEST,
+        }),
       );
 
       await sut.execute(inputMessage);
@@ -56,7 +61,9 @@ describe('UserPasswordResetRequestedUseCase', () => {
 
     it('stores email in details', async () => {
       mockActivityRepo.create.mockResolvedValue(
-        mockUserActivity({ activityType: UserActivityType.PASSWORD_RESET_REQUEST }),
+        mockUserActivity({
+          activityType: UserActivityType.PASSWORD_RESET_REQUEST,
+        }),
       );
 
       await sut.execute(inputMessage);
@@ -70,7 +77,9 @@ describe('UserPasswordResetRequestedUseCase', () => {
 
     it('uses the event timestamp for the activity', async () => {
       mockActivityRepo.create.mockResolvedValue(
-        mockUserActivity({ activityType: UserActivityType.PASSWORD_RESET_REQUEST }),
+        mockUserActivity({
+          activityType: UserActivityType.PASSWORD_RESET_REQUEST,
+        }),
       );
 
       await sut.execute(inputMessage);
@@ -83,16 +92,23 @@ describe('UserPasswordResetRequestedUseCase', () => {
 
     it('extracts request context from event metadata', async () => {
       mockActivityRepo.create.mockResolvedValue(
-        mockUserActivity({ activityType: UserActivityType.PASSWORD_RESET_REQUEST }),
+        mockUserActivity({
+          activityType: UserActivityType.PASSWORD_RESET_REQUEST,
+        }),
       );
 
-      const messageWithContext: EventBusMessage<UserPasswordResetRequestedPayload> = {
-        ...inputMessage,
-        metadata: {
-          ...inputMessage.metadata,
-          metadata: { ipAddress: '1.2.3.4', userAgent: 'TestAgent', device: 'dev-1' },
-        },
-      };
+      const messageWithContext: EventBusMessage<UserPasswordResetRequestedPayload> =
+        {
+          ...inputMessage,
+          metadata: {
+            ...inputMessage.metadata,
+            metadata: {
+              ipAddress: '1.2.3.4',
+              userAgent: 'TestAgent',
+              device: 'dev-1',
+            },
+          },
+        };
 
       await sut.execute(messageWithContext);
 

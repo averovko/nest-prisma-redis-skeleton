@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { USER_ACTIVITY_REPOSITORY } from 'src/identity/domain/ports/user-activity.repository.port';
 import { UserActivityType } from 'src/identity/domain/entities';
-import { type EventBusMessage, type UserRegisteredPayload } from 'src/common/event-manager';
+import {
+  type EventBusMessage,
+  type UserRegisteredPayload,
+} from 'src/common/event-manager';
 import { mockUserActivity } from 'src/identity/__fixtures__/identity.fixtures';
 import { UserRegisteredUseCase } from './user-registered.use-case';
 
@@ -94,7 +97,11 @@ describe('UserRegisteredUseCase', () => {
         ...inputMessage,
         metadata: {
           ...inputMessage.metadata,
-          metadata: { ipAddress: '1.2.3.4', userAgent: 'TestAgent', device: 'dev-1' },
+          metadata: {
+            ipAddress: '1.2.3.4',
+            userAgent: 'TestAgent',
+            device: 'dev-1',
+          },
         },
       };
 

@@ -25,7 +25,11 @@ describe('UserDeactivatedUseCase', () => {
   describe('execute', () => {
     it('creates an ACCOUNT_DEACTIVATED activity with correct authId and performedBy', async () => {
       const authId = '550e8400-e29b-41d4-a716-446655440001';
-      const inputEvent = new UserDeactivatedEvent('user-1', authId, 'operator-1');
+      const inputEvent = new UserDeactivatedEvent(
+        'user-1',
+        authId,
+        'operator-1',
+      );
       mockActivityRepo.create.mockResolvedValue(
         mockUserActivity({
           activityType: UserActivityType.ACCOUNT_DEACTIVATED,

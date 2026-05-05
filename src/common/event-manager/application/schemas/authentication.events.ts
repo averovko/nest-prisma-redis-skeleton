@@ -39,7 +39,6 @@ export class UserPasswordResetRequestedPayload extends BaseAuthenticationPayload
   rawToken: string;
 }
 
-
 export const AuthenticationEventSchemas = {
   USER_REGISTERED: {
     eventName: 'authentication.user.registered',

@@ -205,7 +205,9 @@ describe('AuthCtx', () => {
     });
 
     it('includes requestContext in toSnapshot', () => {
-      const ctx = AuthCtx.forPerson(mockPerson, mockUser).withRequestContext(inputContext);
+      const ctx = AuthCtx.forPerson(mockPerson, mockUser).withRequestContext(
+        inputContext,
+      );
 
       const snapshot = ctx.toSnapshot();
 

@@ -25,7 +25,10 @@ export class NotificationErrorFactory {
     );
   }
 
-  static templateRenderFailed(templateName: string, cause?: unknown): NotificationError {
+  static templateRenderFailed(
+    templateName: string,
+    cause?: unknown,
+  ): NotificationError {
     return new NotificationError(
       NotificationErrorCode.TEMPLATE_RENDER_FAILED,
       `Failed to render template: ${templateName}`,

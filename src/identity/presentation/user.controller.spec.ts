@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthCtx, AuthGuard, RolesGuard, User } from 'src/common/auth';
-import { UserCreateUseCase,
+import {
+  UserCreateUseCase,
   UserSearchUseCase,
   UserGetByIdUseCase,
   UserBulkOperationUseCase,
   UserGetProfileUseCase,
   UserUpdateProfileUseCase,
- } from '../application/use-cases/user';
+} from '../application/use-cases/user';
 import { UserActivityGetUseCase } from '../application/use-cases/user/user-activity-get.use-case';
 import {
   mockUser,
@@ -52,8 +53,14 @@ describe('UserController', () => {
         { provide: UserCreateUseCase, useValue: mockUserCreateUseCase },
         { provide: UserSearchUseCase, useValue: mockUserSearchUseCase },
         { provide: UserGetByIdUseCase, useValue: mockUserGetByIdUseCase },
-        { provide: UserBulkOperationUseCase, useValue: mockUserBulkOperationUseCase },
-        { provide: UserActivityGetUseCase, useValue: mockUserActivityGetUseCase },
+        {
+          provide: UserBulkOperationUseCase,
+          useValue: mockUserBulkOperationUseCase,
+        },
+        {
+          provide: UserActivityGetUseCase,
+          useValue: mockUserActivityGetUseCase,
+        },
         { provide: UserGetProfileUseCase, useValue: mockUserGetProfileUseCase },
         {
           provide: UserUpdateProfileUseCase,
@@ -75,14 +82,20 @@ describe('UserController', () => {
       mockUserCreateUseCase.execute.mockResolvedValue(mockUserEntity);
       const inputDto = { name: 'John' };
 
-      const actualResult = await controller.create(inputDto as any, mockAuthCtx);
+      const actualResult = await controller.create(
+        inputDto as any,
+        mockAuthCtx,
+      );
 
       expect(actualResult.id).toBe(mockUserEntity.id);
       expect(actualResult.firstName).toBe(mockUserEntity.firstName);
     });
 
     it('throws when auth context is not a person', async () => {
-      const serviceCtx = AuthCtx.forService({ id: 'service-1', name: 'test' } as any);
+      const serviceCtx = AuthCtx.forService({
+        id: 'service-1',
+        name: 'test',
+      } as any);
 
       await expect(controller.create({} as any, serviceCtx)).rejects.toThrow();
     });
@@ -120,7 +133,10 @@ describe('UserController', () => {
         toQuery: jest.fn().mockReturnValue(mockActivitySearchQuery()),
       });
 
-      const actualResult = await controller.getUserActivity(mockUserEntity.id, inputFilters);
+      const actualResult = await controller.getUserActivity(
+        mockUserEntity.id,
+        inputFilters,
+      );
 
       expect(actualResult.data).toHaveLength(1);
     });
@@ -130,7 +146,9 @@ describe('UserController', () => {
     it('returns ProfileDto with the current user profile', async () => {
       mockUserGetProfileUseCase.execute.mockResolvedValue(mockUserEntity);
 
-      const actualResult = await controller.get(mockUserEntity as unknown as User);
+      const actualResult = await controller.get(
+        mockUserEntity as unknown as User,
+      );
 
       expect(actualResult.id).toBe(mockUserEntity.id);
       expect(actualResult.firstName).toBe(mockUserEntity.firstName);
@@ -155,7 +173,11 @@ describe('UserController', () => {
       const updatedUser = mockUser({ firstName: 'Jane' });
       mockUserUpdateProfileUseCase.execute.mockResolvedValue(updatedUser);
 
-      const actualResult = await controller.update(inputUpdate as any, mockUserEntity as unknown as User, mockAuthCtx);
+      const actualResult = await controller.update(
+        inputUpdate as any,
+        mockUserEntity as unknown as User,
+        mockAuthCtx,
+      );
 
       expect(actualResult.firstName).toBe('Jane');
     });
@@ -164,7 +186,11 @@ describe('UserController', () => {
       mockUserUpdateProfileUseCase.execute.mockResolvedValue(mockUserEntity);
       const inputUpdate = { name: 'Jane' };
 
-      await controller.update(inputUpdate as any, mockUserEntity as unknown as User, mockAuthCtx);
+      await controller.update(
+        inputUpdate as any,
+        mockUserEntity as unknown as User,
+        mockAuthCtx,
+      );
 
       expect(mockUserUpdateProfileUseCase.execute).toHaveBeenCalledWith(
         mockUserEntity.id,

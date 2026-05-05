@@ -27,7 +27,10 @@ export function ValidateEvent() {
             throw new EventValidationError('Event schema not found', []);
           }
 
-          const payloadInstance = await validateEventPayload(schema, event.payload);
+          const payloadInstance = await validateEventPayload(
+            schema,
+            event.payload,
+          );
 
           return originalMethod.apply(this, [
             { ...event, payload: payloadInstance },

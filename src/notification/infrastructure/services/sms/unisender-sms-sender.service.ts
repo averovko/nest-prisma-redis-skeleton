@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SmsSenderPort, SendSmsOptions } from '../../../domain/ports/sms-sender.port';
+import {
+  SmsSenderPort,
+  SendSmsOptions,
+} from '../../../domain/ports/sms-sender.port';
 import { NotificationErrorFactory } from '../../../domain/errors/notification.error-factory';
 
 interface UniSenderSmsResponse {
@@ -16,8 +19,16 @@ export class UniSenderSmsSenderService implements SmsSenderPort {
   constructor(private readonly configService: ConfigService) {}
 
   async send(options: SendSmsOptions): Promise<void> {
-    const apiKey = this.configService.get<string>('notification.sms.unisender.apiKey', '');
-    const senderName = options.from ?? this.configService.get<string>('notification.sms.unisender.senderName', 'App');
+    const apiKey = this.configService.get<string>(
+      'notification.sms.unisender.apiKey',
+      '',
+    );
+    const senderName =
+      options.from ??
+      this.configService.get<string>(
+        'notification.sms.unisender.senderName',
+        'App',
+      );
 
     const params = new URLSearchParams({
       api_key: apiKey,
@@ -28,12 +39,17 @@ export class UniSenderSmsSenderService implements SmsSenderPort {
     });
 
     try {
-      const response = await fetch(`${this.apiUrl}/sendSms?${params.toString()}`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${this.apiUrl}/sendSms?${params.toString()}`,
+        {
+          method: 'POST',
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`UniSender SMS API responded with status ${response.status}`);
+        throw new Error(
+          `UniSender SMS API responded with status ${response.status}`,
+        );
       }
 
       const data = (await response.json()) as UniSenderSmsResponse;

@@ -63,10 +63,13 @@ describe('OptionalAuthGuard', () => {
     const authCtx = AuthCtx.forService({ id: 'svc-1' });
     mockResolveAuthCtx.execute.mockResolvedValue(authCtx);
     const guard = buildGuard();
-    const { request, context } = buildMutableRequestContext('Bearer valid-token', {
-      ipAddress: '10.0.0.1',
-      userAgent: 'TestAgent',
-    });
+    const { request, context } = buildMutableRequestContext(
+      'Bearer valid-token',
+      {
+        ipAddress: '10.0.0.1',
+        userAgent: 'TestAgent',
+      },
+    );
 
     const result = await guard.canActivate(context);
 

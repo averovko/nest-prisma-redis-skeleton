@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { UserActivityType } from '../../domain/entities/user-activity.entity';
-import { mockUserActivity, mockActivitySearchQuery } from '../../__fixtures__/identity.fixtures';
+import {
+  mockUserActivity,
+  mockActivitySearchQuery,
+} from '../../__fixtures__/identity.fixtures';
 import { UserActivityRepository } from './user-activity.repository';
 
 const mockPrismaActivity = {
@@ -48,7 +51,9 @@ describe('UserActivityRepository', () => {
 
   describe('create', () => {
     it('creates activity record and maps to domain entity', async () => {
-      mockPrisma.client.userActivity.create.mockResolvedValue(mockPrismaActivity);
+      mockPrisma.client.userActivity.create.mockResolvedValue(
+        mockPrismaActivity,
+      );
       const inputActivity = mockUserActivity();
 
       const actualResult = await sut.create(inputActivity);
@@ -59,7 +64,9 @@ describe('UserActivityRepository', () => {
     });
 
     it('passes activity fields to Prisma create', async () => {
-      mockPrisma.client.userActivity.create.mockResolvedValue(mockPrismaActivity);
+      mockPrisma.client.userActivity.create.mockResolvedValue(
+        mockPrismaActivity,
+      );
       const inputActivity = mockUserActivity({
         authId: 'auth-123',
         activityType: UserActivityType.LOGIN,
@@ -79,10 +86,15 @@ describe('UserActivityRepository', () => {
 
   describe('findByAuthId', () => {
     it('returns paged result with mapped entities', async () => {
-      mockPrisma.client.userActivity.findMany.mockResolvedValue([mockPrismaActivity]);
+      mockPrisma.client.userActivity.findMany.mockResolvedValue([
+        mockPrismaActivity,
+      ]);
       mockPrisma.client.userActivity.count.mockResolvedValue(1);
 
-      const actualResult = await sut.findByAuthId('auth-1', mockActivitySearchQuery());
+      const actualResult = await sut.findByAuthId(
+        'auth-1',
+        mockActivitySearchQuery(),
+      );
 
       expect(actualResult.data).toHaveLength(1);
       expect(actualResult.data[0].id).toBe(mockPrismaActivity.id);
@@ -93,7 +105,10 @@ describe('UserActivityRepository', () => {
       mockPrisma.client.userActivity.findMany.mockResolvedValue([]);
       mockPrisma.client.userActivity.count.mockResolvedValue(0);
 
-      const actualResult = await sut.findByAuthId('auth-1', mockActivitySearchQuery());
+      const actualResult = await sut.findByAuthId(
+        'auth-1',
+        mockActivitySearchQuery(),
+      );
 
       expect(actualResult.data).toHaveLength(0);
       expect(actualResult.meta.totalItems).toBe(0);
@@ -108,12 +123,15 @@ describe('UserActivityRepository', () => {
         mockActivitySearchQuery({ activityType: 'LOGIN' }),
       );
 
-      const findManyCall = mockPrisma.client.userActivity.findMany.mock.calls[0][0];
+      const findManyCall =
+        mockPrisma.client.userActivity.findMany.mock.calls[0][0];
       expect(findManyCall.where.activityType).toBe('LOGIN');
     });
 
     it('calculates pagination metadata correctly', async () => {
-      mockPrisma.client.userActivity.findMany.mockResolvedValue([mockPrismaActivity]);
+      mockPrisma.client.userActivity.findMany.mockResolvedValue([
+        mockPrismaActivity,
+      ]);
       mockPrisma.client.userActivity.count.mockResolvedValue(25);
 
       const actualResult = await sut.findByAuthId(

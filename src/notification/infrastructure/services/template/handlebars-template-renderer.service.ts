@@ -9,14 +9,20 @@ import { NotificationErrorFactory } from '../../../domain/errors/notification.er
 export class HandlebarsTemplateRendererService implements TemplateRendererPort {
   private readonly logger = new Logger(HandlebarsTemplateRendererService.name);
   private readonly templatesDir: string;
-  private readonly compiledCache = new Map<string, Handlebars.TemplateDelegate>();
+  private readonly compiledCache = new Map<
+    string,
+    Handlebars.TemplateDelegate
+  >();
 
   constructor() {
     this.templatesDir = path.join(__dirname, '..', '..', 'templates');
     this.registerPartials();
   }
 
-  async render(templateName: string, context: Record<string, unknown>): Promise<string> {
+  async render(
+    templateName: string,
+    context: Record<string, unknown>,
+  ): Promise<string> {
     try {
       const compiled = this.getCompiledTemplate(templateName);
       return compiled(context);
@@ -28,7 +34,9 @@ export class HandlebarsTemplateRendererService implements TemplateRendererPort {
     }
   }
 
-  private getCompiledTemplate(templateName: string): Handlebars.TemplateDelegate {
+  private getCompiledTemplate(
+    templateName: string,
+  ): Handlebars.TemplateDelegate {
     if (this.compiledCache.has(templateName)) {
       return this.compiledCache.get(templateName)!;
     }

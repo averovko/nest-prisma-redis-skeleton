@@ -49,7 +49,6 @@ import { UserActivityGetUseCase } from '../application/use-cases/user/user-activ
 import { ProfileDto } from './dto/profile.output';
 import { PatchProfileDto } from './dto/profile.input';
 
-
 @Controller({
   path: 'users',
   version: '1',
@@ -70,7 +69,7 @@ export class UserController {
     private readonly userActivityGetUseCase: UserActivityGetUseCase,
     private readonly userGetProfileUseCase: UserGetProfileUseCase,
     private readonly userUpdateProfileUseCase: UserUpdateProfileUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create user' })
@@ -94,7 +93,10 @@ export class UserController {
       person?.phone,
     );
 
-    const user = await this.userCreateUseCase.execute(userUpsertInput, authCtx.getRequestContext());
+    const user = await this.userCreateUseCase.execute(
+      userUpsertInput,
+      authCtx.getRequestContext(),
+    );
 
     return UserDto.fromApplication(user);
   }

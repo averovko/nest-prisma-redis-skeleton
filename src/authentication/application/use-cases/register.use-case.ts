@@ -46,8 +46,13 @@ export class RegisterUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(input: RegisterInput, requestContext?: RequestContext): Promise<TokenPairOutput> {
-    const emailTaken = await this.credentialsRepository.existsByEmail(input.email);
+  async execute(
+    input: RegisterInput,
+    requestContext?: RequestContext,
+  ): Promise<TokenPairOutput> {
+    const emailTaken = await this.credentialsRepository.existsByEmail(
+      input.email,
+    );
     if (emailTaken) {
       throw AuthenticationErrorFactory.emailAlreadyTaken();
     }
@@ -89,9 +94,16 @@ export class RegisterUseCase {
       expiresAt: new Date(Date.now() + emailVerificationTokenTtlMs),
     });
 
-    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    const eventParams = requestContext
+      ? { metadata: requestContext }
+      : undefined;
     await this.eventBus.publish(
-      new UserRegisteredEvent(credentials, input.firstName, verificationToken, eventParams),
+      new UserRegisteredEvent(
+        credentials,
+        input.firstName,
+        verificationToken,
+        eventParams,
+      ),
     );
 
     return tokenPair;

@@ -1,6 +1,9 @@
 import { Role } from 'src/common/auth';
 import { User } from '../domain/entities/user.entity';
-import { UserActivity, UserActivityType } from '../domain/entities/user-activity.entity';
+import {
+  UserActivity,
+  UserActivityType,
+} from '../domain/entities/user-activity.entity';
 import { UserSearchQuery } from '../domain/queries/user-search.query';
 import { ActivitySearchQuery } from '../domain/queries/activity-search.query';
 import { PagedResult } from 'src/common/models';

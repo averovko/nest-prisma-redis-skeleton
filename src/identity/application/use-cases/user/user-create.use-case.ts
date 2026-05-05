@@ -6,7 +6,10 @@ import {
 import { UpsertUserInput } from '../../dto/user.input';
 import { Role, type RequestContext } from 'src/common/auth';
 import { User } from 'src/identity/domain/entities';
-import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager/application/ports/event-bus.port';
+import {
+  EVENT_BUS_TOKEN,
+  type EventBusPort,
+} from 'src/common/event-manager/application/ports/event-bus.port';
 import {
   UserCreatedEvent,
   UserUpdatedEvent,
@@ -21,7 +24,10 @@ export class UserCreateUseCase {
     private readonly eventBus: EventBusPort,
   ) {}
 
-  async execute(input: UpsertUserInput, requestContext?: RequestContext): Promise<User> {
+  async execute(
+    input: UpsertUserInput,
+    requestContext?: RequestContext,
+  ): Promise<User> {
     const existingUser = await this.userRepository.findUnique({
       where: { authId: input.authId },
     });
@@ -42,7 +48,9 @@ export class UserCreateUseCase {
       },
     });
 
-    const eventParams = requestContext ? { metadata: requestContext } : undefined;
+    const eventParams = requestContext
+      ? { metadata: requestContext }
+      : undefined;
 
     if (!existingUser) {
       await this.eventBus.publish(new UserCreatedEvent(user, eventParams));

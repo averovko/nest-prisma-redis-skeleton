@@ -1,7 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { EmailSenderPort, SendEmailOptions } from '../../../domain/ports/email-sender.port';
+import {
+  EmailSenderPort,
+  SendEmailOptions,
+} from '../../../domain/ports/email-sender.port';
 import { NotificationErrorFactory } from '../../../domain/errors/notification.error-factory';
 
 @Injectable()
@@ -13,18 +16,35 @@ export class SmtpEmailSenderService implements EmailSenderPort, OnModuleInit {
 
   onModuleInit(): void {
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('notification.email.smtp.host', 'localhost'),
+      host: this.configService.get<string>(
+        'notification.email.smtp.host',
+        'localhost',
+      ),
       port: this.configService.get<number>('notification.email.smtp.port', 587),
-      secure: this.configService.get<boolean>('notification.email.smtp.secure', false),
+      secure: this.configService.get<boolean>(
+        'notification.email.smtp.secure',
+        false,
+      ),
       auth: {
-        user: this.configService.get<string>('notification.email.smtp.user', ''),
-        pass: this.configService.get<string>('notification.email.smtp.pass', ''),
+        user: this.configService.get<string>(
+          'notification.email.smtp.user',
+          '',
+        ),
+        pass: this.configService.get<string>(
+          'notification.email.smtp.pass',
+          '',
+        ),
       },
     });
   }
 
   async send(options: SendEmailOptions): Promise<void> {
-    const from = options.from ?? this.configService.get<string>('notification.email.from', 'noreply@example.com');
+    const from =
+      options.from ??
+      this.configService.get<string>(
+        'notification.email.from',
+        'noreply@example.com',
+      );
     try {
       await this.transporter.sendMail({
         from,

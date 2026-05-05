@@ -36,7 +36,8 @@ describe('NotificationErrorFactory', () => {
 
   describe('templateRenderFailed', () => {
     it('returns NotificationError with TEMPLATE_RENDER_FAILED code', () => {
-      const error = NotificationErrorFactory.templateRenderFailed('emails/welcome');
+      const error =
+        NotificationErrorFactory.templateRenderFailed('emails/welcome');
       expect(error.code).toBe(NotificationErrorCode.TEMPLATE_RENDER_FAILED);
       expect(error.message).toContain('emails/welcome');
     });
@@ -44,7 +45,8 @@ describe('NotificationErrorFactory', () => {
 
   describe('invalidPayload', () => {
     it('returns NotificationError with INVALID_PAYLOAD code', () => {
-      const error = NotificationErrorFactory.invalidPayload('email is required');
+      const error =
+        NotificationErrorFactory.invalidPayload('email is required');
       expect(error.code).toBe(NotificationErrorCode.INVALID_PAYLOAD);
       expect(error.message).toContain('email is required');
     });

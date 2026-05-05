@@ -32,7 +32,13 @@ describe('ReqContext decorator', () => {
   const factory = extractDecoratorFactory(ReqContext);
 
   it('returns requestContext when present on the request', () => {
-    const ctx: RequestContext = { ipAddress: '10.0.0.1', userAgent: 'UA', device: 'Desktop', client: 'Chrome', os: 'Linux' };
+    const ctx: RequestContext = {
+      ipAddress: '10.0.0.1',
+      userAgent: 'UA',
+      device: 'Desktop',
+      client: 'Chrome',
+      os: 'Linux',
+    };
 
     const result = factory(undefined, buildContext(ctx));
 

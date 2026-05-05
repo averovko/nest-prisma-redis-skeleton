@@ -68,9 +68,18 @@ export default () => ({
     jwtSecret: process.env.JWT_SECRET || '',
     accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '1h',
     refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '30d',
-    refreshTokenTtlMs: toInt(process.env.REFRESH_TOKEN_TTL_MS, 30 * 24 * 60 * 60 * 1000),
-    passwordResetTokenTtlMs: toInt(process.env.PASSWORD_RESET_TOKEN_TTL_MS, 60 * 60 * 1000),
-    emailVerificationTokenTtlMs: toInt(process.env.EMAIL_VERIFICATION_TOKEN_TTL_MS, 24 * 60 * 60 * 1000),
+    refreshTokenTtlMs: toInt(
+      process.env.REFRESH_TOKEN_TTL_MS,
+      30 * 24 * 60 * 60 * 1000,
+    ),
+    passwordResetTokenTtlMs: toInt(
+      process.env.PASSWORD_RESET_TOKEN_TTL_MS,
+      60 * 60 * 1000,
+    ),
+    emailVerificationTokenTtlMs: toInt(
+      process.env.EMAIL_VERIFICATION_TOKEN_TTL_MS,
+      24 * 60 * 60 * 1000,
+    ),
     bcryptSaltRounds: toInt(process.env.BCRYPT_SALT_ROUNDS, 12),
     metrics: {
       apiKey: process.env.METRICS_API_KEY || '',
@@ -81,7 +90,10 @@ export default () => ({
     },
   },
   auth: {
-    cacheDefaultTtlMs: toInt(process.env.AUTH_CACHE_DEFAULT_TTL_MS, 15 * 60 * 1000),
+    cacheDefaultTtlMs: toInt(
+      process.env.AUTH_CACHE_DEFAULT_TTL_MS,
+      15 * 60 * 1000,
+    ),
     cacheMaxTtlMs: toInt(process.env.AUTH_CACHE_MAX_TTL_MS, 60 * 60 * 1000),
   },
   database: {

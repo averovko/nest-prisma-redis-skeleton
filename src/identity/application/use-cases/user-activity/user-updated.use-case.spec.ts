@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { USER_ACTIVITY_REPOSITORY } from 'src/identity/domain/ports/user-activity.repository.port';
 import { UserActivityType } from 'src/identity/domain/entities';
 import { UserUpdatedEvent } from 'src/identity/domain/events/user.events';
-import { mockUser, mockUserActivity } from 'src/identity/__fixtures__/identity.fixtures';
+import {
+  mockUser,
+  mockUserActivity,
+} from 'src/identity/__fixtures__/identity.fixtures';
 import { UserUpdatedUseCase } from './user-updated.use-case';
 
 describe('UserUpdatedUseCase', () => {

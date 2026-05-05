@@ -152,12 +152,17 @@ describe('UserBulkOperationUseCase', () => {
       const requestContext = { ipAddress: '1.1.1.1', userAgent: 'BulkAgent' };
 
       await sut.execute(
-        { operation: BulkOperationType.UPDATE_ROLE, userIds: ['user-1'], newRoles: [Role.ADMIN] },
+        {
+          operation: BulkOperationType.UPDATE_ROLE,
+          userIds: ['user-1'],
+          newRoles: [Role.ADMIN],
+        },
         inputOperatorId,
         requestContext,
       );
 
-      const publishedEvent: UserRoleChangedEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserRoleChangedEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toEqual(requestContext);
     });
 
@@ -171,7 +176,8 @@ describe('UserBulkOperationUseCase', () => {
         requestContext,
       );
 
-      const publishedEvent: UserDeactivatedEvent = mockEventBus.publish.mock.calls[0][0];
+      const publishedEvent: UserDeactivatedEvent =
+        mockEventBus.publish.mock.calls[0][0];
       expect(publishedEvent.metadata.metadata).toEqual(requestContext);
     });
   });

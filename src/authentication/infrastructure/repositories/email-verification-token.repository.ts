@@ -10,7 +10,9 @@ import { EmailVerificationToken } from '../../domain/entities/email-verification
 export class EmailVerificationTokenRepository implements EmailVerificationTokenRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(input: CreateEmailVerificationTokenInput): Promise<EmailVerificationToken> {
+  async create(
+    input: CreateEmailVerificationTokenInput,
+  ): Promise<EmailVerificationToken> {
     return this.prisma.client.emailVerificationToken.create({ data: input });
   }
 

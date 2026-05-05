@@ -3,7 +3,10 @@ import {
   type IUserRepository,
   USER_REPOSITORY,
 } from 'src/identity/domain/ports/user.repository.port';
-import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager/application/ports/event-bus.port';
+import {
+  EVENT_BUS_TOKEN,
+  type EventBusPort,
+} from 'src/common/event-manager/application/ports/event-bus.port';
 import { type RequestContext } from 'src/common/auth';
 import {
   UserActivatedEvent,
@@ -44,7 +47,9 @@ export class UserBulkOperationUseCase {
         if (!subject) {
           throw IdentityErrorFactory.userNotFound(userId);
         }
-        const eventParams = requestContext ? { metadata: requestContext } : undefined;
+        const eventParams = requestContext
+          ? { metadata: requestContext }
+          : undefined;
         switch (operation.operation) {
           case BulkOperationType.UPDATE_ROLE: {
             await this.userRepository.updateRole(
@@ -65,14 +70,24 @@ export class UserBulkOperationUseCase {
           case BulkOperationType.DEACTIVATE: {
             await this.userRepository.deactivate(userId);
             await this.eventBus.publish(
-              new UserDeactivatedEvent(userId, subject.authId, operatorAuthId, eventParams),
+              new UserDeactivatedEvent(
+                userId,
+                subject.authId,
+                operatorAuthId,
+                eventParams,
+              ),
             );
             break;
           }
           case BulkOperationType.ACTIVATE: {
             await this.userRepository.activate(userId);
             await this.eventBus.publish(
-              new UserActivatedEvent(userId, subject.authId, operatorAuthId, eventParams),
+              new UserActivatedEvent(
+                userId,
+                subject.authId,
+                operatorAuthId,
+                eventParams,
+              ),
             );
             break;
           }
@@ -80,7 +95,12 @@ export class UserBulkOperationUseCase {
             try {
               await this.userRepository.delete(userId);
               await this.eventBus.publish(
-                new UserDeletedEvent(userId, subject.authId, operatorAuthId, eventParams),
+                new UserDeletedEvent(
+                  userId,
+                  subject.authId,
+                  operatorAuthId,
+                  eventParams,
+                ),
               );
             } catch (error) {
               throw IdentityErrorFactory.userDeleteFailed(userId, error);

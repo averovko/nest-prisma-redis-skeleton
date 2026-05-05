@@ -7,12 +7,26 @@ jest.mock('@nestjs/swagger', () => ({
   getSchemaPath: jest.fn().mockReturnValue('#/components/schemas/TestDto'),
 }));
 
-import { ApiOkResponse, ApiCreatedResponse, ApiExtraModels } from '@nestjs/swagger';
-import { OkResponse, CreatedResponse, PaginatedResponse } from './success-response.decorator';
+import {
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiExtraModels,
+} from '@nestjs/swagger';
+import {
+  OkResponse,
+  CreatedResponse,
+  PaginatedResponse,
+} from './success-response.decorator';
 
-const mockApiOkResponse = ApiOkResponse as jest.MockedFunction<typeof ApiOkResponse>;
-const mockApiCreatedResponse = ApiCreatedResponse as jest.MockedFunction<typeof ApiCreatedResponse>;
-const mockApiExtraModels = ApiExtraModels as jest.MockedFunction<typeof ApiExtraModels>;
+const mockApiOkResponse = ApiOkResponse as jest.MockedFunction<
+  typeof ApiOkResponse
+>;
+const mockApiCreatedResponse = ApiCreatedResponse as jest.MockedFunction<
+  typeof ApiCreatedResponse
+>;
+const mockApiExtraModels = ApiExtraModels as jest.MockedFunction<
+  typeof ApiExtraModels
+>;
 
 class TestDto {
   id: number;
@@ -33,7 +47,9 @@ describe('OkResponse decorator', () => {
     OkResponse(TestDto);
 
     expect(mockApiOkResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ schema: expect.objectContaining({ $ref: expect.any(String) }) }),
+      expect.objectContaining({
+        schema: expect.objectContaining({ $ref: expect.any(String) }),
+      }),
     );
   });
 
@@ -73,7 +89,9 @@ describe('CreatedResponse decorator', () => {
     CreatedResponse(TestDto);
 
     expect(mockApiCreatedResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ schema: expect.objectContaining({ $ref: expect.any(String) }) }),
+      expect.objectContaining({
+        schema: expect.objectContaining({ $ref: expect.any(String) }),
+      }),
     );
   });
 
@@ -104,10 +122,7 @@ describe('PaginatedResponse decorator', () => {
   it('calls ApiExtraModels with PagedResult and the provided dataDto', () => {
     PaginatedResponse(TestDto);
 
-    expect(mockApiExtraModels).toHaveBeenCalledWith(
-      expect.anything(),
-      TestDto,
-    );
+    expect(mockApiExtraModels).toHaveBeenCalledWith(expect.anything(), TestDto);
   });
 
   it('calls ApiOkResponse with allOf schema including data array', () => {

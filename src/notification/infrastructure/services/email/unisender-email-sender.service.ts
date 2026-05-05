@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EmailSenderPort, SendEmailOptions } from '../../../domain/ports/email-sender.port';
+import {
+  EmailSenderPort,
+  SendEmailOptions,
+} from '../../../domain/ports/email-sender.port';
 import { NotificationErrorFactory } from '../../../domain/errors/notification.error-factory';
 
 interface UniSenderEmailResponse {
@@ -19,14 +22,25 @@ export class UniSenderEmailSenderService implements EmailSenderPort {
   constructor(private readonly configService: ConfigService) {}
 
   async send(options: SendEmailOptions): Promise<void> {
-    const apiKey = this.configService.get<string>('notification.email.unisender.apiKey', '');
-    const from = options.from ?? this.configService.get<string>('notification.email.from', 'noreply@example.com');
+    const apiKey = this.configService.get<string>(
+      'notification.email.unisender.apiKey',
+      '',
+    );
+    const from =
+      options.from ??
+      this.configService.get<string>(
+        'notification.email.from',
+        'noreply@example.com',
+      );
 
     const params = new URLSearchParams({
       api_key: apiKey,
       format: 'json',
       email: options.to,
-      sender_name: this.configService.get<string>('notification.appName', 'App'),
+      sender_name: this.configService.get<string>(
+        'notification.appName',
+        'App',
+      ),
       sender_email: from,
       subject: options.subject,
       body: options.html,
@@ -34,12 +48,17 @@ export class UniSenderEmailSenderService implements EmailSenderPort {
     });
 
     try {
-      const response = await fetch(`${this.apiUrl}/sendEmail?${params.toString()}`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${this.apiUrl}/sendEmail?${params.toString()}`,
+        {
+          method: 'POST',
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`UniSender API responded with status ${response.status}`);
+        throw new Error(
+          `UniSender API responded with status ${response.status}`,
+        );
       }
 
       const data = (await response.json()) as UniSenderEmailResponse;

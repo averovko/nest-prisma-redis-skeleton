@@ -29,7 +29,11 @@ describe('ConsoleEmailSenderService', () => {
       });
 
       await expect(
-        sut.send({ to: 'test@example.com', subject: 'Test', html: '<p>Hi</p>' }),
+        sut.send({
+          to: 'test@example.com',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        }),
       ).resolves.toBeUndefined();
 
       jest.restoreAllMocks();

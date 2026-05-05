@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { type EventBusMessage, type UserRegisteredPayload, type UserPasswordResetRequestedPayload, type UserPasswordChangedPayload, type UserPasswordResetCompletedPayload } from 'src/common/event-manager';
+import {
+  type EventBusMessage,
+  type UserRegisteredPayload,
+  type UserPasswordResetRequestedPayload,
+  type UserPasswordChangedPayload,
+  type UserPasswordResetCompletedPayload,
+} from 'src/common/event-manager';
 import { NotificationEventHandler } from './notification-event.handler';
 import { SendWelcomeEmailUseCase } from '../use-cases/send-welcome-email.use-case';
 import { SendPasswordResetEmailUseCase } from '../use-cases/send-password-reset-email.use-case';
@@ -15,17 +21,32 @@ describe('NotificationEventHandler', () => {
 
   beforeEach(async () => {
     mockSendWelcomeEmail = { execute: jest.fn().mockResolvedValue(undefined) };
-    mockSendPasswordResetEmail = { execute: jest.fn().mockResolvedValue(undefined) };
-    mockSendPasswordChangedEmail = { execute: jest.fn().mockResolvedValue(undefined) };
-    mockSendPasswordResetCompletedEmail = { execute: jest.fn().mockResolvedValue(undefined) };
+    mockSendPasswordResetEmail = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
+    mockSendPasswordChangedEmail = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
+    mockSendPasswordResetCompletedEmail = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationEventHandler,
         { provide: SendWelcomeEmailUseCase, useValue: mockSendWelcomeEmail },
-        { provide: SendPasswordResetEmailUseCase, useValue: mockSendPasswordResetEmail },
-        { provide: SendPasswordChangedEmailUseCase, useValue: mockSendPasswordChangedEmail },
-        { provide: SendPasswordResetCompletedEmailUseCase, useValue: mockSendPasswordResetCompletedEmail },
+        {
+          provide: SendPasswordResetEmailUseCase,
+          useValue: mockSendPasswordResetEmail,
+        },
+        {
+          provide: SendPasswordChangedEmailUseCase,
+          useValue: mockSendPasswordChangedEmail,
+        },
+        {
+          provide: SendPasswordResetCompletedEmailUseCase,
+          useValue: mockSendPasswordResetCompletedEmail,
+        },
       ],
     }).compile();
 
@@ -108,7 +129,10 @@ describe('NotificationEventHandler', () => {
       const message: EventBusMessage<UserPasswordChangedPayload> = {
         eventId: 'evt-3',
         eventName: 'authentication.user.password.changed',
-        payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'user@example.com' },
+        payload: {
+          authId: '550e8400-e29b-41d4-a716-446655440001',
+          email: 'user@example.com',
+        },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
 

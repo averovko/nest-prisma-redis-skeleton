@@ -92,12 +92,18 @@ describe('ConfirmPasswordResetUseCase', () => {
     });
 
     it('forwards requestContext as event metadata when provided', async () => {
-      mockPasswordResetTokenRepo.findByHash.mockResolvedValue(mockPasswordResetToken());
+      mockPasswordResetTokenRepo.findByHash.mockResolvedValue(
+        mockPasswordResetToken(),
+      );
       mockCredentialsRepo.findById.mockResolvedValue(mockCredentials());
       mockPasswordHasher.hash.mockResolvedValue('$new$hash');
-      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(mockCredentials());
+      mockCredentialsRepo.updatePasswordHash.mockResolvedValue(
+        mockCredentials(),
+      );
       mockPasswordResetTokenRepo.deleteById.mockResolvedValue(undefined);
-      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+      mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
       const requestContext = { ipAddress: '7.7.7.7', userAgent: 'ResetUA' };
 
       await useCase.execute(inputConfirm, requestContext);

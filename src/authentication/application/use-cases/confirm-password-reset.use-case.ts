@@ -37,7 +37,10 @@ export class ConfirmPasswordResetUseCase {
     private readonly eventBus: EventBusPort,
   ) {}
 
-  async execute(input: ConfirmPasswordResetInput, requestContext?: RequestContext): Promise<void> {
+  async execute(
+    input: ConfirmPasswordResetInput,
+    requestContext?: RequestContext,
+  ): Promise<void> {
     const tokenHash = createHash('sha256').update(input.token).digest('hex');
     const resetToken =
       await this.passwordResetTokenRepository.findByHash(tokenHash);
@@ -67,7 +70,11 @@ export class ConfirmPasswordResetUseCase {
     await this.passwordResetTokenRepository.deleteById(resetToken.id);
     await this.refreshTokenRepository.deleteAllByCredentialsId(credentials.id);
 
-    const eventParams = requestContext ? { metadata: requestContext } : undefined;
-    await this.eventBus.publish(new UserPasswordResetCompletedEvent(credentials, eventParams));
+    const eventParams = requestContext
+      ? { metadata: requestContext }
+      : undefined;
+    await this.eventBus.publish(
+      new UserPasswordResetCompletedEvent(credentials, eventParams),
+    );
   }
 }

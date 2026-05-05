@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Role } from 'src/common/auth';
-import { mockUser, mockUserSearchQuery, mockPagedResult } from '../../__fixtures__/identity.fixtures';
+import {
+  mockUser,
+  mockUserSearchQuery,
+  mockPagedResult,
+} from '../../__fixtures__/identity.fixtures';
 import { UserRepository } from './user.repository';
 
 const mockPrismaUser = {
@@ -97,7 +101,9 @@ describe('UserRepository', () => {
     it('returns null when user not found', async () => {
       mockPrisma.client.user.findUnique.mockResolvedValue(null);
 
-      const actualResult = await sut.findUnique({ where: { id: 'non-existent' } });
+      const actualResult = await sut.findUnique({
+        where: { id: 'non-existent' },
+      });
 
       expect(actualResult).toBeNull();
     });

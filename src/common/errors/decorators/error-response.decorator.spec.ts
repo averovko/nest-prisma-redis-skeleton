@@ -95,7 +95,8 @@ describe('ErrorResponse decorator', () => {
       };
     };
 
-    const exampleValue = callArgs.content['application/json'].examples['test.code'].value;
+    const exampleValue =
+      callArgs.content['application/json'].examples['test.code'].value;
     expect(exampleValue.code).toBe('test.code');
     expect(exampleValue.message).toBe('Test message');
     expect(typeof exampleValue.timestamp).toBe('string');
