@@ -20,14 +20,35 @@ jest.mock('src/generated/prisma/client', () => ({
   })),
 }));
 
+import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('PrismaService', () => {
   let service: PrismaService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
-    service = new PrismaService();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PrismaService,
+        {
+          provide: ConfigService,
+          useValue: { getOrThrow: jest.fn().mockReturnValue({
+            master: {
+              host: 'localhost', 
+              port: 5432, 
+              user: 'postgres', 
+              password: 'postgres', 
+              name: 'postgres',
+            }, 
+            readReplicas: [],
+          }) },
+        },
+      ],
+    }).compile();
+
+    service = module.get(PrismaService);
   });
 
   it('exposes a client property after construction', () => {

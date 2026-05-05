@@ -39,10 +39,6 @@ export class InitiatePasswordResetUseCase {
     );
 
     const rawToken = randomBytes(32).toString('hex');
-
-    // TODO: remove later - only for testing purposes, since we don't have email sending implemented yet
-    console.debug('Generated password reset token (for testing purposes):', rawToken);
-
     const tokenHash = createHash('sha256').update(rawToken).digest('hex');
     const passwordResetTokenTtlMs = this.configService.get<number>(
       'security.passwordResetTokenTtlMs',

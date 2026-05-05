@@ -4,6 +4,7 @@ import { AppError } from 'src/common/errors';
 import { EVENT_BUS_TOKEN } from 'src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../../domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../../domain/ports/refresh-token.repository.port';
+import { EMAIL_VERIFICATION_TOKEN_REPOSITORY } from '../../domain/ports/email-verification-token.repository.port';
 import { PASSWORD_HASHER_PORT } from '../../domain/ports/password-hasher.port';
 import { TOKEN_ISSUER_PORT } from '../../domain/ports/token-issuer.port';
 import { AuthenticationErrorCode } from '../../domain/errors/authentication.error-codes';
@@ -41,12 +42,14 @@ describe('RegisterUseCase', () => {
     mockConfigService = {
       get: jest.fn().mockReturnValue(30 * 24 * 60 * 60 * 1000),
     };
+    const mockEmailVerificationTokenRepo = { create: jest.fn().mockResolvedValue({}) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RegisterUseCase,
         { provide: CREDENTIALS_REPOSITORY, useValue: mockCredentialsRepo },
         { provide: REFRESH_TOKEN_REPOSITORY, useValue: mockRefreshTokenRepo },
+        { provide: EMAIL_VERIFICATION_TOKEN_REPOSITORY, useValue: mockEmailVerificationTokenRepo },
         { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
         { provide: TOKEN_ISSUER_PORT, useValue: mockTokenIssuer },
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },

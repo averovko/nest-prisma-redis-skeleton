@@ -161,4 +161,19 @@ describe('CredentialsRepository', () => {
       expect(actualResult).toEqual(expectedUpdated);
     });
   });
+
+  describe('markAsVerified', () => {
+    it('calls prisma.credentials.update with isVerified=true', async () => {
+      const expectedUpdated = mockCredentials({ isVerified: true });
+      mockPrismaCredentials.update.mockResolvedValue(expectedUpdated);
+
+      const actualResult = await repository.markAsVerified('auth-id-1');
+
+      expect(mockPrismaCredentials.update).toHaveBeenCalledWith({
+        where: { authId: 'auth-id-1' },
+        data: { isVerified: true },
+      });
+      expect(actualResult).toEqual(expectedUpdated);
+    });
+  });
 });

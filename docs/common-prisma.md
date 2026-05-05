@@ -34,19 +34,20 @@
 ```
 PrismaService (constructor)
       │
+      │ ConfigService.getOrThrow('database') → { master, readReplicas[] }
       │ createExtendedClient()
-      │   ├─ PrismaPg(DATABASE_URL) → mainClient
-      │   ├─ PrismaPg(REPLICA_URL)  → replicaClient
-      │   └─ mainClient.$extends(readReplicas({ replicas: [replicaClient] }))
+      │   ├─ buildConnectionString(database.master) → PrismaPg(...) → mainClient
+      │   ├─ buildConnectionString(replica_i)       → PrismaPg(...) → replicaClients[]
+      │   └─ mainClient.$extends(readReplicas({ replicas: replicaClients }))
       │                          → ExtendedPrismaClient
       ▼
  this.client: ExtendedPrismaClient
       │
       │ Read queries (findMany, findUnique, count, etc.)
-      │   → routed to REPLICA_URL (by extension)
+      │   → routed to configured read replicas (by extension)
       │
       │ Write queries (create, update, delete, etc.)
-      │   → routed to DATABASE_URL (primary)
+      │   → routed to master database
 ```
 
 `PrismaModule` is `@Global()` — `PrismaService` is available in every module without re-importing.
@@ -112,17 +113,25 @@ class PrismaService implements OnModuleInit, OnModuleDestroy {
 
 ```typescript
 function createExtendedClient(): ExtendedPrismaClient {
-  const mainAdapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  const database = this.configService.getOrThrow<DatabaseConfig>('database');
+  const masterConnectionString = buildConnectionString(database.master);
+  const mainAdapter = new PrismaPg({ connectionString: masterConnectionString });
   const mainClient = new PrismaClient({ adapter: mainAdapter });
 
-  const replicaAdapter = new PrismaPg({ connectionString: process.env.REPLICA_URL! });
-  const replicaClient = new PrismaClient({ adapter: replicaAdapter });
+  const replicaClients = (database.readReplicas ?? []).map((replica) => {
+    const replicaConnectionString = buildConnectionString(replica);
+    const replicaAdapter = new PrismaPg({ connectionString: replicaConnectionString });
+    return new PrismaClient({ adapter: replicaAdapter });
+  });
 
-  return mainClient.$extends(readReplicas({ replicas: [replicaClient] }));
+  if (replicaClients.length) {
+    return mainClient.$extends(readReplicas({ replicas: replicaClients }));
+  }
+  return mainClient;
 }
 ```
 
-**Note:** Both `DATABASE_URL` and `REPLICA_URL` are read directly from `process.env` (not via `ConfigService`). They must be set before the process starts.
+**Note:** Database connection settings are loaded from `ConfigService` under `database.master` and `database.readReplicas`, which are derived from `POSTGRES_*` and `READ_REPLICA{n}_POSTGRES_*` environment variables.
 
 **Connection lifecycle:**
 
@@ -156,11 +165,11 @@ The `@prisma/extension-read-replicas` extension automatically routes queries:
 
 | Operation type | Routed to |
 |---|---|
-| `findMany`, `findUnique`, `findFirst`, `count`, `aggregate`, `groupBy` | `REPLICA_URL` |
-| `create`, `createMany`, `update`, `updateMany`, `upsert`, `delete`, `deleteMany` | `DATABASE_URL` (primary) |
-| Transactions (`$transaction`) | `DATABASE_URL` (primary) |
+| `findMany`, `findUnique`, `findFirst`, `count`, `aggregate`, `groupBy` | `database.readReplicas[]` |
+| `create`, `createMany`, `update`, `updateMany`, `upsert`, `delete`, `deleteMany` | `database.master` |
+| Transactions (`$transaction`) | `database.master` |
 
-If `REPLICA_URL` is the same as `DATABASE_URL`, all queries go to the single database (suitable for development).
+If no read replicas are configured, Prisma uses only `database.master` and all queries run against the same database (suitable for development).
 
 ---
 
@@ -168,13 +177,23 @@ If `REPLICA_URL` is the same as `DATABASE_URL`, all queries go to the single dat
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string for the **primary** (read/write) database |
-| `REPLICA_URL` | Yes | PostgreSQL connection string for the **read replica**. Can equal `DATABASE_URL` in single-node setups. |
+| `POSTGRES_HOST` | Yes | Host for the **master** PostgreSQL node |
+| `POSTGRES_PORT` | Yes | Port for the **master** PostgreSQL node |
+| `POSTGRES_USER` | Yes | User for the **master** PostgreSQL node |
+| `POSTGRES_PASSWORD` | Yes | Password for the **master** PostgreSQL node |
+| `POSTGRES_DB` | Yes | Database name for the **master** node |
+| `POSTGRES_SSLMODE` | No | SSL mode for master connection (`verify-full` by default) |
+| `READ_REPLICA{n}_POSTGRES_HOST` | No | Host for read replica `n` (`n = 0, 1, 2...`) |
+| `READ_REPLICA{n}_POSTGRES_PORT` | No | Port for read replica `n` |
+| `READ_REPLICA{n}_POSTGRES_USER` | No | User for read replica `n` |
+| `READ_REPLICA{n}_POSTGRES_PASSWORD` | No | Password for read replica `n` |
+| `READ_REPLICA{n}_POSTGRES_DB` | No | Database name for read replica `n` |
+| `READ_REPLICA{n}_POSTGRES_SSLMODE` | No | SSL mode for read replica `n` (`verify-full` by default) |
 
-Both variables use the `@prisma/adapter-pg` PostgreSQL adapter. Connection string format:
+`PrismaService` assembles PostgreSQL URLs from these variables for `@prisma/adapter-pg`. Resulting format:
 
 ```
-postgresql://user:password@host:5432/database?schema=public
+postgres://user:password@host:5432/database?sslmode=verify-full
 ```
 
 ---
@@ -254,9 +273,10 @@ The generated Prisma client is at `src/generated/prisma/client`. Available model
 | Prisma model | Access via | Key fields |
 |---|---|---|
 | `User` | `prismaService.client.user` | `id`, `authId`, `email`, `phone`, `firstName`, `lastName`, `roles`, `isActive` |
-| `Credentials` | `prismaService.client.credentials` | `id`, `authId`, `passwordHash` |
-| `RefreshToken` | `prismaService.client.refreshToken` | `id`, `token`, `authId`, `expiresAt` |
-| `PasswordResetToken` | `prismaService.client.passwordResetToken` | `id`, `token`, `authId`, `expiresAt` |
+| `Credentials` | `prismaService.client.credentials` | `id`, `authId`, `passwordHash`, `isVerified` |
+| `RefreshToken` | `prismaService.client.refreshToken` | `id`, `tokenHash`, `credentialsId`, `expiresAt` |
+| `PasswordResetToken` | `prismaService.client.passwordResetToken` | `id`, `tokenHash`, `credentialsId`, `expiresAt` |
+| `EmailVerificationToken` | `prismaService.client.emailVerificationToken` | `id`, `tokenHash`, `credentialsId`, `expiresAt` |
 
 ---
 

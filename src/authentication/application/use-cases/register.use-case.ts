@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { createHash, randomUUID } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { EVENT_BUS_TOKEN, type EventBusPort } from 'src/common/event-manager';
 import { type RequestContext } from 'src/common/auth';
@@ -11,6 +11,10 @@ import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepositoryPort,
 } from '../../domain/ports/refresh-token.repository.port';
+import {
+  EMAIL_VERIFICATION_TOKEN_REPOSITORY,
+  type EmailVerificationTokenRepositoryPort,
+} from '../../domain/ports/email-verification-token.repository.port';
 import {
   PASSWORD_HASHER_PORT,
   type PasswordHasherPort,
@@ -31,6 +35,8 @@ export class RegisterUseCase {
     private readonly credentialsRepository: CredentialsRepositoryPort,
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: RefreshTokenRepositoryPort,
+    @Inject(EMAIL_VERIFICATION_TOKEN_REPOSITORY)
+    private readonly emailVerificationTokenRepository: EmailVerificationTokenRepositoryPort,
     @Inject(PASSWORD_HASHER_PORT)
     private readonly passwordHasher: PasswordHasherPort,
     @Inject(TOKEN_ISSUER_PORT)
@@ -41,9 +47,7 @@ export class RegisterUseCase {
   ) {}
 
   async execute(input: RegisterInput, requestContext?: RequestContext): Promise<TokenPairOutput> {
-    const emailTaken = await this.credentialsRepository.existsByEmail(
-      input.email,
-    );
+    const emailTaken = await this.credentialsRepository.existsByEmail(input.email);
     if (emailTaken) {
       throw AuthenticationErrorFactory.emailAlreadyTaken();
     }
@@ -60,7 +64,7 @@ export class RegisterUseCase {
       authId,
       email: input.email,
     });
-    const tokenHash = this.hashToken(tokenPair.refreshToken);
+    const refreshTokenHash = this.hashToken(tokenPair.refreshToken);
     const refreshTokenTtlMs = this.configService.get<number>(
       'security.refreshTokenTtlMs',
       30 * 24 * 60 * 60 * 1000,
@@ -68,12 +72,27 @@ export class RegisterUseCase {
 
     await this.refreshTokenRepository.create({
       credentialsId: credentials.id,
-      tokenHash,
+      tokenHash: refreshTokenHash,
       expiresAt: new Date(Date.now() + refreshTokenTtlMs),
     });
 
+    const verificationToken = randomBytes(32).toString('hex');
+    const verificationTokenHash = this.hashToken(verificationToken);
+    const emailVerificationTokenTtlMs = this.configService.get<number>(
+      'security.emailVerificationTokenTtlMs',
+      24 * 60 * 60 * 1000,
+    );
+
+    await this.emailVerificationTokenRepository.create({
+      credentialsId: credentials.id,
+      tokenHash: verificationTokenHash,
+      expiresAt: new Date(Date.now() + emailVerificationTokenTtlMs),
+    });
+
     const eventParams = requestContext ? { metadata: requestContext } : undefined;
-    await this.eventBus.publish(new UserRegisteredEvent(credentials, input.firstName, eventParams));
+    await this.eventBus.publish(
+      new UserRegisteredEvent(credentials, input.firstName, verificationToken, eventParams),
+    );
 
     return tokenPair;
   }

@@ -111,7 +111,7 @@ describe('InitiatePasswordResetUseCase', () => {
         .calls[0][0] as UserPasswordResetRequestedEvent;
       const createCall = mockPasswordResetTokenRepo.create.mock.calls[0][0];
       const expectedHash = createHash('sha256')
-        .update(publishedEvent.rawToken)
+        .update(publishedEvent.payload.rawToken)
         .digest('hex');
       expect(createCall.tokenHash).toBe(expectedHash);
     });

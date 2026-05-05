@@ -12,7 +12,7 @@ describe('UserPasswordResetCompletedUseCase', () => {
   const inputMessage: EventBusMessage<UserPasswordResetCompletedPayload> = {
     eventId: 'evt-id-1',
     eventName: 'authentication.user.password.reset.completed',
-    payload: { authId: '550e8400-e29b-41d4-a716-446655440001' },
+    payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com' },
     metadata: {
       timestamp: new Date('2024-01-01T00:00:00.000Z').getTime(),
       version: '1.0.0',

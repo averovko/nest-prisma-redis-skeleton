@@ -166,7 +166,7 @@ describe('UserActivityHandler', () => {
       const inputMessage: EventBusMessage<UserPasswordChangedPayload> = {
         eventId: 'evt-1',
         eventName: 'authentication.user.password.changed',
-        payload: { authId: '550e8400-e29b-41d4-a716-446655440001' },
+        payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com' },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
 
@@ -185,6 +185,7 @@ describe('UserActivityHandler', () => {
           authId: '550e8400-e29b-41d4-a716-446655440001',
           email: 'test@example.com',
           firstName: 'John',
+          verificationToken: 'verification-token-abc123',
         },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
@@ -233,6 +234,7 @@ describe('UserActivityHandler', () => {
         payload: {
           authId: '550e8400-e29b-41d4-a716-446655440001',
           email: 'test@example.com',
+          rawToken: 'raw-reset-token-abc123',
         },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
@@ -248,7 +250,7 @@ describe('UserActivityHandler', () => {
       const inputMessage: EventBusMessage<UserPasswordResetCompletedPayload> = {
         eventId: 'evt-1',
         eventName: 'authentication.user.password.reset.completed',
-        payload: { authId: '550e8400-e29b-41d4-a716-446655440001' },
+        payload: { authId: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com' },
         metadata: { timestamp: Date.now(), version: '1.0.0' },
       };
 

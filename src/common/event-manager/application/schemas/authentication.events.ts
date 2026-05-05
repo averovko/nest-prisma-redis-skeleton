@@ -12,20 +12,33 @@ export class UserRegisteredPayload extends BaseAuthenticationPayload {
 
   @IsString()
   firstName: string;
+
+  @IsString()
+  verificationToken: string;
 }
 
 export class UserLoggedInPayload extends BaseAuthenticationPayload {}
 
 export class UserLoggedOutPayload extends BaseAuthenticationPayload {}
 
-export class UserPasswordChangedPayload extends BaseAuthenticationPayload {}
-
-export class UserPasswordResetRequestedPayload extends BaseAuthenticationPayload {
+export class UserPasswordChangedPayload extends BaseAuthenticationPayload {
   @IsEmail()
   email: string;
 }
 
-export class UserPasswordResetCompletedPayload extends BaseAuthenticationPayload {}
+export class UserPasswordResetCompletedPayload extends BaseAuthenticationPayload {
+  @IsEmail()
+  email: string;
+}
+
+export class UserPasswordResetRequestedPayload extends BaseAuthenticationPayload {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  rawToken: string;
+}
+
 
 export const AuthenticationEventSchemas = {
   USER_REGISTERED: {

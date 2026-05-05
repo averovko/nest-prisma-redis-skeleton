@@ -42,4 +42,11 @@ export class CredentialsRepository implements CredentialsRepositoryPort {
       data: { passwordHash: newPasswordHash },
     });
   }
+
+  async markAsVerified(authId: string): Promise<Credentials> {
+    return this.prisma.client.credentials.update({
+      where: { authId },
+      data: { isVerified: true },
+    });
+  }
 }

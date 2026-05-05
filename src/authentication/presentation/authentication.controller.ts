@@ -32,6 +32,7 @@ import { LogoutUseCase } from '../application/use-cases/logout.use-case';
 import { ChangePasswordUseCase } from '../application/use-cases/change-password.use-case';
 import { InitiatePasswordResetUseCase } from '../application/use-cases/initiate-password-reset.use-case';
 import { ConfirmPasswordResetUseCase } from '../application/use-cases/confirm-password-reset.use-case';
+import { VerifyEmailUseCase } from '../application/use-cases/verify-email.use-case';
 import { RegisterDto } from './dto/register.input.dto';
 import { LoginDto } from './dto/login.input.dto';
 import { RefreshTokenDto } from './dto/refresh-token.input.dto';
@@ -39,6 +40,8 @@ import { TokenPairDto } from './dto/token-pair.output.dto';
 import { ChangePasswordDto } from './dto/change-password.input.dto';
 import { InitiatePasswordResetDto } from './dto/initiate-password-reset.input.dto';
 import { ConfirmPasswordResetDto } from './dto/confirm-password-reset.input.dto';
+import { VerifyEmailDto } from './dto/verify-email.input.dto';
+import { VerifyEmailOutputDto } from './dto/verify-email.output.dto';
 import {
   AUTHENTICATION_ERRORS,
   AuthenticationErrorCode,
@@ -57,6 +60,7 @@ export class AuthenticationController {
     private readonly changePasswordUseCase: ChangePasswordUseCase,
     private readonly initiatePasswordResetUseCase: InitiatePasswordResetUseCase,
     private readonly confirmPasswordResetUseCase: ConfirmPasswordResetUseCase,
+    private readonly verifyEmailUseCase: VerifyEmailUseCase,
   ) {}
 
   @Post('register')
@@ -164,5 +168,16 @@ export class AuthenticationController {
     @ReqContext() requestContext: RequestContext,
   ): Promise<void> {
     await this.confirmPasswordResetUseCase.execute(body, requestContext);
+  }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify email with token' })
+  @OkResponse(VerifyEmailOutputDto)
+  async verifyEmail(
+    @Body() body: VerifyEmailDto,
+  ): Promise<VerifyEmailOutputDto> {
+    const output = await this.verifyEmailUseCase.execute(body);
+    return VerifyEmailOutputDto.fromApplication(output);
   }
 }

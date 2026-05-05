@@ -110,6 +110,7 @@ export default () => ({
     refreshTokenExpiry: string,
     refreshTokenTtlMs: number,
     passwordResetTokenTtlMs: number,
+    emailVerificationTokenTtlMs: number,
     bcryptSaltRounds: number,
     metrics: { apiKey: string },
     throttle: { ttl: number, limit: number },
@@ -117,6 +118,10 @@ export default () => ({
   auth: {
     cacheDefaultTtlMs: number,
     cacheMaxTtlMs: number,
+  },
+  database: {
+    master: { host, port, user, password, name, sslMode },
+    readReplicas: Array<{ host, port, user, password, name, sslMode }>,
   },
   redis: { url: string },
   imageProxy: { url: string, key: string, salt: string },
@@ -164,6 +169,7 @@ export default () => ({
 | `security.refreshTokenExpiry` | `JWT_REFRESH_TOKEN_EXPIRY` | `string` | `'30d'` | Refresh token lifetime |
 | `security.refreshTokenTtlMs` | `REFRESH_TOKEN_TTL_MS` | `number` | `2592000000` (30 days) | Refresh token DB record TTL in milliseconds |
 | `security.passwordResetTokenTtlMs` | `PASSWORD_RESET_TOKEN_TTL_MS` | `number` | `3600000` (1 hour) | Password reset token TTL in milliseconds |
+| `security.emailVerificationTokenTtlMs` | `EMAIL_VERIFICATION_TOKEN_TTL_MS` | `number` | `86400000` (24 hours) | Email verification token TTL in milliseconds |
 | `security.bcryptSaltRounds` | `BCRYPT_SALT_ROUNDS` | `number` | `12` | bcrypt cost factor for password hashing |
 | `security.metrics.apiKey` | `METRICS_API_KEY` | `string` | `''` | Static API key for metrics/internal endpoints |
 | `security.throttle.ttl` | `THROTTLE_TTL` | `number` | `1` | Rate-limiter window duration (seconds) |
@@ -171,12 +177,52 @@ export default () => ({
 
 ---
 
+### Verify Email Token Lifecycle
+
+- `security.emailVerificationTokenTtlMs` controls the lifetime of records in `EmailVerificationToken`.
+- `POST /v1/authentication/verify-email` consumes a raw token and checks its SHA-256 hash in storage.
+- The endpoint is idempotent at API level and returns `200` with `{ "status": "ok" }` for valid, missing, already-used, or expired tokens.
+- When token is valid and not expired, credentials are marked as verified and all verification tokens for that account are removed.
+
 ### `auth.*`
 
 | Path | Env var | Type | Default | Description |
 |---|---|---|---|---|
 | `auth.cacheDefaultTtlMs` | `AUTH_CACHE_DEFAULT_TTL_MS` | `number` | `900000` (15 min) | Default TTL for JWT auth context cache entries |
 | `auth.cacheMaxTtlMs` | `AUTH_CACHE_MAX_TTL_MS` | `number` | `3600000` (1 hour) | Maximum TTL cap for JWT auth context cache entries |
+
+---
+
+### `database.master.*`
+
+| Path | Env var | Type | Default | Description |
+|---|---|---|---|---|
+| `database.master.host` | `POSTGRES_HOST` | `string` | `'localhost'` | Master PostgreSQL host |
+| `database.master.port` | `POSTGRES_PORT` | `number` | `5432` | Master PostgreSQL port |
+| `database.master.user` | `POSTGRES_USER` | `string` | `''` | Master PostgreSQL user |
+| `database.master.password` | `POSTGRES_PASSWORD` | `string` | `''` | Master PostgreSQL password |
+| `database.master.name` | `POSTGRES_DB` | `string` | `''` | Master PostgreSQL database name |
+| `database.master.sslMode` | `POSTGRES_SSLMODE` | `string` | `'verify-full'` | Master PostgreSQL SSL mode |
+
+---
+
+### `database.readReplicas[]`
+
+Read replicas are indexed and discovered automatically:
+- `READ_REPLICA0_POSTGRES_*`
+- `READ_REPLICA1_POSTGRES_*`
+- `READ_REPLICA2_POSTGRES_*`
+- ...
+
+Each replica node has the same structure as `database.master`:
+- `host` (`READ_REPLICA{n}_POSTGRES_HOST`)
+- `port` (`READ_REPLICA{n}_POSTGRES_PORT`, default `5432`)
+- `user` (`READ_REPLICA{n}_POSTGRES_USER`)
+- `password` (`READ_REPLICA{n}_POSTGRES_PASSWORD`)
+- `name` (`READ_REPLICA{n}_POSTGRES_DB`)
+- `sslMode` (`READ_REPLICA{n}_POSTGRES_SSLMODE`, default `'verify-full'`)
+
+If `READ_REPLICA{n}_POSTGRES_HOST` is missing for an index, scanning stops at that index.
 
 ---
 
@@ -217,6 +263,7 @@ JWT_ACCESS_TOKEN_EXPIRY=1h
 JWT_REFRESH_TOKEN_EXPIRY=30d
 REFRESH_TOKEN_TTL_MS=2592000000
 PASSWORD_RESET_TOKEN_TTL_MS=3600000
+EMAIL_VERIFICATION_TOKEN_TTL_MS=86400000
 BCRYPT_SALT_ROUNDS=12
 
 # API Key
@@ -231,8 +278,20 @@ AUTH_CACHE_DEFAULT_TTL_MS=900000
 AUTH_CACHE_MAX_TTL_MS=3600000
 
 # Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/db
-REPLICA_URL=postgresql://user:pass@replica:5432/db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres_user
+POSTGRES_PASSWORD=postgres_password
+POSTGRES_DB=postgres
+POSTGRES_SSLMODE=disable
+
+# Database read replica 0 (optional)
+READ_REPLICA0_POSTGRES_HOST=localhost
+READ_REPLICA0_POSTGRES_PORT=5433
+READ_REPLICA0_POSTGRES_USER=postgres_user
+READ_REPLICA0_POSTGRES_PASSWORD=postgres_password
+READ_REPLICA0_POSTGRES_DB=postgres
+READ_REPLICA0_POSTGRES_SSLMODE=disable
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -243,7 +302,7 @@ IMGPROXY_KEY=
 IMGPROXY_SALT=
 ```
 
-> **Note:** `DATABASE_URL` and `REPLICA_URL` are consumed directly via `process.env` in `PrismaService` and are **not** part of the `configuration()` factory. They do not have `ConfigService` accessors.
+> **Note:** Database settings are part of the `configuration()` factory under `database.*` and are consumed in `PrismaService` via `ConfigService.getOrThrow('database')`.
 
 ---
 

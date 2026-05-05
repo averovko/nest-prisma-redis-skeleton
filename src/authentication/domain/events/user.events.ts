@@ -10,6 +10,7 @@ export class UserRegisteredEvent extends BaseEvent<
   constructor(
     credentials: Credentials,
     firstName: string,
+    verificationToken: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_REGISTERED, params);
@@ -17,6 +18,7 @@ export class UserRegisteredEvent extends BaseEvent<
       authId: credentials.authId,
       email: credentials.email,
       firstName,
+      verificationToken,
     };
   }
 
@@ -72,11 +74,13 @@ export class UserPasswordChangedEvent extends BaseEvent<
 
   constructor(
     authId: string,
+    email: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_CHANGED, params);
     this.eventPayload = {
       authId,
+      email,
     };
   }
 
@@ -92,13 +96,14 @@ export class UserPasswordResetRequestedEvent extends BaseEvent<
 
   constructor(
     credentials: Credentials,
-    public readonly rawToken: string,
+    rawToken: string,
     params?: Omit<EventMetadata, 'version' | 'timestamp'>,
   ) {
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_REQUESTED, params);
     this.eventPayload = {
       authId: credentials.authId,
       email: credentials.email,
+      rawToken,
     };
   }
 
@@ -119,6 +124,7 @@ export class UserPasswordResetCompletedEvent extends BaseEvent<
     super(AuthenticationEventSchemas.USER_PASSWORD_RESET_COMPLETED, params);
     this.eventPayload = {
       authId: credentials.authId,
+      email: credentials.email,
     };
   }
 

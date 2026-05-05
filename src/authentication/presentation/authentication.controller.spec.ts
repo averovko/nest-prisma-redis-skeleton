@@ -8,6 +8,7 @@ import { LogoutUseCase } from '../application/use-cases/logout.use-case';
 import { ChangePasswordUseCase } from '../application/use-cases/change-password.use-case';
 import { InitiatePasswordResetUseCase } from '../application/use-cases/initiate-password-reset.use-case';
 import { ConfirmPasswordResetUseCase } from '../application/use-cases/confirm-password-reset.use-case';
+import { VerifyEmailUseCase } from '../application/use-cases/verify-email.use-case';
 import { mockTokenPair } from '../__fixtures__/auth.fixtures';
 import { AuthenticationController } from './authentication.controller';
 
@@ -20,6 +21,7 @@ describe('AuthenticationController', () => {
   let mockChangePasswordUseCase: jest.Mocked<ChangePasswordUseCase>;
   let mockInitiatePasswordResetUseCase: jest.Mocked<InitiatePasswordResetUseCase>;
   let mockConfirmPasswordResetUseCase: jest.Mocked<ConfirmPasswordResetUseCase>;
+  let mockVerifyEmailUseCase: jest.Mocked<VerifyEmailUseCase>;
 
   const buildMockAuthCtx = (authId = 'auth-id-1'): AuthCtx =>
     AuthCtx.forPerson({ authId }, { id: 'user-id-1', authId} as unknown as User);
@@ -32,6 +34,7 @@ describe('AuthenticationController', () => {
     mockChangePasswordUseCase = { execute: jest.fn() } as any;
     mockInitiatePasswordResetUseCase = { execute: jest.fn() } as any;
     mockConfirmPasswordResetUseCase = { execute: jest.fn() } as any;
+    mockVerifyEmailUseCase = { execute: jest.fn() } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthenticationController],
@@ -49,6 +52,7 @@ describe('AuthenticationController', () => {
           provide: ConfirmPasswordResetUseCase,
           useValue: mockConfirmPasswordResetUseCase,
         },
+        { provide: VerifyEmailUseCase, useValue: mockVerifyEmailUseCase },
       ],
     })
       .overrideGuard(AuthGuard)
@@ -164,6 +168,18 @@ describe('AuthenticationController', () => {
         inputBody,
         requestContext,
       );
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('executes VerifyEmailUseCase with the request body and returns output dto', async () => {
+      const inputBody = { token: 'verification-token' };
+      mockVerifyEmailUseCase.execute.mockResolvedValue({ status: 'ok' });
+
+      const actualResult = await controller.verifyEmail(inputBody);
+
+      expect(mockVerifyEmailUseCase.execute).toHaveBeenCalledWith(inputBody);
+      expect(actualResult).toEqual({ status: 'ok' });
     });
   });
 });

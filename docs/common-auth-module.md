@@ -843,6 +843,24 @@ HTTP Request: POST /authentication/register
   4. UseCase receives requestContext, publishes event with metadata = requestContext
 ```
 
+### Email Verification Route (`src/authentication`)
+
+`src/common/auth` does not implement this route directly, but request context and error/filter behavior still apply when `src/authentication` handles:
+
+```
+HTTP Request: POST /v1/authentication/verify-email
+Body: { "token": "<raw-token>" }
+
+  1. RequestContextMiddleware.use()
+     └─ req.requestContext = { ipAddress, userAgent, device, client, os }
+  2. Controller delegates to VerifyEmailUseCase
+  3. UseCase hashes token, checks EmailVerificationToken repository
+  4. If token is valid and not expired:
+     ├─ mark credentials as verified
+     └─ delete verification tokens for that credentialsId
+  5. Return 200 with { "status": "ok" } (idempotent contract)
+```
+
 ### Optional Auth Route
 
 ```

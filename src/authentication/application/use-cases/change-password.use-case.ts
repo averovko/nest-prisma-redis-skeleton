@@ -44,6 +44,6 @@ export class ChangePasswordUseCase {
         newPasswordHash,
       );
     const eventParams = requestContext ? { metadata: requestContext } : undefined;
-    await this.eventBus.publish(new UserPasswordChangedEvent(authId, eventParams));
+    await this.eventBus.publish(new UserPasswordChangedEvent(authId, credentials.email, eventParams));
   }
 }

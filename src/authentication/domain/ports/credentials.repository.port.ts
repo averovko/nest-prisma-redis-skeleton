@@ -18,4 +18,5 @@ export interface CredentialsRepositoryPort {
     authId: string,
     newPasswordHash: string,
   ): Promise<Credentials>;
+  markAsVerified(authId: string): Promise<Credentials>;
 }

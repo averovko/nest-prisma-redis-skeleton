@@ -15,6 +15,7 @@ import { EVENT_BUS_TOKEN } from '../src/common/event-manager';
 import { CREDENTIALS_REPOSITORY } from '../src/authentication/domain/ports/credentials.repository.port';
 import { REFRESH_TOKEN_REPOSITORY } from '../src/authentication/domain/ports/refresh-token.repository.port';
 import { PASSWORD_RESET_TOKEN_REPOSITORY } from '../src/authentication/domain/ports/password-reset-token.repository.port';
+import { EMAIL_VERIFICATION_TOKEN_REPOSITORY } from 'src/authentication/domain/ports/email-verification-token.repository.port';
 import { PASSWORD_HASHER_PORT } from '../src/authentication/domain/ports/password-hasher.port';
 import { TOKEN_ISSUER_PORT } from '../src/authentication/domain/ports/token-issuer.port';
 import { RegisterUseCase } from '../src/authentication/application/use-cases/register.use-case';
@@ -24,6 +25,7 @@ import { LogoutUseCase } from '../src/authentication/application/use-cases/logou
 import { ChangePasswordUseCase } from '../src/authentication/application/use-cases/change-password.use-case';
 import { InitiatePasswordResetUseCase } from '../src/authentication/application/use-cases/initiate-password-reset.use-case';
 import { ConfirmPasswordResetUseCase } from '../src/authentication/application/use-cases/confirm-password-reset.use-case';
+import { VerifyEmailUseCase } from '../src/authentication/application/use-cases/verify-email.use-case';
 import { AuthenticationController } from '../src/authentication/presentation/authentication.controller';
 import { AuthenticationErrorCode } from '../src/authentication/domain/errors/authentication.error-codes';
 
@@ -89,6 +91,7 @@ describe('AuthenticationController (e2e)', () => {
   let mockCredentialsRepo: jest.Mocked<any>;
   let mockRefreshTokenRepo: jest.Mocked<any>;
   let mockPasswordResetTokenRepo: jest.Mocked<any>;
+  let mockEmailVerificationTokenRepo: jest.Mocked<any>;
   let mockPasswordHasher: jest.Mocked<any>;
   let mockTokenIssuer: jest.Mocked<any>;
   let mockEventBus: jest.Mocked<any>;
@@ -101,6 +104,7 @@ describe('AuthenticationController (e2e)', () => {
       findByAuthId: jest.fn(),
       existsByEmail: jest.fn(),
       updatePasswordHash: jest.fn(),
+      markAsVerified: jest.fn(),
     };
     mockRefreshTokenRepo = {
       create: jest.fn(),
@@ -109,6 +113,12 @@ describe('AuthenticationController (e2e)', () => {
       deleteAllByCredentialsId: jest.fn(),
     };
     mockPasswordResetTokenRepo = {
+      create: jest.fn(),
+      findByHash: jest.fn(),
+      deleteById: jest.fn(),
+      deleteAllByCredentialsId: jest.fn(),
+    };
+    mockEmailVerificationTokenRepo = {
       create: jest.fn(),
       findByHash: jest.fn(),
       deleteById: jest.fn(),
@@ -137,11 +147,16 @@ describe('AuthenticationController (e2e)', () => {
         ChangePasswordUseCase,
         InitiatePasswordResetUseCase,
         ConfirmPasswordResetUseCase,
+        VerifyEmailUseCase,
         { provide: CREDENTIALS_REPOSITORY, useValue: mockCredentialsRepo },
         { provide: REFRESH_TOKEN_REPOSITORY, useValue: mockRefreshTokenRepo },
         {
           provide: PASSWORD_RESET_TOKEN_REPOSITORY,
           useValue: mockPasswordResetTokenRepo,
+        },
+        {
+          provide: EMAIL_VERIFICATION_TOKEN_REPOSITORY,
+          useValue: mockEmailVerificationTokenRepo,
         },
         { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
         { provide: TOKEN_ISSUER_PORT, useValue: mockTokenIssuer },
@@ -179,6 +194,9 @@ describe('AuthenticationController (e2e)', () => {
     );
     mockPasswordResetTokenRepo.create.mockResolvedValue(buildMockResetToken());
     mockRefreshTokenRepo.deleteAllByCredentialsId.mockResolvedValue(undefined);
+    mockCredentialsRepo.markAsVerified.mockResolvedValue(
+      buildMockCredentials({ isVerified: true }),
+    );
   });
 
   describe('POST /v1/authentication/register', () => {
@@ -543,6 +561,79 @@ describe('AuthenticationController (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/v1/authentication/reset-password/confirm')
         .send({ newPassword: 'NewStrongPass99!' });
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('POST /v1/authentication/verify-email', () => {
+    it('returns 200 on valid non-expired verification token', async () => {
+      const inputRawToken = 'valid-verification-token';
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
+      const tokenEntry = {
+        id: 'e2e-evt-id-1',
+        credentialsId: TEST_CREDENTIALS_ID,
+        tokenHash: expectedHash,
+        expiresAt: new Date(Date.now() + 3_600_000),
+        createdAt: new Date('2024-01-01'),
+      };
+      mockEmailVerificationTokenRepo.findByHash.mockResolvedValue(tokenEntry);
+      mockCredentialsRepo.findById.mockResolvedValue(buildMockCredentials());
+      mockEmailVerificationTokenRepo.deleteAllByCredentialsId.mockResolvedValue(
+        undefined,
+      );
+
+      const response = await request(app.getHttpServer())
+        .post('/v1/authentication/verify-email')
+        .send({ token: inputRawToken });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ status: 'ok' });
+    });
+
+    it('returns 200 for unknown token (idempotent)', async () => {
+      mockEmailVerificationTokenRepo.findByHash.mockResolvedValue(null);
+
+      const response = await request(app.getHttpServer())
+        .post('/v1/authentication/verify-email')
+        .send({ token: 'unknown-verification-token' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ status: 'ok' });
+    });
+
+    it('returns 200 for expired token and deletes token entry', async () => {
+      const inputRawToken = 'expired-verification-token';
+      const expectedHash = createHash('sha256')
+        .update(inputRawToken)
+        .digest('hex');
+      const tokenEntry = {
+        id: 'e2e-evt-id-expired',
+        credentialsId: TEST_CREDENTIALS_ID,
+        tokenHash: expectedHash,
+        expiresAt: new Date('2000-01-01'),
+        createdAt: new Date('2024-01-01'),
+      };
+      mockEmailVerificationTokenRepo.findByHash.mockResolvedValue(tokenEntry);
+      mockEmailVerificationTokenRepo.deleteById.mockResolvedValue(undefined);
+
+      const response = await request(app.getHttpServer())
+        .post('/v1/authentication/verify-email')
+        .send({ token: inputRawToken });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ status: 'ok' });
+      expect(mockEmailVerificationTokenRepo.deleteById).toHaveBeenCalledWith(
+        tokenEntry.id,
+      );
+    });
+
+    it('returns 400 when token field is missing', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/v1/authentication/verify-email')
+        .send({});
 
       expect(response.status).toBe(400);
     });
